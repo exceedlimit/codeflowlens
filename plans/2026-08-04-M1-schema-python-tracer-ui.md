@@ -191,8 +191,8 @@ def open_db(path: Path) -> sqlite3.Connection:
 
 **Test:** `tests/test_serialize.py`
 
-- [ ] **4-1. 실패 테스트** — 케이스: dict/list/str/int 그대로 JSON, dataclass·Pydantic류(`__dict__` 있는 객체)는 `{"__type__": "Order", ...필드}`, 직렬화 불가(소켓 등)는 `{"__repr__": "..."}`, 64KB 초과 문자열은 잘리고 `"...(truncated)"`로 끝남, 순환 참조여도 예외가 밖으로 절대 안 나감
-- [ ] **4-2. 구현** — 핵심:
+- [x] **4-1. 실패 테스트** — 케이스: dict/list/str/int 그대로 JSON, dataclass·Pydantic류(`__dict__` 있는 객체)는 `{"__type__": "Order", ...필드}`, 직렬화 불가(소켓 등)는 `{"__repr__": "..."}`, 64KB 초과 문자열은 잘리고 `"...(truncated)"`로 끝남, 순환 참조여도 예외가 밖으로 절대 안 나감
+- [x] **4-2. 구현** — 핵심:
 
 ```python
 def serialize_value(value, max_bytes=65536) -> str:
@@ -217,7 +217,7 @@ def serialize_args(frame_locals: dict, argnames: list, max_bytes=65536) -> str:
     # {인자명: 개별 serialize} — 인자 하나가 커도 다른 인자를 살린다
 ```
 
-- [ ] **4-3.** PASS → 커밋 `M1: 값 직렬화(fail-open, 크기 상한)`
+- [x] **4-3.** PASS → 커밋 `M1: 값 직렬화(fail-open, 크기 상한)`
 
 ### Task 5: 배치 Writer (db/writer.py)
 
