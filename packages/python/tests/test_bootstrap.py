@@ -66,6 +66,44 @@ def test_bootstrap_noop_without_env(tmp_path):
     assert not (tmp_path / ".flowlens").exists()
 
 
+def test_bootstrap_respects_value_max_bytes_setting(tmp_path):
+    """개요: 설정 화면에서 저장한 값 크기 상한이 추적에 반영되는지 검증한다."""
+    (tmp_path / "big_script.py").write_text(
+        "def eat(data):\n"
+        "    '''개요: 큰 값을 받는다.'''\n"
+        "    return len(data)\n"
+        "print(eat('x' * 50000))\n"
+    )
+    db_path = tmp_path / ".flowlens" / "data.db"
+    conn = open_db(db_path)
+    conn.execute("UPDATE settings SET value = '2000' WHERE key = 'value_max_bytes'")
+    conn.commit()
+    conn.close()
+
+    env = dict(
+        os.environ,
+        FLOWLENS_ENABLED="1",
+        FLOWLENS_DB=str(db_path),
+        FLOWLENS_PROJECT_ROOT=str(tmp_path),
+    )
+    code = "import flowlens.bootstrap as b; b.install(); import big_script"
+    proc = subprocess.run(
+        [sys.executable, "-c", code],
+        cwd=tmp_path, env=env, capture_output=True, text=True, timeout=30,
+    )
+    assert proc.returncode == 0, proc.stderr
+
+    conn = open_db(db_path)
+    try:
+        args = conn.execute(
+            "SELECT args_json FROM spans WHERE name='eat'"
+        ).fetchone()[0]
+        assert len(args.encode()) < 2300
+        assert "truncated" in args
+    finally:
+        conn.close()
+
+
 def test_bootstrap_never_breaks_app_on_bad_db(tmp_path):
     """개요: DB 경로가 못 쓰는 곳이어도 앱은 정상 실행되는지 검증한다(fail-open)."""
     (tmp_path / "demo_script.py").write_text(DEMO_SCRIPT)

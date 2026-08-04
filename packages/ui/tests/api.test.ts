@@ -12,6 +12,9 @@ const SCHEMA = readFileSync(
   "utf-8",
 );
 
+const T0 = Date.now() / 1000 - 60; // 정리 스케줄러에 지워지지 않는 최근 시각
+
+
 let dbPath: string;
 let server: Awaited<ReturnType<typeof buildServer>>;
 
@@ -20,11 +23,11 @@ function seed(path: string) {
   db.exec(SCHEMA);
   db.prepare(
     `INSERT INTO traces (id, started_at, ended_at, status, entry_kind, entry_name, http_method, http_path, http_status, service)
-     VALUES ('t1', 100.0, 100.5, 'ok', 'http', 'GET /orders', 'GET', '/orders', 200, 'python')`,
+     VALUES ('t1', ${T0}, ${T0 + 0.5}, 'ok', 'http', 'GET /orders', 'GET', '/orders', 200, 'python')`,
   ).run();
   db.prepare(
     `INSERT INTO traces (id, started_at, ended_at, status, entry_kind, entry_name, service)
-     VALUES ('t2', 200.0, 200.2, 'error', 'process', 'python demo.py', 'python')`,
+     VALUES ('t2', ${T0 + 100}, ${T0 + 100.2}, 'error', 'process', 'python demo.py', 'python')`,
   ).run();
   db.prepare(
     `INSERT INTO functions (id, language, file_path, qualified_name, line, doc_overview)
@@ -34,8 +37,8 @@ function seed(path: string) {
     `INSERT INTO spans (id, trace_id, parent_id, function_id, name, started_at, ended_at, status, args_json, return_json, seq)
      VALUES (?, 't1', ?, ?, ?, ?, ?, 'ok', '{}', 'null', ?)`,
   );
-  span.run("s1", null, "app.py::handler", "handler", 100.0, 100.4, 0);
-  span.run("s2", "s1", "app.py::helper", "helper", 100.1, 100.3, 1);
+  span.run("s1", null, "app.py::handler", "handler", T0, T0 + 0.4, 0);
+  span.run("s2", "s1", "app.py::helper", "helper", T0 + 0.1, T0 + 0.3, 1);
   db.close();
 }
 

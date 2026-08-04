@@ -12,6 +12,9 @@ const SCHEMA = readFileSync(
   "utf-8",
 );
 
+const T0 = Date.now() / 1000 - 60; // 정리 스케줄러에 지워지지 않는 최근 시각
+
+
 let server: Awaited<ReturnType<typeof buildServer>>;
 
 function seed(path: string) {
@@ -53,11 +56,11 @@ function seed(path: string) {
 
   db.prepare(
     `INSERT INTO traces (id, started_at, ended_at, status, entry_kind, entry_name)
-     VALUES ('t1', 100.0, 100.5, 'ok', 'http', 'POST /orders')`,
+     VALUES ('t1', ${T0}, ${T0 + 0.5}, 'ok', 'http', 'POST /orders')`,
   ).run();
   db.prepare(
     `INSERT INTO spans (id, trace_id, function_id, name, started_at, ended_at, status, seq)
-     VALUES ('s1', 't1', 'app/service.py::create_order', 'create_order', 100.0, 100.4, 'ok', 0)`,
+     VALUES ('s1', 't1', 'app/service.py::create_order', 'create_order', ${T0}, ${T0 + 0.4}, 'ok', 0)`,
   ).run();
   db.close();
 }
