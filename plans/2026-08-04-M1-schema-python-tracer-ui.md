@@ -297,8 +297,8 @@ class TraceSession:
 
 **Test:** `tests/test_run_cli.py`
 
-- [ ] **11-1. 실패 테스트**: `flowlens run python demo.py`를 subprocess로 실행 → (a) 자식이 정상 실행되고 종료코드 전파 (b) `.flowlens/data.db` 생성 + 트레이스 기록 (c) `flowlens run` 없이 `python demo.py`만 실행하면 DB 미생성(오버헤드 0 확인)
-- [ ] **11-2. 구현**:
+- [x] **11-1. 실패 테스트**: `flowlens run python demo.py`를 subprocess로 실행 → (a) 자식이 정상 실행되고 종료코드 전파 (b) `.flowlens/data.db` 생성 + 트레이스 기록 (c) `flowlens run` 없이 `python demo.py`만 실행하면 DB 미생성(오버헤드 0 확인)
+- [x] **11-2. 구현**:
 
 ```python
 def run_command(argv: list[str]) -> int:
@@ -310,7 +310,7 @@ def run_command(argv: list[str]) -> int:
     # paths.find_project_root(): cwd에서 위로 올라가며 pyproject.toml/.git/package.json 탐색, 없으면 cwd
 ```
 
-- [ ] **11-3.** PASS → 커밋 `M1: flowlens run CLI`
+- [x] **11-3.** PASS → 커밋 `M1: flowlens run CLI`
 
 ### Task 12: FastAPI 데모 앱 (examples/fastapi-demo)
 
