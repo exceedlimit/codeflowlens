@@ -231,9 +231,9 @@ def serialize_args(frame_locals: dict, argnames: list, max_bytes=65536) -> str:
 
 **Test:** `tests/test_filter.py`
 
-- [ ] **6-1. 실패 테스트**: 프로젝트 루트 아래 파일 → True. site-packages/dist-packages/표준 라이브러리(`sys.prefix`, `sys.base_prefix` 하위)/`<frozen ...>`/`<string>` → False. `.venv` 등 루트 안의 가상환경도 False. flowlens 자기 자신 False
-- [ ] **6-2. 구현**: `CodeFilter(project_root)` — `should_trace(filename) -> bool`, 결과 캐시(dict)
-- [ ] **6-3.** PASS → 커밋 `M1: 프로젝트 코드 필터`
+- [x] **6-1. 실패 테스트**: 프로젝트 루트 아래 파일 → True. site-packages/dist-packages/표준 라이브러리(`sys.prefix`, `sys.base_prefix` 하위)/`<frozen ...>`/`<string>` → False. `.venv` 등 루트 안의 가상환경도 False. flowlens 자기 자신 False
+- [x] **6-2. 구현**: `CodeFilter(project_root)` — `should_trace(filename) -> bool`, 결과 캐시(dict)
+- [x] **6-3.** PASS → 커밋 `M1: 프로젝트 코드 필터`
 
 ### Task 7: TraceSession + settrace 백엔드 (전 버전 동작)
 
