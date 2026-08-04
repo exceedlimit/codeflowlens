@@ -316,9 +316,9 @@ def run_command(argv: list[str]) -> int:
 
 **Files:** `examples/fastapi-demo/main.py`, `app/service.py`, `app/models.py`, `app/repo.py`, `requirements.txt`, `traffic.sh`
 
-- [ ] **12-1.** 재고/주문 도메인 데모 작성 — 엔드포인트 3개(`POST /orders`, `GET /orders/{id}`, `GET /inventory`), service→repo 2단 호출 구조, Pydantic 엔티티(Order, Stock), 일부러 에러 나는 엔드포인트 1개(`POST /orders`에 재고 부족 시 예외). **모든 함수/클래스에 PRD 6절 주석 룰 적용(개요/로직/참고, 파라미터)** — M2 파서 검증의 살아있는 픽스처가 된다
-- [ ] **12-2.** `flowlens run uvicorn main:app` + `traffic.sh`(curl 몇 발) 수동 실행 → `sqlite3 .flowlens/data.db 'SELECT entry_name, status FROM traces'`로 http 트레이스 확인
-- [ ] **12-3.** 커밋 `M1: FastAPI 데모 앱`
+- [x] **12-1.** 재고/주문 도메인 데모 작성 — 엔드포인트 3개(`POST /orders`, `GET /orders/{id}`, `GET /inventory`), service→repo 2단 호출 구조, Pydantic 엔티티(Order, Stock), 일부러 에러 나는 엔드포인트 1개(`POST /orders`에 재고 부족 시 예외). **모든 함수/클래스에 PRD 6절 주석 룰 적용(개요/로직/참고, 파라미터)** — M2 파서 검증의 살아있는 픽스처가 된다
+- [x] **12-2.** `flowlens run uvicorn main:app` + `traffic.sh`(curl 몇 발) 수동 실행 → `sqlite3 .flowlens/data.db 'SELECT entry_name, status FROM traces'`로 http 트레이스 확인
+- [x] **12-3.** 커밋 `M1: FastAPI 데모 앱`
 
 ### Task 13: UI 서버 API (packages/ui — Fastify)
 
