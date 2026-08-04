@@ -49,9 +49,9 @@ tests: test_docparse.py, test_pyscan.py, test_store.py, test_check.py, test_init
 
 ### Task 1: 주석 파서 (analyzer/docparse.py)
 
-- [ ] **1-1. 실패 테스트** `tests/test_docparse.py` — 케이스: (a) 라벨 3종 파싱 (b) 라벨 없는 한 줄 docstring → 개요로 (c) 영문 별칭 (d) `파라미터:` 필드 목록 파싱(`- name: desc`) (e) 여러 줄 값 이어붙임 (f) docstring 없음 → 전부 None (g) 라벨 순서 뒤섞여도 동작
-- [ ] **1-2. 구현** `parse_doc(docstring) -> ParsedDoc(overview, logic, note, fields: dict[str,str])`
-- [ ] **1-3.** PASS → 커밋 `M2: 주석 라벨 파서`
+- [x] **1-1. 실패 테스트** `tests/test_docparse.py` — 케이스: (a) 라벨 3종 파싱 (b) 라벨 없는 한 줄 docstring → 개요로 (c) 영문 별칭 (d) `파라미터:` 필드 목록 파싱(`- name: desc`) (e) 여러 줄 값 이어붙임 (f) docstring 없음 → 전부 None (g) 라벨 순서 뒤섞여도 동작
+- [x] **1-2. 구현** `parse_doc(docstring) -> ParsedDoc(overview, logic, note, fields: dict[str,str])`
+- [x] **1-3.** PASS → 커밋 `M2: 주석 라벨 파서`
 
 ### Task 2: ast 스캐너 (analyzer/pyscan.py)
 
