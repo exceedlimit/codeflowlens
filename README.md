@@ -9,6 +9,10 @@
 ## 빠른 시작
 
 ```bash
+# 0) Node/TS 프로젝트라면 (npm 패키지)
+cd packages/node && npm install && npm run build
+node dist/cli.js run node server.ts     # 추적 실행 (scan/check도 동일 CLI)
+
 # 1) Python 추적기 설치 (저장소 루트에서)
 pip install -e packages/python
 

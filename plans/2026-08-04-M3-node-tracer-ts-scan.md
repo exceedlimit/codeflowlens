@@ -86,9 +86,9 @@ examples/express-demo/    # 재고/주문 Express 앱 (주석 룰 적용, CJS �
 - [x] 8-3. cli.ts에 scan/check 연결(파이썬 check와 동일 판정 룰) → 커밋
 
 ### Task 9: Express 데모 + E2E
-- [ ] 9-1. examples/express-demo(재고/주문, ESM, 주석 룰 적용) 작성
-- [ ] 9-2. `flowlens run node server.js` → traffic → scan → UI 3화면 브라우저 확인(스크린샷) — M1·M2 동등 확인
-- [ ] 9-3. 문제 수정 + README 갱신 → 커밋 `M3: E2E 검증 완료`
+- [x] 9-1. examples/express-demo(재고/주문, ESM, 주석 룰 적용) 작성
+- [x] 9-2. `flowlens run node server.js` → traffic → scan → UI 3화면 브라우저 확인(스크린샷) — M1·M2 동등 확인
+- [x] 9-3. 문제 수정 + README 갱신 → 커밋 `M3: E2E 검증 완료`
 
 ---
 
