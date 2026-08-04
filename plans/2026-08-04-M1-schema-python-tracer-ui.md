@@ -335,32 +335,32 @@ def run_command(argv: list[str]) -> int:
 
 **Files:** `packages/ui/src/web/` (Vite React TS 앱: `main.tsx`, `App.tsx`, `pages/TraceList.tsx`, `api.ts`)
 
-- [x] **- [ ] **14-1.** Vite 앱 뼈대 + react-router (`/` 목록, `/traces/:id` 상세). **화면 작업 시작 전 dataviz 스킬 로드**(시간 바/상태 색상 규칙 준수)
-- [x] **- [ ] **14-2.** 목록 페이지: 테이블(시각, 진입점, 소요시간, 스팬 수, 상태 배지), 2초 폴링, 검색창(`?q=`), 행 클릭 → 상세 이동. 로딩/빈 상태("아직 기록이 없어요 — flowlens run으로 앱을 실행하세요") 처리
-- [x] **- [ ] **14-3.** dev 프록시(`/api` → 7411)로 데모 데이터 눈 확인 → 커밋 `M1: 트레이스 목록 화면`
+- [x] **14-1.** Vite 앱 뼈대 + react-router (`/` 목록, `/traces/:id` 상세). **화면 작업 시작 전 dataviz 스킬 로드**(시간 바/상태 색상 규칙 준수)
+- [x] **14-2.** 목록 페이지: 테이블(시각, 진입점, 소요시간, 스팬 수, 상태 배지), 2초 폴링, 검색창(`?q=`), 행 클릭 → 상세 이동. 로딩/빈 상태("아직 기록이 없어요 — flowlens run으로 앱을 실행하세요") 처리
+- [x] **14-3.** dev 프록시(`/api` → 7411)로 데모 데이터 눈 확인 → 커밋 `M1: 트레이스 목록 화면`
 
 ### Task 15: React 화면 — 트레이스 상세(호출 트리)
 
 **Files:** `pages/TraceDetail.tsx`, `components/SpanTree.tsx`, `components/SpanPanel.tsx`
 
-- [x] **- [ ] **15-1.** `buildTree(spans)` 유틸 + vitest: parent_id 기반 트리 조립, seq 정렬, 고아 스팬(parent 유실)은 루트로 (**실패 테스트 먼저**)
-- [x] **- [ ] **15-2.** 트리 뷰: 들여쓰기 + 접기/펼치기 + 함수명 + 소요시간 바(트레이스 전체 대비 비율) + 에러 스팬 강조. 노드 클릭 → 우측 패널: 주석(개요/로직/참고 — M2 전이면 "주석 없음"), 파라미터/리턴값 JSON 펼침 뷰, 에러 스택
-- [x] **- [ ] **15-3.** 데모 데이터로 눈 확인 → 커밋 `M1: 트레이스 상세(호출 트리) 화면`
+- [x] **15-1.** `buildTree(spans)` 유틸 + vitest: parent_id 기반 트리 조립, seq 정렬, 고아 스팬(parent 유실)은 루트로 (**실패 테스트 먼저**)
+- [x] **15-2.** 트리 뷰: 들여쓰기 + 접기/펼치기 + 함수명 + 소요시간 바(트레이스 전체 대비 비율) + 에러 스팬 강조. 노드 클릭 → 우측 패널: 주석(개요/로직/참고 — M2 전이면 "주석 없음"), 파라미터/리턴값 JSON 펼침 뷰, 에러 스택
+- [x] **15-3.** 데모 데이터로 눈 확인 → 커밋 `M1: 트레이스 상세(호출 트리) 화면`
 
 ### Task 16: UI 패키징 (npx 실행)
 
 **Files:** `src/server/cli.ts`, package.json `bin` 필드, 빌드 스크립트
 
-- [x] **- [ ] **16-1.** `npm run build` = Vite 빌드(web → dist/web) + 서버 tsc(→ dist/server). 서버가 dist/web 정적 서빙 + SPA fallback
-- [x] **- [ ] **16-2.** `package.json`: `"bin": {"flowlens-ui": "dist/server/cli.js"}` — `node dist/server/cli.js --db ... --port ...`로 기동 확인, 브라우저 접속 확인
-- [x] **- [ ] **16-3.** 커밋 `M1: UI 패키징(npx flowlens-ui)`
+- [x] **16-1.** `npm run build` = Vite 빌드(web → dist/web) + 서버 tsc(→ dist/server). 서버가 dist/web 정적 서빙 + SPA fallback
+- [x] **16-2.** `package.json`: `"bin": {"flowlens-ui": "dist/server/cli.js"}` — `node dist/server/cli.js --db ... --port ...`로 기동 확인, 브라우저 접속 확인
+- [x] **16-3.** 커밋 `M1: UI 패키징(npx flowlens-ui)`
 
 ### Task 17: M1 E2E 검증 (완료 기준 확인)
 
-- [x] **- [ ] **17-1.** 순서대로: 데모 앱을 `flowlens run uvicorn main:app --port 8000`으로 기동 → `traffic.sh` → `flowlens-ui` 기동 → `/api/traces`에 http 트레이스·에러 트레이스 존재, `/api/traces/:id`에 service→repo 호출 트리와 args/return 값 확인 (curl + 브라우저 스크린샷)
-- [x] **- [ ] **17-2.** 발견된 문제 수정(각각 실패 테스트 추가 후 수정) → 커밋
-- [x] **- [ ] **17-3.** README.md(저장소 루트): 설치~실행 빠른 시작 작성 → 커밋 `M1: E2E 검증 완료 + 빠른 시작 문서`
-- [x] **- [ ] **17-4.** Task #1(할일 목록) 완료 처리, M2 계획 작성으로 이동
+- [x] **17-1.** 순서대로: 데모 앱을 `flowlens run uvicorn main:app --port 8000`으로 기동 → `traffic.sh` → `flowlens-ui` 기동 → `/api/traces`에 http 트레이스·에러 트레이스 존재, `/api/traces/:id`에 service→repo 호출 트리와 args/return 값 확인 (curl + 브라우저 스크린샷)
+- [x] **17-2.** 발견된 문제 수정(각각 실패 테스트 추가 후 수정) → 커밋
+- [x] **17-3.** README.md(저장소 루트): 설치~실행 빠른 시작 작성 → 커밋 `M1: E2E 검증 완료 + 빠른 시작 문서`
+- [x] **17-4.** Task #1(할일 목록) 완료 처리, M2 계획 작성으로 이동
 
 ---
 
