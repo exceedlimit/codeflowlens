@@ -27,11 +27,11 @@
 - [x] 2-2. 구현(빌드된 browser 스크립트 읽어 인라인) + exports 추가 → PASS → 커밋 `M4: Vite 플러그인`
 
 ### Task 3: UI 서버 수집 엔드포인트 + 연결 표시 API
-- [ ] 3-1. 실패 테스트: POST /api/client-events(text/plain JSON) → client_events 행 저장·CORS 헤더, DB 없으면 200 + 무시. GET /api/traces/:id 응답에 client_event(page_url 등) 조인 포함. 목록 응답에 client_trace_id 유무
-- [ ] 3-2. 구현(쓰기 연결) → PASS → 커밋 `M4: 수집 엔드포인트 + 조인`
+- [x] 3-1. 실패 테스트: POST /api/client-events(text/plain JSON) → client_events 행 저장·CORS 헤더, DB 없으면 200 + 무시. GET /api/traces/:id 응답에 client_event(page_url 등) 조인 포함. 목록 응답에 client_trace_id 유무
+- [x] 3-2. 구현(쓰기 연결) → PASS → 커밋 `M4: 수집 엔드포인트 + 조인`
 
 ### Task 4: UI 화면 연결 표시
-- [ ] 4-1. TraceDetail 헤더에 "🌐 <페이지 경로>에서 발생 (프론트 소요 Xms)" 표시, TraceList에 출처 표시 → 빌드 → 커밋 `M4: 프론트 출처 표시`
+- [x] 4-1. TraceDetail 헤더에 "🌐 <페이지 경로>에서 발생 (프론트 소요 Xms)" 표시, TraceList에 출처 표시 → 빌드 → 커밋 `M4: 프론트 출처 표시`
 
 ### Task 5: React 데모 + E2E
 - [ ] 5-1. examples/react-demo: Vite+React, 버튼 3개(재고 조회/주문/재고부족 주문), vite proxy → express-demo(8300), vite.config에 flowlensDev() 1줄
