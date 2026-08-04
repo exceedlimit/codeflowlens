@@ -52,20 +52,20 @@ examples/express-demo/    # 재고/주문 Express 앱 (주석 룰 적용, CJS �
 ---
 
 ### Task 1: 패키지 뼈대 + 스키마 동기화
-- [ ] 1-1. package.json(deps: @babel/core, better-sqlite3, ts-morph; bin flowlens→dist/cli.js), tsup 빌드, vitest, 스키마 사본 + 동기화 테스트
-- [ ] 1-2. 커밋 `M3: Node 패키지 뼈대`
+- [x] 1-1. package.json(deps: @babel/core, better-sqlite3, ts-morph; bin flowlens→dist/cli.js), tsup 빌드, vitest, 스키마 사본 + 동기화 테스트
+- [x] 1-2. 커밋 `M3: Node 패키지 뼈대`
 
 ### Task 2: 직렬화 + 필터
-- [ ] 2-1. 실패 테스트: serialize(기본형/객체→__type__/순환→fail-open/64KB 상한), filter(루트 하위 true, node_modules/파생 폴더 false, 지원 확장자만)
-- [ ] 2-2. 구현 → PASS → 커밋 `M3: 직렬화+필터`
+- [x] 2-1. 실패 테스트: serialize(기본형/객체→__type__/순환→fail-open/64KB 상한), filter(루트 하위 true, node_modules/파생 폴더 false, 지원 확장자만)
+- [x] 2-2. 구현 → PASS → 커밋 `M3: 직렬화+필터`
 
 ### Task 3: writer (better-sqlite3 배치)
-- [ ] 3-1. 실패 테스트: trace/span/edge 기록, flush 주기, close 시 잔여 flush, 나쁜 행 무시
-- [ ] 3-2. 구현(파이썬 writer와 동일 인터페이스) → PASS → 커밋 `M3: writer`
+- [x] 3-1. 실패 테스트: trace/span/edge 기록, flush 주기, close 시 잔여 flush, 나쁜 행 무시
+- [x] 3-2. 구현(파이썬 writer와 동일 인터페이스) → PASS → 커밋 `M3: writer`
 
 ### Task 4: 런타임 (wrap + ALS 부모 추적)
-- [ ] 4-1. 실패 테스트(계측 없이 runtime 직접 호출): 동기 중첩 wrap → 부모/자식 스팬, async wrap 체인 → await 뒤 호출도 부모 정확, 예외 → error 스팬 + 재던짐, runtime_edge 기록
-- [ ] 4-2. 구현: initRuntime(env) → globalThis.__flowlens = {wrap}, 프로세스 트레이스 시작, exit 훅 → PASS → 커밋 `M3: 런타임`
+- [x] 4-1. 실패 테스트(계측 없이 runtime 직접 호출): 동기 중첩 wrap → 부모/자식 스팬, async wrap 체인 → await 뒤 호출도 부모 정확, 예외 → error 스팬 + 재던짐, runtime_edge 기록
+- [x] 4-2. 구현: initRuntime(env) → globalThis.__flowlens = {wrap}, 프로세스 트레이스 시작, exit 훅 → PASS → 커밋 `M3: 런타임`
 
 ### Task 5: 바벨 계측 변환
 - [ ] 5-1. 실패 테스트: 샘플 소스 instrument() 후 (a) 코드에 __flowlens.wrap 포함 (b) new Function/vm으로 실행하면 스팬 트리 정확 (c) 함수선언/화살표/메서드/async 모두 계측 (d) 제너레이터는 원본 유지 (e) 파싱 실패 소스는 원본 그대로 반환(fail-open)

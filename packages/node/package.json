@@ -1,0 +1,30 @@
+{
+  "name": "@flowlens/node",
+  "version": "0.1.0",
+  "description": "FlowLens Node 추적기 — 코드 수정 0으로 함수 호출 흐름을 기록 (모듈 로드 시점 메모리 계측)",
+  "type": "module",
+  "bin": {
+    "flowlens": "dist/cli.js"
+  },
+  "exports": {
+    "./register": "./dist/register.mjs",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@babel/core": "^7.26.0",
+    "better-sqlite3": "^12.0.0",
+    "ts-morph": "^24.0.0"
+  },
+  "devDependencies": {
+    "@types/babel__core": "^7.20.0",
+    "@types/better-sqlite3": "^7.6.0",
+    "@types/node": "^22.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.6.0",
+    "vitest": "^3.0.0"
+  }
+}
