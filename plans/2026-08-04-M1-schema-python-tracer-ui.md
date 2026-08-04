@@ -324,12 +324,12 @@ def run_command(argv: list[str]) -> int:
 
 **Files:** `packages/ui/package.json`, `tsconfig.json`, `src/server/{index,api,db}.ts` · **Test:** `tests/api.test.ts` (vitest)
 
-- [ ] **13-1. 실패 테스트**: 픽스처 DB(테스트에서 스키마+가짜 트레이스 2개 생성) 대상 —
+- [x] **13-1. 실패 테스트**: 픽스처 DB(테스트에서 스키마+가짜 트레이스 2개 생성) 대상 —
   - `GET /api/traces` → 최신순, `span_count`/`duration_ms` 포함, `?q=`로 entry_name 부분검색
   - `GET /api/traces/:id` → trace + spans(seq 순) + functions 조인으로 `doc_overview` 포함(M2 전이라 NULL 허용)
   - `GET /api/health` → `{ok: true, db: <path>}`
-- [ ] **13-2. 구현**: better-sqlite3 readonly 연결, Fastify 라우트. 서버 옵션: `--db`(기본 `./.flowlens/data.db`), `--port`(기본 7411)
-- [ ] **13-3.** PASS → 커밋 `M1: UI 서버 API(트레이스 목록/상세)`
+- [x] **13-2. 구현**: better-sqlite3 readonly 연결, Fastify 라우트. 서버 옵션: `--db`(기본 `./.flowlens/data.db`), `--port`(기본 7411)
+- [x] **13-3.** PASS → 커밋 `M1: UI 서버 API(트레이스 목록/상세)`
 
 ### Task 14: React 화면 — 트레이스 목록
 
