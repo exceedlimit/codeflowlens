@@ -67,9 +67,9 @@ tests: test_docparse.py, test_pyscan.py, test_store.py, test_check.py, test_init
 
 ### Task 4: check CLI
 
-- [ ] **4-1. 실패 테스트** `tests/test_check.py` — 위반 목록(함수: 개요/로직 누락, 엔티티: 파라미터 설명 누락), `_`헬퍼·테스트 파일 완화 룰, 전부 준수 시 exit 0 + "통과" 출력, 위반 시 exit 1
-- [ ] **4-2. 구현** `flowlens check` (스캔 후 판정, --json 옵션으로 에이전트 소비용 출력)
-- [ ] **4-3.** PASS → 커밋 `M2: check(주석 룰 검사기)`
+- [x] **4-1. 실패 테스트** `tests/test_check.py` — 위반 목록(함수: 개요/로직 누락, 엔티티: 파라미터 설명 누락), `_`헬퍼·테스트 파일 완화 룰, 전부 준수 시 exit 0 + "통과" 출력, 위반 시 exit 1
+- [x] **4-2. 구현** `flowlens check` (스캔 후 판정, --json 옵션으로 에이전트 소비용 출력)
+- [x] **4-3.** PASS → 커밋 `M2: check(주석 룰 검사기)`
 
 ### Task 5: init CLI + 룰 템플릿
 
