@@ -49,6 +49,22 @@ def test_run_propagates_exit_code(tmp_path):
     assert proc.returncode == 3
 
 
+def test_run_injects_node_options_when_node_tracer_installed(tmp_path):
+    """개요: 프로젝트에 @flowlens/node가 있으면 NODE_OPTIONS가 주입되는지 검증한다(풀스택 run)."""
+    register = tmp_path / "node_modules" / "@flowlens" / "node" / "dist" / "register.mjs"
+    register.parent.mkdir(parents=True)
+    register.write_text("// stub")
+    (tmp_path / "show_env.py").write_text(
+        "import os; print(os.environ.get('NODE_OPTIONS', ''))"
+    )
+    proc = subprocess.run(
+        [str(FLOWLENS_BIN), "run", sys.executable, "show_env.py"],
+        cwd=tmp_path, capture_output=True, text=True, timeout=60,
+    )
+    assert proc.returncode == 0, proc.stderr
+    assert "register.mjs" in proc.stdout
+
+
 def test_plain_run_creates_nothing(tmp_path):
     """개요: flowlens run 없이 실행하면 아무 흔적도 없는지 검증한다(오버헤드 0)."""
     (tmp_path / "demo.py").write_text(DEMO)

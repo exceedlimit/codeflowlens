@@ -39,6 +39,15 @@ def run_command(argv) -> int:
         existing = env.get("PYTHONPATH", "")
         env["PYTHONPATH"] = boot_dir + (os.pathsep + existing if existing else "")
 
+        # 풀스택 프로젝트: Node 추적기가 설치돼 있으면 자식 Node 프로세스도 추적된다
+        node_register = (
+            root / "node_modules" / "@flowlens" / "node" / "dist" / "register.mjs"
+        )
+        if node_register.exists():
+            node_opt = f"--import {node_register.as_uri()}"
+            prev = env.get("NODE_OPTIONS", "")
+            env["NODE_OPTIONS"] = f"{prev} {node_opt}".strip()
+
         proc = subprocess.Popen(argv, env=env)
 
         def forward(signum, _frame):
