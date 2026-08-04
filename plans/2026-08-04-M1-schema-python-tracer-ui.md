@@ -281,9 +281,9 @@ class TraceSession:
 
 **Test:** `tests/test_bootstrap.py` (subprocess 통합 테스트)
 
-- [ ] **9-1. 실패 테스트**: 환경변수(`FLOWLENS_ENABLED=1, FLOWLENS_DB, FLOWLENS_PROJECT_ROOT`) 세팅 후 `python -c "import flowlens.bootstrap; flowlens.bootstrap.install(); import demo_script"` 실행 → DB에 entry_kind='process' 트레이스 1개 + demo_script의 함수 스팬들 존재, 프로세스 정상 종료 시 trace status='ok'
-- [ ] **9-2. 구현**: env 읽기 → writer/filter/session 구성 → 백엔드 설치 → atexit에 trace_end+close 등록. env 없거나 오류면 **조용히 no-op**
-- [ ] **9-3.** PASS → 커밋 `M1: bootstrap(환경변수 기반 설치)`
+- [x] **9-1. 실패 테스트**: 환경변수(`FLOWLENS_ENABLED=1, FLOWLENS_DB, FLOWLENS_PROJECT_ROOT`) 세팅 후 `python -c "import flowlens.bootstrap; flowlens.bootstrap.install(); import demo_script"` 실행 → DB에 entry_kind='process' 트레이스 1개 + demo_script의 함수 스팬들 존재, 프로세스 정상 종료 시 trace status='ok'
+- [x] **9-2. 구현**: env 읽기 → writer/filter/session 구성 → 백엔드 설치 → atexit에 trace_end+close 등록. env 없거나 오류면 **조용히 no-op**
+- [x] **9-3.** PASS → 커밋 `M1: bootstrap(환경변수 기반 설치)`
 
 ### Task 10: FastAPI/Starlette 요청 그룹핑 (tracer/asgi.py)
 
