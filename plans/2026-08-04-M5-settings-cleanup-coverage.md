@@ -16,14 +16,14 @@
 - [x] 2-1. Python bootstrap이 DB settings의 value_max_bytes를 읽어 세션에 적용(+test), Node register 동일(+test) → 커밋 `M5: 값 상한 설정 반영`
 
 ### Task 3: 설정 화면 (⑤)
-- [ ] 3-1. SettingsPage: 보존 주기(일)·값 크기 상한(KB) 입력 + 저장 + 안내문("실행 기록만 정리, 코드맵 유지"). 내비에 '설정' 추가 → 빌드·눈 확인 → 커밋 `M5: 설정 화면`
+- [x] 3-1. SettingsPage: 보존 주기(일)·값 크기 상한(KB) 입력 + 저장 + 안내문("실행 기록만 정리, 코드맵 유지"). 내비에 '설정' 추가 → 빌드·눈 확인 → 커밋 `M5: 설정 화면`
 
 ### Task 4: 주석 커버리지 대시보드
-- [ ] 4-1. 실패 테스트: GET /api/coverage — 언어별 {functions, documented, coverage}, 미주석 함수 목록(파일별 그룹, 최대 100)
-- [ ] 4-2. CoveragePage: 커버리지 스탯 타일 + 미주석 목록(관계도 링크) + "에이전트에게 시키기" 안내(retrofit) → 커밋 `M5: 커버리지 대시보드`
+- [x] 4-1. 실패 테스트: GET /api/coverage — 언어별 {functions, documented, coverage}, 미주석 함수 목록(파일별 그룹, 최대 100)
+- [x] 4-2. CoveragePage: 커버리지 스탯 타일 + 미주석 목록(관계도 링크) + "에이전트에게 시키기" 안내(retrofit) → 커밋 `M5: 커버리지 대시보드`
 
 ### Task 5: 엔티티 관계도 뷰
-- [ ] 5-1. EntitiesPage에 전체 엔티티 그래프(React Flow, entity_relations 기반) 토글 추가 → 눈 확인 → 커밋 `M5: 엔티티 관계도`
+- [x] 5-1. EntitiesPage에 전체 엔티티 그래프(React Flow, entity_relations 기반) 토글 추가 → 눈 확인 → 커밋 `M5: 엔티티 관계도`
 
 ### Task 6: 실전 프로젝트 검증
 - [ ] 6-1. 실전 프로젝트 A: 구조 파악 → init(--lang 자동) → scan/check → UI 3+2화면 확인(실행 가능하면 flowlens run으로 트래픽까지)

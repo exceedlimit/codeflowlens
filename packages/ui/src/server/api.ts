@@ -171,7 +171,7 @@ export async function buildServer(opts: ServerOptions): Promise<FastifyInstance>
 
   app.get("/api/entities", async () => {
     const db = handle.get();
-    if (!db) return { entities: [] };
+    if (!db) return { entities: [], relations: [] };
     const entities = db
       .prepare(
         `SELECT e.*,
@@ -180,7 +180,32 @@ export async function buildServer(opts: ServerOptions): Promise<FastifyInstance>
          FROM entities e ORDER BY e.name`,
       )
       .all();
-    return { entities };
+    const relations = db.prepare("SELECT from_id, to_id, kind FROM entity_relations").all();
+    return { entities, relations };
+  });
+
+  app.get("/api/coverage", async () => {
+    const db = handle.get();
+    if (!db) return { languages: [], undocumented: [] };
+    const languages = (db
+      .prepare(
+        `SELECT language, COUNT(*) AS total,
+                SUM(CASE WHEN doc_overview IS NOT NULL THEN 1 ELSE 0 END) AS documented
+         FROM functions GROUP BY language`,
+      )
+      .all() as { language: string; total: number; documented: number }[])
+      .map((l) => ({
+        ...l,
+        coverage: l.total ? Math.round((l.documented / l.total) * 1000) / 10 : 100,
+      }));
+    const undocumented = db
+      .prepare(
+        `SELECT id, language, file_path, qualified_name, line
+         FROM functions WHERE doc_overview IS NULL
+         ORDER BY file_path, line LIMIT 100`,
+      )
+      .all();
+    return { languages, undocumented };
   });
 
   app.get<{ Querystring: { id: string } }>(
