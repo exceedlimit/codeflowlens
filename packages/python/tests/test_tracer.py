@@ -27,7 +27,7 @@ def _make_backend(name, session):
     return MonitoringBackend(session)
 
 
-@pytest.fixture(params=["settrace"])  # Task 8에서 "monitoring" 추가
+@pytest.fixture(params=["settrace", "monitoring"])
 def backend_name(request):
     return request.param
 

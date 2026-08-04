@@ -273,9 +273,9 @@ class TraceSession:
 
 **Files:** `tracer/backend_monitoring.py`, `tracer/__init__.py`(백엔드 자동 선택) · **Test:** Task 7 테스트를 두 백엔드로 파라미터라이즈
 
-- [ ] **8-1.** `pytest.fixture(params=["settrace", "monitoring"])`로 기존 테스트 재사용 (3.12 미만이면 monitoring skip)
-- [ ] **8-2. 구현**: `sys.monitoring.use_tool_id(5, "flowlens")`, PY_START/PY_RETURN/PY_UNWIND 등록. PY_START 콜백에서 `sys._getframe(1)`로 대상 frame 획득, 비프로젝트 코드는 `sys.monitoring.DISABLE` 반환(코드객체 단위 영구 차단 → 저오버헤드). `select_backend()`: 3.12+ → monitoring, 아니면 settrace
-- [ ] **8-3.** PASS → 커밋 `M1: sys.monitoring 백엔드 + 자동 선택`
+- [x] **8-1.** `pytest.fixture(params=["settrace", "monitoring"])`로 기존 테스트 재사용 (3.12 미만이면 monitoring skip)
+- [x] **8-2. 구현**: `sys.monitoring.use_tool_id(5, "flowlens")`, PY_START/PY_RETURN/PY_UNWIND 등록. PY_START 콜백에서 `sys._getframe(1)`로 대상 frame 획득, 비프로젝트 코드는 `sys.monitoring.DISABLE` 반환(코드객체 단위 영구 차단 → 저오버헤드). `select_backend()`: 3.12+ → monitoring, 아니면 settrace
+- [x] **8-3.** PASS → 커밋 `M1: sys.monitoring 백엔드 + 자동 선택`
 
 ### Task 9: 프로세스 트레이스 통합 (bootstrap.py)
 
