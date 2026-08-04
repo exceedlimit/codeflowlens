@@ -223,9 +223,9 @@ def serialize_args(frame_locals: dict, argnames: list, max_bytes=65536) -> str:
 
 **Test:** `tests/test_writer.py`
 
-- [ ] **5-1. 실패 테스트**: `BatchWriter(db_path)` — `trace_start(row)`/`span_finish(row)`/`trace_end(id, fields)` 호출 → `flush()` 후 DB에 반영. 스레드 여러 개가 동시에 넣어도 유실 없음. `close()`는 잔여분 flush. runtime call_edges upsert(count 증가) 포함
-- [ ] **5-2. 구현**: `queue.SimpleQueue`에 (kind, row) 튜플 적재, 데몬 스레드가 250ms마다 또는 500건 도달 시 한 트랜잭션으로 반영. `atexit.register(close)`. writer 내부 예외는 잡아서 추적 비활성화 플래그만 세움(앱 보호). **Writer는 인터페이스(start/finish/end/close)로 분리** — PRD의 "병목 시 HTTP 전송 writer로 교체" 대비
-- [ ] **5-3.** PASS → 커밋 `M1: 배치 writer`
+- [x] **5-1. 실패 테스트**: `BatchWriter(db_path)` — `trace_start(row)`/`span_finish(row)`/`trace_end(id, fields)` 호출 → `flush()` 후 DB에 반영. 스레드 여러 개가 동시에 넣어도 유실 없음. `close()`는 잔여분 flush. runtime call_edges upsert(count 증가) 포함
+- [x] **5-2. 구현**: `queue.SimpleQueue`에 (kind, row) 튜플 적재, 데몬 스레드가 250ms마다 또는 500건 도달 시 한 트랜잭션으로 반영. `atexit.register(close)`. writer 내부 예외는 잡아서 추적 비활성화 플래그만 세움(앱 보호). **Writer는 인터페이스(start/finish/end/close)로 분리** — PRD의 "병목 시 HTTP 전송 writer로 교체" 대비
+- [x] **5-3.** PASS → 커밋 `M1: 배치 writer`
 
 ### Task 6: 프로젝트 코드 필터 (tracer/filter.py)
 
