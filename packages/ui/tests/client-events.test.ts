@@ -12,6 +12,9 @@ const SCHEMA = readFileSync(
   "utf-8",
 );
 
+const T0 = Date.now() / 1000 - 60; // 정리 스케줄러에 지워지지 않는 최근 시각
+
+
 let server: Awaited<ReturnType<typeof buildServer>>;
 let dbPath: string;
 
@@ -23,7 +26,7 @@ beforeAll(async () => {
   // 백엔드 추적기가 남긴 트레이스 (client_trace_id 포함)
   db.prepare(
     `INSERT INTO traces (id, started_at, ended_at, status, entry_kind, entry_name, client_trace_id)
-     VALUES ('bk1', 100.0, 100.5, 'ok', 'http', 'POST /orders', 'cli-abc')`,
+     VALUES ('bk1', ${T0}, ${T0 + 0.5}, 'ok', 'http', 'POST /orders', 'cli-abc')`,
   ).run();
   db.close();
   server = await buildServer({ dbPath });
@@ -40,7 +43,7 @@ describe("POST /api/client-events", () => {
       payload: JSON.stringify({
         id: "ev1", trace_id: "cli-abc",
         page_url: "http://localhost:5173/orders", method: "POST", url: "/orders",
-        started_at: 99.9, duration_ms: 42.5, status: 200,
+        started_at: T0 - 0.1, duration_ms: 42.5, status: 200,
       }),
     });
     expect(res.statusCode).toBe(200);
@@ -87,7 +90,7 @@ describe("프론트↔백 조인", () => {
   it("연결 없는 트레이스는 client_event가 null", async () => {
     const db = new Database(dbPath);
     db.prepare(
-      "INSERT INTO traces (id, started_at, entry_kind, entry_name) VALUES ('bk2', 1, 'process', 'x')",
+      `INSERT INTO traces (id, started_at, entry_kind, entry_name) VALUES ('bk2', ${T0}, 'process', 'x')`,
     ).run();
     db.close();
     const res = await server.inject({ url: "/api/traces/bk2" });

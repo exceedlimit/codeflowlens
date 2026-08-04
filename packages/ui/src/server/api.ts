@@ -1,6 +1,7 @@
 // 개요: UI 서버의 REST API — 추적 DB를 읽어 화면에 필요한 형태로 돌려준다.
 import Fastify, { type FastifyInstance } from "fastify";
 
+import { scheduleCleanup } from "./cleanup.js";
 import { DbHandle } from "./db.js";
 
 export interface ServerOptions {
@@ -24,7 +25,44 @@ export async function buildServer(opts: ServerOptions): Promise<FastifyInstance>
   const app = Fastify({ logger: false });
   const handle = new DbHandle(opts.dbPath);
 
-  app.addHook("onClose", async () => handle.close());
+  const cleanupTimer = scheduleCleanup(() => handle.getWrite());
+  app.addHook("onClose", async () => {
+    clearInterval(cleanupTimer);
+    handle.close();
+  });
+
+  // --- 설정 (M5) -------------------------------------------------------
+  app.get("/api/settings", async () => {
+    const db = handle.get();
+    const rows = db
+      ? (db.prepare("SELECT key, value FROM settings").all() as { key: string; value: string }[])
+      : [];
+    const map = Object.fromEntries(rows.map((r) => [r.key, r.value]));
+    return {
+      retention_days: Number(map.retention_days ?? 7),
+      value_max_bytes: Number(map.value_max_bytes ?? 65536),
+    };
+  });
+
+  app.put<{ Body: { retention_days?: number; value_max_bytes?: number } }>(
+    "/api/settings",
+    async (req, reply) => {
+      const db = handle.getWrite();
+      if (!db) return reply.code(409).send({ error: "추적 DB가 아직 없습니다" });
+      const updates: [string, number | undefined][] = [
+        ["retention_days", req.body?.retention_days],
+        ["value_max_bytes", req.body?.value_max_bytes],
+      ];
+      for (const [key, value] of updates) {
+        if (value === undefined) continue;
+        if (!Number.isFinite(value) || value <= 0) {
+          return reply.code(400).send({ error: `${key}는 양수여야 합니다` });
+        }
+        db.prepare("INSERT OR REPLACE INTO settings VALUES (?, ?)").run(key, String(Math.floor(value)));
+      }
+      return { ok: true };
+    },
+  );
 
   if (opts.staticRoot) {
     const { default: fastifyStatic } = await import("@fastify/static");
