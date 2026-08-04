@@ -8,9 +8,26 @@ import SpanTree from "../components/SpanTree.js";
 import StatusBadge from "../components/StatusBadge.js";
 import { buildTree } from "../lib/tree.js";
 
+interface ClientEvent {
+  page_url: string;
+  method: string | null;
+  url: string | null;
+  duration_ms: number | null;
+}
+
+function pagePath(pageUrl: string): string {
+  try {
+    return new URL(pageUrl).pathname;
+  } catch {
+    return pageUrl;
+  }
+}
+
 export default function TraceDetail() {
   const { id } = useParams<{ id: string }>();
-  const [data, setData] = useState<{ trace: TraceSummary; spans: SpanRow[] } | null>(null);
+  const [data, setData] = useState<{
+    trace: TraceSummary; spans: SpanRow[]; client_event?: ClientEvent | null;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<SpanRow | null>(null);
 
@@ -43,6 +60,13 @@ export default function TraceDetail() {
               {trace.duration_ms != null ? `${trace.duration_ms.toFixed(1)}ms` : "진행중"} ·{" "}
               호출 {data.spans.length}건
             </span>
+            {data.client_event && (
+              <span className="meta" title={data.client_event.page_url}>
+                🌐 화면 {pagePath(data.client_event.page_url)} 에서 발생
+                {data.client_event.duration_ms != null &&
+                  ` · 브라우저 왕복 ${data.client_event.duration_ms.toFixed(0)}ms`}
+              </span>
+            )}
           </div>
           <div className="card-body">
             {data.spans.length === 0 ? (

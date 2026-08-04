@@ -8,6 +8,7 @@
   },
   "exports": {
     "./register": "./dist/register.mjs",
+    "./vite": "./dist/vite-plugin.mjs",
     "./package.json": "./package.json"
   },
   "scripts": {

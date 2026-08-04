@@ -44,6 +44,33 @@ export async function buildServer(opts: ServerOptions): Promise<FastifyInstance>
     dbExists: handle.exists(),
   }));
 
+  // --- 브라우저 이벤트 수집 (M4) --------------------------------------
+  // text/plain으로 받는다: 브라우저에서 CORS preflight 없는 단순 요청이 되도록.
+  app.addContentTypeParser("text/plain", { parseAs: "string" }, (_req, body, done) => {
+    done(null, body);
+  });
+
+  app.post("/api/client-events", async (req, reply) => {
+    reply.header("access-control-allow-origin", "*");
+    try {
+      const ev = JSON.parse(String(req.body));
+      const db = handle.getWrite();
+      if (db && ev && ev.id && ev.trace_id) {
+        db.prepare(
+          `INSERT OR REPLACE INTO client_events (id, trace_id, page_url, method, url, started_at, duration_ms, status)
+           VALUES (@id, @trace_id, @page_url, @method, @url, @started_at, @duration_ms, @status)`,
+        ).run({
+          page_url: "", method: null, url: null,
+          started_at: 0, duration_ms: null, status: null,
+          ...ev,
+        });
+      }
+    } catch {
+      /* 수집 실패는 조용히 무시 — 앱/브라우저에 영향 없음 */
+    }
+    return { ok: true };
+  });
+
   app.get<{ Querystring: { q?: string; limit?: string; offset?: string } }>(
     "/api/traces",
     async (req) => {
@@ -180,7 +207,17 @@ export async function buildServer(opts: ServerOptions): Promise<FastifyInstance>
          ORDER BY s.seq`,
       )
       .all(req.params.id) as Record<string, unknown>[];
-    return { trace: withDuration(trace), spans: spans.map(withDuration) };
+    // 프론트에서 시작된 요청이면 브라우저 쪽 기록(페이지 출처)을 함께 준다
+    const clientEvent = trace.client_trace_id
+      ? db
+          .prepare("SELECT * FROM client_events WHERE trace_id = ?")
+          .get(trace.client_trace_id) ?? null
+      : null;
+    return {
+      trace: withDuration(trace),
+      spans: spans.map(withDuration),
+      client_event: clientEvent,
+    };
   });
 
   return app;

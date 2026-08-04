@@ -77,7 +77,10 @@ export default function TraceList() {
                     <span className="meta"> · {t.http_status}</span>
                   )}
                 </td>
-                <td className="meta">{t.entry_kind === "http" ? "요청" : "프로세스"}</td>
+                <td className="meta">
+                  {t.entry_kind === "http" ? "요청" : "프로세스"}
+                  {t.client_trace_id && <span title="화면(브라우저)에서 시작된 요청"> 🌐</span>}
+                </td>
                 <td className="num">{formatDuration(t.duration_ms)}</td>
                 <td className="num">{t.span_count}</td>
                 <td><StatusBadge status={t.status} /></td>

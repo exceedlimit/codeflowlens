@@ -10,6 +10,7 @@ export interface TraceSummary {
   http_path: string | null;
   http_status: number | null;
   service: string | null;
+  client_trace_id: string | null;
   span_count: number;
   duration_ms: number | null;
 }
