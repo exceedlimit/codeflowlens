@@ -55,9 +55,9 @@ tests: test_docparse.py, test_pyscan.py, test_store.py, test_check.py, test_init
 
 ### Task 2: ast 스캐너 (analyzer/pyscan.py)
 
-- [ ] **2-1. 실패 테스트** `tests/test_pyscan.py` — 픽스처 소스(문자열)로: 함수/메서드 추출(qualname·라인·docstring), 중첩 함수 제외 여부(포함하되 qualname에 `<locals>` 경로), async 함수, 호출 수집(같은 파일 함수 매칭), Pydantic 엔티티 + 필드(타입·어노테이션), dataclass 엔티티, 엔티티 간 참조(필드 타입에 다른 엔티티), 시그니처의 entity usage(param/return), 문법 오류 파일 → 건너뛰고 계속
-- [ ] **2-2. 구현** `scan_project(root, exclude) -> ScanResult(functions, entities, static_edges, usages, relations)` — 파일 walk(필터는 tracer/filter.py의 EXCLUDED_DIR_NAMES 재사용)
-- [ ] **2-3.** PASS → 커밋 `M2: ast 정적 분석기`
+- [x] **2-1. 실패 테스트** `tests/test_pyscan.py` — 픽스처 소스(문자열)로: 함수/메서드 추출(qualname·라인·docstring), 중첩 함수 제외 여부(포함하되 qualname에 `<locals>` 경로), async 함수, 호출 수집(같은 파일 함수 매칭), Pydantic 엔티티 + 필드(타입·어노테이션), dataclass 엔티티, 엔티티 간 참조(필드 타입에 다른 엔티티), 시그니처의 entity usage(param/return), 문법 오류 파일 → 건너뛰고 계속
+- [x] **2-2. 구현** `scan_project(root, exclude) -> ScanResult(functions, entities, static_edges, usages, relations)` — 파일 walk(필터는 tracer/filter.py의 EXCLUDED_DIR_NAMES 재사용)
+- [x] **2-3.** PASS → 커밋 `M2: ast 정적 분석기`
 
 ### Task 3: 저장 계층 (analyzer/store.py) + scan CLI
 
