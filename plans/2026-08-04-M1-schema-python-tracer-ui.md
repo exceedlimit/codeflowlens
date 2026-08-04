@@ -289,9 +289,9 @@ class TraceSession:
 
 **Test:** `tests/test_asgi.py`
 
-- [ ] **10-1. 실패 테스트**: 추적기 설치 상태에서 Starlette 앱을 ASGI로 직접 호출(요청 2번) → 트레이스 2개(entry_kind='http', entry_name='GET /orders', http_status 반영), 각 트레이스에 핸들러 함수 스팬 포함. starlette 미설치 환경이면 skip
-- [ ] **10-2. 구현**: bootstrap 시 starlette가 import되면 `Starlette.__call__`(FastAPI 부모)을 패치 — scope type=='http'일 때 요청마다 TraceSession 생성/종료(contextvar로 현재 세션 관리, 프로세스 기본 트레이스는 http 요청 중 일시 중단). 패치 실패 시 경고 없이 프로세스 트레이스 모드 유지(fail-open). x-flowlens-trace 헤더가 있으면 traces.client_trace_id에 저장(M4 대비)
-- [ ] **10-3.** PASS → 커밋 `M1: ASGI 요청 단위 트레이스 그룹핑`
+- [x] **10-1. 실패 테스트**: 추적기 설치 상태에서 Starlette 앱을 ASGI로 직접 호출(요청 2번) → 트레이스 2개(entry_kind='http', entry_name='GET /orders', http_status 반영), 각 트레이스에 핸들러 함수 스팬 포함. starlette 미설치 환경이면 skip
+- [x] **10-2. 구현**: bootstrap 시 starlette가 import되면 `Starlette.__call__`(FastAPI 부모)을 패치 — scope type=='http'일 때 요청마다 TraceSession 생성/종료(contextvar로 현재 세션 관리, 프로세스 기본 트레이스는 http 요청 중 일시 중단). 패치 실패 시 경고 없이 프로세스 트레이스 모드 유지(fail-open). x-flowlens-trace 헤더가 있으면 traces.client_trace_id에 저장(M4 대비)
+- [x] **10-3.** PASS → 커밋 `M1: ASGI 요청 단위 트레이스 그룹핑`
 
 ### Task 11: `flowlens run` CLI (run.py, cli.py, paths.py)
 

@@ -67,9 +67,9 @@ def _register_shutdown(state):
 
 
 def _try_patch_asgi(state):
-    """개요: FastAPI/Starlette가 있으면 요청 단위 트레이스 그룹핑을 활성화한다(Task 10)."""
+    """개요: FastAPI/Starlette가 있으면 요청 단위 트레이스 그룹핑을 활성화한다."""
     try:
         from flowlens.tracer.asgi import patch_starlette
-        patch_starlette(state)
+        patch_starlette(state["session"])
     except Exception:
-        pass
+        pass  # starlette 미설치 프로젝트 — 프로세스 트레이스 모드 유지

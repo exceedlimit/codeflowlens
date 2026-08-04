@@ -6,6 +6,7 @@
       트레이스 루트 직속이 된다. 모든 공개 메서드는 예외를 밖으로 던지지 않는다(fail-open).
 """
 
+import contextvars
 import itertools
 import json
 import os
@@ -14,6 +15,10 @@ import uuid
 from pathlib import Path
 
 from flowlens.tracer.serialize import serialize_args, serialize_value
+
+# 개요: 현재 실행 흐름(asyncio 태스크/스레드)이 속한 트레이스 id.
+# 참고: ASGI 요청 그룹핑이 요청마다 값을 바꾼다. None이면 프로세스 기본 트레이스.
+_current_trace = contextvars.ContextVar("flowlens_current_trace", default=None)
 
 
 class TraceSession:
@@ -27,7 +32,7 @@ class TraceSession:
         self.filter = code_filter
         self._root = str(Path(project_root).resolve()) + os.sep
         self._max_bytes = value_max_bytes
-        self.trace_id = uuid.uuid4().hex
+        self.trace_id = uuid.uuid4().hex  # 프로세스 기본 트레이스
         self._seq = itertools.count()
         self._frames = {}      # id(frame) -> 진행 중 스팬 기록
         self._fid_cache = {}   # code object -> (function_id, qualname)
@@ -56,6 +61,7 @@ class TraceSession:
         argnames = code.co_varnames[: code.co_argcount + code.co_kwonlyargcount]
         rec = {
             "span_id": uuid.uuid4().hex,
+            "trace_id": _current_trace.get() or self.trace_id,
             "function_id": function_id,
             "name": qualname,
             "started_at": time.time(),
@@ -101,14 +107,42 @@ class TraceSession:
             rec["pending_exc"] = (exc_type, exc_value)
 
     def finish(self, status="ok", http_status=None):
-        """개요: 트레이스를 종료 상태로 기록한다."""
+        """개요: 프로세스 기본 트레이스를 종료 상태로 기록한다."""
         self.writer.trace_end(self.trace_id, time.time(), status, http_status)
+
+    # --- 요청 단위 트레이스 (ASGI 그룹핑이 사용) -------------------------
+
+    def begin_request_trace(self, entry_name, http_method=None, http_path=None,
+                            client_trace_id=None):
+        """
+        개요: 새 요청 트레이스를 시작하고 현재 실행 흐름을 그 트레이스로 전환한다.
+        로직: 트레이스 행을 기록하고 contextvar를 바꾼다 — 이후 이 태스크의 스팬은
+              모두 이 트레이스에 담긴다.
+        """
+        trace_id = uuid.uuid4().hex
+        self.writer.trace_start({
+            "id": trace_id, "started_at": time.time(),
+            "entry_kind": "http", "entry_name": entry_name,
+            "http_method": http_method, "http_path": http_path,
+            "source": "backend", "client_trace_id": client_trace_id,
+            "service": "python",
+        })
+        token = _current_trace.set(trace_id)
+        return token, trace_id
+
+    def end_request_trace(self, token, trace_id, status, http_status=None):
+        """개요: 요청 트레이스를 닫고 실행 흐름을 원래 트레이스로 되돌린다."""
+        try:
+            _current_trace.reset(token)
+        except Exception:
+            pass
+        self.writer.trace_end(trace_id, time.time(), status, http_status)
 
     # --- 내부 구현 ------------------------------------------------------
 
     def _emit(self, rec, status, return_json, error_json):
         self.writer.span_finish({
-            "id": rec["span_id"], "trace_id": self.trace_id,
+            "id": rec["span_id"], "trace_id": rec["trace_id"],
             "parent_id": rec["parent_id"], "function_id": rec["function_id"],
             "name": rec["name"], "started_at": rec["started_at"],
             "ended_at": time.time(), "status": status,
