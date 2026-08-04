@@ -23,8 +23,8 @@
 - [x] 1-2. 구현(iife 번들 엔트리 추가) → PASS → 커밋 `M4: 브라우저 기록 스크립트`
 
 ### Task 2: Vite 플러그인 (src/vite-plugin.ts)
-- [ ] 2-1. 실패 테스트: flowlensDev() 훅 직접 호출 — transformIndexHtml이 스크립트 태그 주입, endpoint 옵션 반영, apply가 serve
-- [ ] 2-2. 구현(빌드된 browser 스크립트 읽어 인라인) + exports 추가 → PASS → 커밋 `M4: Vite 플러그인`
+- [x] 2-1. 실패 테스트: flowlensDev() 훅 직접 호출 — transformIndexHtml이 스크립트 태그 주입, endpoint 옵션 반영, apply가 serve
+- [x] 2-2. 구현(빌드된 browser 스크립트 읽어 인라인) + exports 추가 → PASS → 커밋 `M4: Vite 플러그인`
 
 ### Task 3: UI 서버 수집 엔드포인트 + 연결 표시 API
 - [ ] 3-1. 실패 테스트: POST /api/client-events(text/plain JSON) → client_events 행 저장·CORS 헤더, DB 없으면 200 + 무시. GET /api/traces/:id 응답에 client_event(page_url 등) 조인 포함. 목록 응답에 client_trace_id 유무
