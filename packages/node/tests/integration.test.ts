@@ -108,6 +108,29 @@ describe("로더 훅 통합", () => {
   });
 });
 
+describe("TS 네이티브 실행", () => {
+  it("Node가 직접 실행하는 .ts 파일도 계측된다 (타입 제거 + 계측)", () => {
+    const dir = makeProject({
+      "app.ts": `
+interface Order { id: string; qty: number }
+function total(o: Order): number { return o.qty * 2 }
+function main(): number { return total({ id: "a", qty: 21 }) }
+console.log(main())
+`,
+    });
+    const out = runTraced(dir, "app.ts");
+    expect(out.trim()).toBe("42");
+    const db = openDb(dir);
+    const spans = db.prepare("SELECT * FROM spans ORDER BY seq").all() as any[];
+    const main = spans.find((s) => s.name === "main");
+    const total = spans.find((s) => s.name === "total");
+    expect(main.function_id).toBe("app.ts::main");
+    expect(total.parent_id).toBe(main.id);
+    expect(JSON.parse(total.args_json).o).toEqual({ id: "a", qty: 21 });
+    db.close();
+  });
+});
+
 describe("http 요청 그룹핑", () => {
   it("요청 1건 = http 트레이스 1건, 핸들러 스팬 포함, 헤더 연결", () => {
     const dir = makeProject({ "server.mjs": HTTP_APP });

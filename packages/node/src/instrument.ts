@@ -4,6 +4,8 @@
 // 참고: 제너레이터·생성자·접근자는 v1 미계측. 파싱 실패 시 null(원본 사용, fail-open).
 import * as babel from "@babel/core";
 import type { NodePath, types as t } from "@babel/core";
+// 이름(문자열)으로 넘기면 사용자 프로젝트 cwd에서 찾으려다 실패한다 — 모듈을 직접 넘긴다
+import presetTypescript from "@babel/preset-typescript";
 
 const MARKER = "/*__flowlens_instrumented__*/";
 
@@ -107,8 +109,11 @@ export function instrument(source: string, relpath: string): string | null {
       },
     });
 
+    const isTs = /\.(m|c)?tsx?$/.test(relpath);
     const result = babel.transformSync(source, {
       filename: relpath,
+      // TS 소스(Node 네이티브 실행 또는 tsx 체인의 원시 단계)는 타입을 함께 벗겨 JS로 만든다
+      presets: isTs ? [[presetTypescript, {}]] : [],
       plugins: [plugin],
       parserOpts: { sourceType: "unambiguous", allowReturnOutsideFunction: true },
       generatorOpts: { retainLines: true },

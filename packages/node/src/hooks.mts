@@ -20,11 +20,18 @@ export const load: LoadHook = async (url, context, nextLoad) => {
   const result = await nextLoad(url, context);
   try {
     if (!filter || !filter.shouldInstrument(url)) return result;
-    if (result.format !== "module" && result.format !== "commonjs") return result;
+    const okFormats = new Set([
+      "module", "commonjs", "module-typescript", "commonjs-typescript",
+    ]);
+    if (!okFormats.has(result.format as string)) return result;
     const source = result.source?.toString();
     if (!source) return result;
     const out = instrument(source, filter.relPath(url));
-    if (out) return { ...result, source: out };
+    if (out) {
+      // 계측 결과는 항상 순수 JS (TS였다면 타입까지 벗겨졌다)
+      const format = (result.format as string).startsWith("module") ? "module" : "commonjs";
+      return { ...result, source: out, format };
+    }
   } catch {
     /* fail-open: 원본 그대로 */
   }
