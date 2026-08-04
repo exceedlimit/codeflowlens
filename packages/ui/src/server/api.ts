@@ -5,6 +5,8 @@ import { DbHandle } from "./db.js";
 
 export interface ServerOptions {
   dbPath: string;
+  /** 빌드된 웹 정적 파일 폴더. 지정 시 SPA 서빙(/api 외 경로는 index.html). */
+  staticRoot?: string;
 }
 
 /** 개요: 트레이스 행에 화면용 파생 값(소요시간)을 붙인다. */
@@ -23,6 +25,18 @@ export async function buildServer(opts: ServerOptions): Promise<FastifyInstance>
   const handle = new DbHandle(opts.dbPath);
 
   app.addHook("onClose", async () => handle.close());
+
+  if (opts.staticRoot) {
+    const { default: fastifyStatic } = await import("@fastify/static");
+    await app.register(fastifyStatic, { root: opts.staticRoot });
+    // SPA fallback: /api가 아닌 미지의 경로는 index.html (새로고침 대응)
+    app.setNotFoundHandler((req, reply) => {
+      if (req.url.startsWith("/api/")) {
+        return reply.code(404).send({ error: "not found" });
+      }
+      return (reply as any).sendFile("index.html");
+    });
+  }
 
   app.get("/api/health", async () => ({
     ok: true,
