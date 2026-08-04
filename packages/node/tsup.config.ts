@@ -14,7 +14,7 @@ export default defineConfig({
   dts: false,
   clean: true,
   sourcemap: false,
-  splitting: false,
+  splitting: true,
   external: ["better-sqlite3", "@babel/core", "ts-morph"],
   onSuccess: async () => {
     mkdirSync("dist/db", { recursive: true });

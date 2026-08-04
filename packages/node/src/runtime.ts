@@ -51,7 +51,8 @@ export class FlowlensRuntime {
       entry_name: opts.entryName,
       service: "node",
     });
-    process.once("exit", () => {
+    // 참고: writer의 close(exit 훅)보다 먼저 실행돼야 종료 상태가 기록된다
+    process.prependOnceListener("exit", () => {
       this.writer.traceEnd(this.processTraceId, Date.now() / 1000, "ok");
     });
   }

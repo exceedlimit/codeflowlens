@@ -39,7 +39,13 @@ export class BatchWriter {
       this.db.pragma("journal_mode = WAL");
       this.db.pragma("busy_timeout = 5000");
       this.db.pragma("synchronous = NORMAL");
-      const schema = readFileSync(new URL("./db/schema.sql", import.meta.url), "utf-8");
+      let schema = "";
+      for (const rel of ["./db/schema.sql", "../db/schema.sql"]) {
+        try {
+          schema = readFileSync(new URL(rel, import.meta.url), "utf-8");
+          break;
+        } catch { /* 다음 후보 */ }
+      }
       this.db.exec(schema);
       const ver = this.db.prepare("SELECT version FROM schema_version").get();
       if (!ver) {

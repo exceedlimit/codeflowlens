@@ -72,18 +72,18 @@ examples/express-demo/    # 재고/주문 Express 앱 (주석 룰 적용, CJS �
 - [x] 5-2. 구현: babel plugin — Function 계열 노드 본문 치환, fid = relpath::qualname(스코프 추적) → PASS → 커밋 `M3: 계측 변환`
 
 ### Task 6: 로더 훅 + run CLI 통합
-- [ ] 6-1. 실패 테스트(subprocess 통합): 픽스처 ESM 프로젝트를 `node --import <register>` + env로 실행 → DB에 스팬, CJS(require) 픽스처도 동일, env 없으면 no-op
-- [ ] 6-2. register.mts/hooks.mts/cjs-hook.ts + cli.ts run(NODE_OPTIONS 주입 spawn) → PASS → 커밋 `M3: 로더 훅 + run`
-- [ ] 6-3. Python CLI run에 NODE_OPTIONS 주입 추가(+test) → 커밋 `M3: 풀스택 run 통합`
+- [x] 6-1. 실패 테스트(subprocess 통합): 픽스처 ESM 프로젝트를 `node --import <register>` + env로 실행 → DB에 스팬, CJS(require) 픽스처도 동일, env 없으면 no-op
+- [x] 6-2. register.mts/hooks.mts/cjs-hook.ts + cli.ts run(NODE_OPTIONS 주입 spawn) → PASS → 커밋 `M3: 로더 훅 + run`
+- [x] 6-3. Python CLI run에 NODE_OPTIONS 주입 추가(+test) → 커밋 `M3: 풀스택 run 통합`
 
 ### Task 7: http 요청 그룹핑
-- [ ] 7-1. 실패 테스트: 계측된 http 서버에 fetch 2회 → http 트레이스 2건(메서드/경로/상태), 핸들러 스팬 포함, 헤더 → client_trace_id
-- [ ] 7-2. 구현(emit 패치, als.run으로 감쌈) → PASS → 커밋 `M3: http 그룹핑`
+- [x] 7-1. 실패 테스트: 계측된 http 서버에 fetch 2회 → http 트레이스 2건(메서드/경로/상태), 핸들러 스팬 포함, 헤더 → client_trace_id
+- [x] 7-2. 구현(emit 패치, als.run으로 감쌈) → PASS → 커밋 `M3: http 그룹핑`
 
 ### Task 8: TS 정적 분석 (docparse + tsscan + store + scan/check CLI)
-- [ ] 8-1. 실패 테스트: JSDoc 라벨 파서(파이썬 테스트 케이스 이식), 함수/메서드/화살표 추출 + fid, interface/type/class 엔티티 + 필드 설명, 호출 관계(보수적), usages, 저장 후 language='typescript'만 교체
-- [ ] 8-2. 구현 → PASS → 커밋 `M3: TS 정적 분석`
-- [ ] 8-3. cli.ts에 scan/check 연결(파이썬 check와 동일 판정 룰) → 커밋
+- [x] 8-1. 실패 테스트: JSDoc 라벨 파서(파이썬 테스트 케이스 이식), 함수/메서드/화살표 추출 + fid, interface/type/class 엔티티 + 필드 설명, 호출 관계(보수적), usages, 저장 후 language='typescript'만 교체
+- [x] 8-2. 구현 → PASS → 커밋 `M3: TS 정적 분석`
+- [x] 8-3. cli.ts에 scan/check 연결(파이썬 check와 동일 판정 룰) → 커밋
 
 ### Task 9: Express 데모 + E2E
 - [ ] 9-1. examples/express-demo(재고/주문, ESM, 주석 룰 적용) 작성

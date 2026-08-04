@@ -1,4 +1,6 @@
 // 개요: "내 프로젝트 코드만 계측"을 판정하는 필터 (파이썬 CodeFilter와 동일 규칙).
+// 참고: macOS의 /var → /private/var 같은 심볼릭 링크 때문에 루트/파일 모두 realpath로 정규화한다.
+import { realpathSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
@@ -12,7 +14,11 @@ export class CodeFilter {
   private cache = new Map<string, boolean>();
 
   constructor(projectRoot: string) {
-    this.root = path.resolve(projectRoot) + path.sep;
+    let root = path.resolve(projectRoot);
+    try {
+      root = realpathSync(root);
+    } catch { /* 없는 경로면 그대로 */ }
+    this.root = root + path.sep;
   }
 
   /** 개요: 이 파일(경로 또는 file:// URL)을 계측할지 판정한다. */
@@ -32,8 +38,15 @@ export class CodeFilter {
 
   private toPath(fileOrUrl: string): string {
     try {
-      if (fileOrUrl.startsWith("file://")) return fileURLToPath(fileOrUrl);
-      return path.resolve(fileOrUrl);
+      const p = fileOrUrl.startsWith("file://")
+        ? fileURLToPath(fileOrUrl)
+        : path.resolve(fileOrUrl);
+      if (p.startsWith(this.root)) return p;
+      try {
+        return realpathSync(p); // 심볼릭 링크 경유 경로 정규화
+      } catch {
+        return p;
+      }
     } catch {
       return "";
     }
