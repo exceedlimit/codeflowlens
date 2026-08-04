@@ -73,10 +73,10 @@ tests: test_docparse.py, test_pyscan.py, test_store.py, test_check.py, test_init
 
 ### Task 5: init CLI + 룰 템플릿
 
-- [ ] **5-1. 실패 테스트** `tests/test_init.py` — tmp 프로젝트에: `.flowlens/config.toml` 생성, AGENTS.md 마커 블록 삽입(기존 내용 보존·재실행 시 블록 갱신), CLAUDE.md 참조 라인(없을 때만 추가), retrofit skill 파일 생성, .gitignore 갱신, 첫 스캔 실행됨, `--lang python`만 지정 시 config 반영
-- [ ] **5-2. 템플릿 작성** — agents_rules.md: PRD 6절 룰(BAD/GOOD 예시, 형식, check 사용법, "새 함수 즉시 주석·로직 변경 시 현행화"), retrofit_skill.md: check --json으로 위반 목록 뽑아 배치 작업하는 절차, retrofit_guide.md: 사람/에이전트 공용 작업지시서
-- [ ] **5-3. 구현** `flowlens init` (언어 감지: pyproject/requirements→python, package.json→node, vite/react 의존→browser)
-- [ ] **5-4.** PASS → 데모에서 수동 확인 → 커밋 `M2: init(룰 셋팅 + retrofit skill)`
+- [x] **5-1. 실패 테스트** `tests/test_init.py` — tmp 프로젝트에: `.flowlens/config.toml` 생성, AGENTS.md 마커 블록 삽입(기존 내용 보존·재실행 시 블록 갱신), CLAUDE.md 참조 라인(없을 때만 추가), retrofit skill 파일 생성, .gitignore 갱신, 첫 스캔 실행됨, `--lang python`만 지정 시 config 반영
+- [x] **5-2. 템플릿 작성** — agents_rules.md: PRD 6절 룰(BAD/GOOD 예시, 형식, check 사용법, "새 함수 즉시 주석·로직 변경 시 현행화"), retrofit_skill.md: check --json으로 위반 목록 뽑아 배치 작업하는 절차, retrofit_guide.md: 사람/에이전트 공용 작업지시서
+- [x] **5-3. 구현** `flowlens init` (언어 감지: pyproject/requirements→python, package.json→node, vite/react 의존→browser)
+- [x] **5-4.** PASS → 데모에서 수동 확인 → 커밋 `M2: init(룰 셋팅 + retrofit skill)`
 
 ### Task 6: UI API 확장 (graph/entities/functions)
 
