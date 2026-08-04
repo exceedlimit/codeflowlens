@@ -60,7 +60,7 @@ examples/fastapi-demo/main.py  app/ ...
 
 **Files:** Create `packages/schema/schema.sql`, `packages/schema/README.md`
 
-- [ ] **1-1. schema.sql 작성** — 아래 DDL 전체(M2~M5용 테이블 포함, 스키마는 M1에서 확정):
+- [x] **1-1. schema.sql 작성** — 아래 DDL 전체(M2~M5용 테이블 포함, 스키마는 M1에서 확정):
 
 ```sql
 -- FlowLens 공통 스키마 v1 (언어 중립). 모든 추적기/UI가 이 계약을 따른다.
@@ -137,8 +137,8 @@ CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 -- 최초 생성 시 코드에서 seed: retention_days=7, value_max_bytes=65536
 ```
 
-- [ ] **1-2. README.md** — 각 테이블/필드 의미 + function_id 규칙 + "스키마 변경 시 schema_version 올리고 양쪽 사본 갱신" 절차 문서화
-- [ ] **1-3. 커밋** `M1: 공통 SQLite 스키마 v1`
+- [x] **1-2. README.md** — 각 테이블/필드 의미 + function_id 규칙 + "스키마 변경 시 schema_version 올리고 양쪽 사본 갱신" 절차 문서화
+- [x] **1-3. 커밋** `M1: 공통 SQLite 스키마 v1`
 
 ### Task 2: Python 패키지 뼈대
 
