@@ -61,9 +61,9 @@ tests: test_docparse.py, test_pyscan.py, test_store.py, test_check.py, test_init
 
 ### Task 3: 저장 계층 (analyzer/store.py) + scan CLI
 
-- [ ] **3-1. 실패 테스트** `tests/test_store.py` — 스캔 결과 저장 후 테이블 채워짐, 재스캔 시 정적 데이터만 교체(traces/spans/runtime edges 보존), functions와 스팬 function_id 조인 일치(데모 픽스처)
-- [ ] **3-2. 구현** + `flowlens scan` 서브커맨드(cli.py 연결, 결과 요약 출력: 함수 N, 엔티티 N, 주석 커버리지 %)
-- [ ] **3-3.** PASS → examples/fastapi-demo에서 `flowlens scan` 수동 확인 → 커밋 `M2: 스캔 저장 + scan CLI`
+- [x] **3-1. 실패 테스트** `tests/test_store.py` — 스캔 결과 저장 후 테이블 채워짐, 재스캔 시 정적 데이터만 교체(traces/spans/runtime edges 보존), functions와 스팬 function_id 조인 일치(데모 픽스처)
+- [x] **3-2. 구현** + `flowlens scan` 서브커맨드(cli.py 연결, 결과 요약 출력: 함수 N, 엔티티 N, 주석 커버리지 %)
+- [x] **3-3.** PASS → examples/fastapi-demo에서 `flowlens scan` 수동 확인 → 커밋 `M2: 스캔 저장 + scan CLI`
 
 ### Task 4: check CLI
 

@@ -14,12 +14,17 @@ def main(argv=None) -> int:
             "사용법:\n"
             "  flowlens run <명령> [인자...]   명령을 추적 상태로 실행\n"
             "                                  예: flowlens run uvicorn main:app\n"
+            "  flowlens scan                   코드를 정적 분석해 코드맵 갱신\n"
         )
         return 0
     cmd, rest = argv[0], argv[1:]
     if cmd == "run":
         from flowlens.run import run_command
         return run_command(rest)
+    if cmd == "scan":
+        from flowlens.scan_cmd import scan
+        scan()
+        return 0
     print(f"알 수 없는 명령: {cmd} (flowlens --help 참고)", file=sys.stderr)
     return 2
 
