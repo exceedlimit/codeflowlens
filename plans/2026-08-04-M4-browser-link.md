@@ -19,8 +19,8 @@
 ## Tasks
 
 ### Task 1: 브라우저 스크립트 (@flowlens/node src/browser.ts)
-- [ ] 1-1. 실패 테스트(jsdom 유사 — fetch/XHR 가짜로): fetch 패치 후 호출 → 헤더 부착 + report 전송(원본 fetch로, text/plain), 엔드포인트 요청은 미기록, 예외 시 그대로 전파 + 실패 기록
-- [ ] 1-2. 구현(iife 번들 엔트리 추가) → PASS → 커밋 `M4: 브라우저 기록 스크립트`
+- [x] 1-1. 실패 테스트(jsdom 유사 — fetch/XHR 가짜로): fetch 패치 후 호출 → 헤더 부착 + report 전송(원본 fetch로, text/plain), 엔드포인트 요청은 미기록, 예외 시 그대로 전파 + 실패 기록
+- [x] 1-2. 구현(iife 번들 엔트리 추가) → PASS → 커밋 `M4: 브라우저 기록 스크립트`
 
 ### Task 2: Vite 플러그인 (src/vite-plugin.ts)
 - [ ] 2-1. 실패 테스트: flowlensDev() 훅 직접 호출 — transformIndexHtml이 스크립트 태그 주입, endpoint 옵션 반영, apply가 serve
