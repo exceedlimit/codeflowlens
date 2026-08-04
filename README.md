@@ -6,20 +6,27 @@
 - 요구사항·설계: [docs/PRD.md](docs/PRD.md)
 - 진행 상태: [plans/](plans/) 의 마일스톤 문서 체크박스
 
-## 빠른 시작 (M1 기준)
+## 빠른 시작
 
 ```bash
 # 1) Python 추적기 설치 (저장소 루트에서)
 pip install -e packages/python
 
-# 2) 앱을 추적 상태로 실행 — 코드 수정 0
+# 2) 프로젝트에 이식 — 주석 룰 셋팅 + 첫 정적 분석
 cd <내 프로젝트>
+flowlens init                        # AGENTS.md 룰, retrofit skill, 코드맵 생성
+flowlens check                       # 주석 룰 준수 검사 (기존 코드 소급은 .flowlens/RETROFIT.md 참고)
+
+# 3) 앱을 추적 상태로 실행 — 코드 수정 0
 flowlens run uvicorn main:app        # 또는 flowlens run python script.py
 
-# 3) UI 띄우기 (Node 20+)
+# 4) UI 띄우기 (Node 20+)
 cd packages/ui && npm install && npm run build
 node dist/server/cli.js --db <내 프로젝트>/.flowlens/data.db
-# → http://127.0.0.1:7411
+# → http://127.0.0.1:7411  (트레이스 / 관계도 / 엔티티)
+
+# 코드가 바뀌면 코드맵 갱신
+flowlens scan
 ```
 
 데모로 바로 보기:
