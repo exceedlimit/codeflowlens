@@ -33,6 +33,18 @@ node dist/server/cli.js --db <내 프로젝트>/.flowlens/data.db
 flowlens scan
 ```
 
+### 프론트엔드(React/Vite) 연결
+
+vite.config에 플러그인 1줄 — 개발 모드에서만 브라우저 API 호출이 기록되고, 백엔드로 프록시되는 요청은 백엔드 트레이스와 자동 연결된다:
+
+```ts
+import { flowlensDev } from "@flowlens/node/vite";
+export default defineConfig({
+  plugins: [react(), flowlensDev()],
+  server: { proxy: { "/orders": "http://127.0.0.1:8300" } }, // 프록시 사용 권장
+});
+```
+
 데모로 바로 보기:
 
 ```bash

@@ -34,7 +34,7 @@
 - [x] 4-1. TraceDetail 헤더에 "🌐 <페이지 경로>에서 발생 (프론트 소요 Xms)" 표시, TraceList에 출처 표시 → 빌드 → 커밋 `M4: 프론트 출처 표시`
 
 ### Task 5: React 데모 + E2E
-- [ ] 5-1. examples/react-demo: Vite+React, 버튼 3개(재고 조회/주문/재고부족 주문), vite proxy → express-demo(8300), vite.config에 flowlensDev() 1줄
-- [ ] 5-2. E2E: express-demo 추적 실행 + UI 서버 + react dev → 브라우저에서 버튼 클릭 → 트레이스 상세에 페이지 출처 + 백엔드 체인 확인(스크린샷) → 커밋 `M4: E2E 검증 완료`
+- [x] 5-1. examples/react-demo: Vite+React, 버튼 3개(재고 조회/주문/재고부족 주문), vite proxy → express-demo(8300), vite.config에 flowlensDev() 1줄
+- [x] 5-2. E2E: express-demo 추적 실행 + UI 서버 + react dev → 브라우저에서 버튼 클릭 → 트레이스 상세에 페이지 출처 + 백엔드 체인 확인(스크린샷) → 커밋 `M4: E2E 검증 완료`
 
 ## Self-Review: PRD G7·7절(브라우저 기록)·9절 ②(출처 표시) 커버. 헤더 CORS 리스크는 프록시 관행 + 문서화로 처리. 플레이스홀더 없음.
