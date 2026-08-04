@@ -163,8 +163,8 @@ def test_schema_copy_is_in_sync():
 
 **Test:** `tests/test_connect.py`
 
-- [ ] **3-1. 실패 테스트**: `open_db(tmp_path/"x/data.db")` → 부모 폴더 자동 생성, WAL 모드, 전체 테이블 존재, `schema_version=1`, settings에 retention_days=7 seed, 두 번 열어도 안전(idempotent)
-- [ ] **3-2. 구현**:
+- [x] **3-1. 실패 테스트**: `open_db(tmp_path/"x/data.db")` → 부모 폴더 자동 생성, WAL 모드, 전체 테이블 존재, `schema_version=1`, settings에 retention_days=7 seed, 두 번 열어도 안전(idempotent)
+- [x] **3-2. 구현**:
 
 ```python
 def open_db(path: Path) -> sqlite3.Connection:
@@ -185,7 +185,7 @@ def open_db(path: Path) -> sqlite3.Connection:
     return conn
 ```
 
-- [ ] **3-3.** PASS 확인 → 커밋 `M1: DB 연결(WAL) + 스키마 적용`
+- [x] **3-3.** PASS 확인 → 커밋 `M1: DB 연결(WAL) + 스키마 적용`
 
 ### Task 4: 값 직렬화 (tracer/serialize.py)
 
