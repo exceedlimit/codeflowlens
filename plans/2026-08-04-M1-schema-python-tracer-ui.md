@@ -239,7 +239,7 @@ def serialize_args(frame_locals: dict, argnames: list, max_bytes=65536) -> str:
 
 **Files:** `tracer/core.py`, `tracer/backend_settrace.py` · **Test:** `tests/test_tracer.py`
 
-- [ ] **7-1. 실패 테스트** (동기 시나리오):
+- [x] **7-1. 실패 테스트** (동기 시나리오):
 
 ```python
 def test_call_tree_recorded(tmp_path):
@@ -253,7 +253,7 @@ def test_untraced_code_excluded(...): # json.dumps 등 라이브러리 호출은
 def test_thread_calls_recorded(...):  # threading.Thread 안의 호출도 기록(parent 없으면 루트 직속)
 ```
 
-- [ ] **7-2. core.py 구현**:
+- [x] **7-2. core.py 구현**:
 
 ```python
 class TraceSession:
@@ -266,8 +266,8 @@ class TraceSession:
     # seq: itertools.count. 트레이스 시작/종료 시 writer.trace_start/trace_end
 ```
 
-- [ ] **7-3. backend_settrace.py 구현**: 전역 콜백에서 `filter.should_trace(frame.f_code.co_filename)` 검사, call → session.on_call + 로컬 트레이스 함수 반환, return/exception 이벤트 전달. `threading.settrace`도 설치. **콜백 전체 try/except — 내부 오류 시 sys.settrace(None)으로 자기 해제(fail-open)**
-- [ ] **7-4.** PASS → 커밋 `M1: TraceSession + settrace 백엔드`
+- [x] **7-3. backend_settrace.py 구현**: 전역 콜백에서 `filter.should_trace(frame.f_code.co_filename)` 검사, call → session.on_call + 로컬 트레이스 함수 반환, return/exception 이벤트 전달. `threading.settrace`도 설치. **콜백 전체 try/except — 내부 오류 시 sys.settrace(None)으로 자기 해제(fail-open)**
+- [x] **7-4.** PASS → 커밋 `M1: TraceSession + settrace 백엔드`
 
 ### Task 8: sys.monitoring 백엔드 (3.12+)
 
