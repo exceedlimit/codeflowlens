@@ -144,9 +144,9 @@ CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 
 **Files:** Create `packages/python/pyproject.toml`, `src/flowlens/__init__.py`, `_version.py`, `tests/test_smoke.py`
 
-- [ ] **2-1.** pyproject.toml (hatchling, `[project.scripts] flowlens = "flowlens.cli:main"`, requires-python `>=3.9`, dev deps: pytest) + 빈 패키지 + `tests/test_smoke.py::test_import` 작성
-- [ ] **2-2.** `cd packages/python && python -m venv .venv && .venv/bin/pip install -e '.[dev]' && .venv/bin/python -m pytest` → PASS 확인
-- [ ] **2-3.** `src/flowlens/db/schema.sql`로 스키마 사본 복사 + `tests/test_schema_sync.py`:
+- [x] **2-1.** pyproject.toml (hatchling, `[project.scripts] flowlens = "flowlens.cli:main"`, requires-python `>=3.9`, dev deps: pytest) + 빈 패키지 + `tests/test_smoke.py::test_import` 작성
+- [x] **2-2.** `cd packages/python && python -m venv .venv && .venv/bin/pip install -e '.[dev]' && .venv/bin/python -m pytest` → PASS 확인
+- [x] **2-3.** `src/flowlens/db/schema.sql`로 스키마 사본 복사 + `tests/test_schema_sync.py`:
 
 ```python
 def test_schema_copy_is_in_sync():
@@ -157,7 +157,7 @@ def test_schema_copy_is_in_sync():
     assert original == vendored
 ```
 
-- [ ] **2-4.** 커밋 `M1: Python 패키지 뼈대 + 스키마 동기화 테스트`
+- [x] **2-4.** 커밋 `M1: Python 패키지 뼈대 + 스키마 동기화 테스트`
 
 ### Task 3: DB 연결 (db/connect.py)
 
