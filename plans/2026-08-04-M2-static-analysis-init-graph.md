@@ -80,8 +80,8 @@ tests: test_docparse.py, test_pyscan.py, test_store.py, test_check.py, test_init
 
 ### Task 6: UI API 확장 (graph/entities/functions)
 
-- [ ] **6-1. 실패 테스트** `tests/api-graph.test.ts` — `/api/graph`: 노드(함수 id·이름·파일·주석 유무)+엣지(static/runtime·count), `?q=` 필터, 300개 상한; `/api/entities`: 목록+필드; `/api/entities/:id`: 필드/관계/사용 함수; `/api/functions/:id`: 주석+관련 트레이스 최근 10건
-- [ ] **6-2. 구현** → PASS → 커밋 `M2: 관계도/엔티티 API`
+- [x] **6-1. 실패 테스트** `tests/api-graph.test.ts` — `/api/graph`: 노드(함수 id·이름·파일·주석 유무)+엣지(static/runtime·count), `?q=` 필터, 300개 상한; `/api/entities`: 목록+필드; `/api/entities/:id`: 필드/관계/사용 함수; `/api/functions/:id`: 주석+관련 트레이스 최근 10건
+- [x] **6-2. 구현** → PASS → 커밋 `M2: 관계도/엔티티 API`
 
 ### Task 7: 관계도 화면 (GraphPage)
 
