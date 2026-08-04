@@ -68,8 +68,8 @@ examples/express-demo/    # 재고/주문 Express 앱 (주석 룰 적용, CJS �
 - [x] 4-2. 구현: initRuntime(env) → globalThis.__flowlens = {wrap}, 프로세스 트레이스 시작, exit 훅 → PASS → 커밋 `M3: 런타임`
 
 ### Task 5: 바벨 계측 변환
-- [ ] 5-1. 실패 테스트: 샘플 소스 instrument() 후 (a) 코드에 __flowlens.wrap 포함 (b) new Function/vm으로 실행하면 스팬 트리 정확 (c) 함수선언/화살표/메서드/async 모두 계측 (d) 제너레이터는 원본 유지 (e) 파싱 실패 소스는 원본 그대로 반환(fail-open)
-- [ ] 5-2. 구현: babel plugin — Function 계열 노드 본문 치환, fid = relpath::qualname(스코프 추적) → PASS → 커밋 `M3: 계측 변환`
+- [x] 5-1. 실패 테스트: 샘플 소스 instrument() 후 (a) 코드에 __flowlens.wrap 포함 (b) new Function/vm으로 실행하면 스팬 트리 정확 (c) 함수선언/화살표/메서드/async 모두 계측 (d) 제너레이터는 원본 유지 (e) 파싱 실패 소스는 원본 그대로 반환(fail-open)
+- [x] 5-2. 구현: babel plugin — Function 계열 노드 본문 치환, fid = relpath::qualname(스코프 추적) → PASS → 커밋 `M3: 계측 변환`
 
 ### Task 6: 로더 훅 + run CLI 통합
 - [ ] 6-1. 실패 테스트(subprocess 통합): 픽스처 ESM 프로젝트를 `node --import <register>` + env로 실행 → DB에 스팬, CJS(require) 픽스처도 동일, env 없으면 no-op
