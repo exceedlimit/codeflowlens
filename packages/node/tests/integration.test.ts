@@ -1,7 +1,7 @@
 // 개요: 로더 훅/HTTP 그룹핑/CLI 통합 테스트 — 실제 subprocess로 추적 전체 경로를 검증한다.
 import Database from "better-sqlite3";
 import { execSync } from "node:child_process";
-import { existsSync, mkdtempSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -149,6 +149,32 @@ describe("http 요청 그룹핑", () => {
       expect(names).toContain("handle");
       expect(names).toContain("compute");
     }
+    db.close();
+  });
+});
+
+describe("value_max_bytes 설정 반영", () => {
+  it("설정된 상한으로 인자가 잘린다", () => {
+    const dir = makeProject({
+      "app.mjs": `
+function eat(data) { return data.length }
+console.log(eat("x".repeat(50000)))
+`,
+    });
+    // 설정이 든 DB를 미리 만들어 둔다
+    const dbPath = join(dir, ".flowlens", "data.db");
+    mkdirSync(join(dir, ".flowlens"), { recursive: true });
+    const pre = new Database(dbPath);
+    pre.exec(readFileSync(join(PKG, "src", "db", "schema.sql"), "utf-8"));
+    pre.prepare("INSERT INTO schema_version VALUES (1)").run();
+    pre.prepare("INSERT INTO settings VALUES ('value_max_bytes', '2000')").run();
+    pre.close();
+
+    runTraced(dir, "app.mjs");
+    const db = openDb(dir);
+    const row = db.prepare("SELECT args_json FROM spans WHERE name='eat'").get() as any;
+    expect(Buffer.byteLength(row.args_json)).toBeLessThan(2300);
+    expect(row.args_json).toContain("truncated");
     db.close();
   });
 });

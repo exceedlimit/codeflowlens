@@ -17,7 +17,19 @@ try {
     const writer = new BatchWriter(process.env.FLOWLENS_DB);
     const entryName =
       process.argv.slice(1, 3).map((a) => path.basename(a)).join(" ") || "";
-    const runtime = new FlowlensRuntime({ writer, entryName: `node ${entryName}`.trim() });
+    // 설정 화면에서 저장한 값 크기 상한을 반영한다(없으면 기본 64KB)
+    let maxBytes = 65536;
+    try {
+      const { default: Database } = await import("better-sqlite3");
+      const db = new Database(process.env.FLOWLENS_DB, { readonly: true });
+      const row = db.prepare("SELECT value FROM settings WHERE key='value_max_bytes'").get() as
+        { value: string } | undefined;
+      if (row) maxBytes = Math.max(1024, Number(row.value) || 65536);
+      db.close();
+    } catch { /* 설정 못 읽으면 기본값 */ }
+    const runtime = new FlowlensRuntime({
+      writer, entryName: `node ${entryName}`.trim(), maxBytes,
+    });
     (globalThis as Record<string, unknown>).__flowlens = runtime;
 
     const filter = new CodeFilter(root);

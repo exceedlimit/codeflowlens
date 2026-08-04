@@ -40,6 +40,7 @@ def install():
         session = TraceSession(
             writer, code_filter, project_root,
             entry_kind="process", entry_name=entry_name, service="python",
+            value_max_bytes=_read_value_max_bytes(db_path),
         )
         backend = select_backend(session)
         backend.install()
@@ -50,6 +51,23 @@ def install():
         _try_patch_asgi(state)
     except Exception:
         pass  # 추적기는 어떤 경우에도 앱을 방해하지 않는다
+
+
+def _read_value_max_bytes(db_path) -> int:
+    """개요: 설정 화면에서 저장한 값 크기 상한을 읽는다(없으면 기본 64KB)."""
+    try:
+        from flowlens.db.connect import open_db
+
+        conn = open_db(db_path)
+        try:
+            row = conn.execute(
+                "SELECT value FROM settings WHERE key='value_max_bytes'"
+            ).fetchone()
+            return max(1024, int(row[0])) if row else 65536
+        finally:
+            conn.close()
+    except Exception:
+        return 65536
 
 
 def _register_shutdown(state):

@@ -13,7 +13,7 @@
 - [x] 1-2. 구현: settings 라우트 + cleanup 함수(기동 시 + 24시간마다, unref 타이머) → PASS → 커밋 `M5: 설정 API + 정리 스케줄러`
 
 ### Task 2: 추적기가 설정을 반영 (value_max_bytes)
-- [ ] 2-1. Python bootstrap이 DB settings의 value_max_bytes를 읽어 세션에 적용(+test), Node register 동일(+test) → 커밋 `M5: 값 상한 설정 반영`
+- [x] 2-1. Python bootstrap이 DB settings의 value_max_bytes를 읽어 세션에 적용(+test), Node register 동일(+test) → 커밋 `M5: 값 상한 설정 반영`
 
 ### Task 3: 설정 화면 (⑤)
 - [ ] 3-1. SettingsPage: 보존 주기(일)·값 크기 상한(KB) 입력 + 저장 + 안내문("실행 기록만 정리, 코드맵 유지"). 내비에 '설정' 추가 → 빌드·눈 확인 → 커밋 `M5: 설정 화면`
