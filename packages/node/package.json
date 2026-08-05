@@ -8,7 +8,10 @@
   },
   "exports": {
     "./register": "./dist/register.mjs",
-    "./vite": "./dist/vite-plugin.mjs",
+    "./vite": {
+      "types": "./dist/vite-plugin.d.mts",
+      "default": "./dist/vite-plugin.mjs"
+    },
     "./package.json": "./package.json"
   },
   "scripts": {

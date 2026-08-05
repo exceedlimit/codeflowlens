@@ -59,18 +59,48 @@ def find_violations(root) -> list:
 
 
 def run_check(root=None, as_json=False, quiet=False) -> int:
-    """개요: 검사를 실행하고 결과를 출력한다. 위반 있으면 1을 돌려준다."""
+    """
+    개요: 검사를 실행하고 결과를 출력한다. 위반 있으면 1을 돌려준다.
+    로직: python이 있으면 내장 검사, node 계열이 있으면 Node CLI의 check에 위임해 합친다.
+    """
+    from flowlens.langs import read_languages
+    from flowlens.nodecli import run_node_cli
+
     root = root or find_project_root()
-    violations = find_violations(root)
+    langs = read_languages(root)
+    exit_code = 0
+
+    violations = []
+    if "python" in langs:
+        violations = find_violations(root)
+        if violations:
+            exit_code = 1
+
+    node_output = None
+    if {"node", "typescript", "browser"} & set(langs):
+        node_code, node_output = run_node_cli(
+            root, "check", ["--json"] if as_json else []
+        )
+        if node_code is None:
+            node_output = None
+        elif node_code != 0:
+            exit_code = 1
+
     if as_json:
         print(_json.dumps({"violations": violations}, ensure_ascii=False, indent=2))
+        if node_output:
+            print(node_output)
     elif not quiet:
-        if not violations:
-            print("통과: 모든 함수/엔티티가 주석 룰을 지키고 있습니다.")
-        else:
-            print(f"위반 {len(violations)}건 — 누락된 주석을 채워주세요:\n")
-            for v in violations:
-                label = "함수" if v["kind"] == "function" else "엔티티"
-                print(f"  [{label}] {v['target']}:{v['line']} — 누락: {', '.join(v['missing'])}")
+        if "python" in langs:
+            if not violations:
+                print("통과 (Python): 모든 함수/엔티티가 주석 룰을 지키고 있습니다.")
+            else:
+                print(f"위반 {len(violations)}건 (Python) — 누락된 주석을 채워주세요:\n")
+                for v in violations:
+                    label = "함수" if v["kind"] == "function" else "엔티티"
+                    print(f"  [{label}] {v['target']}:{v['line']} — 누락: {', '.join(v['missing'])}")
+        if node_output:
+            print(node_output)
+        if exit_code:
             print("\n형식 예시는 AGENTS.md의 FlowLens 주석 룰 섹션을 참고하세요.")
-    return 1 if violations else 0
+    return exit_code
