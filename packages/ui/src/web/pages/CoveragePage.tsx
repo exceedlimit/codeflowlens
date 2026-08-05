@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
+import { useScanStatus } from "../lib/scanStatus.js";
+
 interface LangCoverage {
   language: string;
   total: number;
@@ -23,9 +25,11 @@ export default function CoveragePage() {
     languages: LangCoverage[]; undocumented: Undocumented[];
   } | null>(null);
 
+  const { lastScanAt } = useScanStatus(); // 코드맵이 갱신되면 다시 불러온다
+
   useEffect(() => {
     fetch("/api/coverage").then((r) => r.json()).then(setData).catch(() => setData(null));
-  }, []);
+  }, [lastScanAt]);
 
   if (!data) return <div className="meta">불러오는 중…</div>;
   if (data.languages.length === 0) {

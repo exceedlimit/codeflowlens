@@ -29,8 +29,8 @@ cd packages/ui && npm install && npm run build
 node dist/server/cli.js --db <내 프로젝트>/.flowlens/data.db
 # → http://127.0.0.1:7411  (트레이스 / 관계도 / 엔티티)
 
-# 코드가 바뀌면 코드맵 갱신
-flowlens scan
+# 코드맵 갱신은 자동 — UI 서버가 켜져 있으면 파일 저장을 감지해 다시 스캔한다
+# (UI 없이 갱신하려면: flowlens scan)
 ```
 
 ### 프론트엔드(React/Vite) 연결

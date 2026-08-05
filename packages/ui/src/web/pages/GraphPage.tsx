@@ -13,6 +13,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import { computeDepths } from "../lib/layout.js";
+import { useScanStatus } from "../lib/scanStatus.js";
 
 interface GraphNode {
   id: string;
@@ -41,10 +42,12 @@ export default function GraphPage() {
   const [q, setQ] = useState(params.get("q") ?? "");
   const [detail, setDetail] = useState<FnDetail | null>(null);
 
+  const { lastScanAt } = useScanStatus(); // 코드맵이 갱신되면 다시 불러온다
+
   useEffect(() => {
     const url = q ? `/api/graph?q=${encodeURIComponent(q)}` : "/api/graph";
     fetch(url).then((r) => r.json()).then(setData).catch(() => setData(null));
-  }, [q]);
+  }, [q, lastScanAt]);
 
   const flow = useMemo(() => {
     if (!data) return { nodes: [] as Node[], edges: [] as Edge[] };

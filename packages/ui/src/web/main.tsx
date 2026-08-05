@@ -3,6 +3,8 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Link, NavLink, Route, Routes } from "react-router-dom";
 
+import ScanStatusBar from "./components/ScanStatusBar.js";
+import { ScanStatusProvider } from "./lib/scanStatus.js";
 import CoveragePage from "./pages/CoveragePage.js";
 import EntitiesPage from "./pages/EntitiesPage.js";
 import GraphPage from "./pages/GraphPage.js";
@@ -19,25 +21,28 @@ const navStyle = ({ isActive }: { isActive: boolean }) => ({
 function App() {
   return (
     <BrowserRouter>
-      <header className="topbar">
-        <Link to="/" className="logo">FlowLens</Link>
-        <NavLink to="/" style={navStyle} end>트레이스</NavLink>
-        <NavLink to="/graph" style={navStyle}>관계도</NavLink>
-        <NavLink to="/entities" style={navStyle}>엔티티</NavLink>
-        <NavLink to="/coverage" style={navStyle}>커버리지</NavLink>
-        <span style={{ flex: 1 }} />
-        <NavLink to="/settings" style={navStyle}>설정</NavLink>
-      </header>
-      <main className="page">
-        <Routes>
-          <Route path="/" element={<TraceList />} />
-          <Route path="/traces/:id" element={<TraceDetail />} />
-          <Route path="/graph" element={<GraphPage />} />
-          <Route path="/entities" element={<EntitiesPage />} />
-          <Route path="/coverage" element={<CoveragePage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-        </Routes>
-      </main>
+      <ScanStatusProvider>
+        <header className="topbar">
+          <Link to="/" className="logo">FlowLens</Link>
+          <NavLink to="/" style={navStyle} end>트레이스</NavLink>
+          <NavLink to="/graph" style={navStyle}>관계도</NavLink>
+          <NavLink to="/entities" style={navStyle}>엔티티</NavLink>
+          <NavLink to="/coverage" style={navStyle}>커버리지</NavLink>
+          <span style={{ flex: 1 }} />
+          <ScanStatusBar />
+          <NavLink to="/settings" style={navStyle}>설정</NavLink>
+        </header>
+        <main className="page">
+          <Routes>
+            <Route path="/" element={<TraceList />} />
+            <Route path="/traces/:id" element={<TraceDetail />} />
+            <Route path="/graph" element={<GraphPage />} />
+            <Route path="/entities" element={<EntitiesPage />} />
+            <Route path="/coverage" element={<CoveragePage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+          </Routes>
+        </main>
+      </ScanStatusProvider>
     </BrowserRouter>
   );
 }
