@@ -26,8 +26,9 @@ describe("startCodeWatcher", () => {
   it("소스 파일을 저장하면 알려준다", async () => {
     const calls: number[] = [];
     stop = startCodeWatcher(root, () => calls.push(Date.now()), { debounceMs: 40 });
+    await wait(80); // macOS 파일 감시(FSEvents) 초기화가 끝나길 기다린다
     writeFileSync(join(root, "app.py"), "def f(): pass\n");
-    await wait(250);
+    await wait(400);
     expect(calls).toHaveLength(1);
   });
 
