@@ -23,6 +23,8 @@ export default defineConfig([
       copyFileSync("src/db/schema.sql", "dist/db/schema.sql");
       mkdirSync("dist/templates", { recursive: true });
       copyFileSync("src/templates/usage_guide.md", "dist/templates/usage_guide.md");
+      // 손으로 관리하는 타입 선언 (에디터의 '@flowlens/node/vite' 모듈 인식용)
+      copyFileSync("types/vite-plugin.d.mts", "dist/vite-plugin.d.mts");
       // bin은 .js 확장자를 기대하므로 cli만 이름 유지
       copyFileSync("dist/cli.mjs", "dist/cli.js");
     },

@@ -153,6 +153,15 @@ describe("http 요청 그룹핑", () => {
   });
 });
 
+describe("패키징 산출물", () => {
+  it("vite 플러그인 타입 선언이 빌드에 포함되고 exports에 연결된다", () => {
+    const dts = readFileSync(join(PKG, "dist", "vite-plugin.d.mts"), "utf-8");
+    expect(dts).toContain("flowlensDev");
+    const pkg = JSON.parse(readFileSync(join(PKG, "package.json"), "utf-8"));
+    expect(pkg.exports["./vite"].types).toBe("./dist/vite-plugin.d.mts");
+  });
+});
+
 describe("value_max_bytes 설정 반영", () => {
   it("설정된 상한으로 인자가 잘린다", () => {
     const dir = makeProject({
