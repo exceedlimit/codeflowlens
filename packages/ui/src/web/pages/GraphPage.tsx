@@ -1,6 +1,7 @@
-// 개요: 메서드 화면 — 엔티티와 동일하게 "목록 보기 / 관계도 보기"를 토글한다.
-// 로직: 검색은 두 뷰 공통. 관계도에서는 일치 + 연결된 메서드까지 함께 그리고,
-//       메서드를 선택하면 연결된 호출 선들이 전이적으로 붉게 강조된다.
+// 개요: 메서드 관계도 화면 — 목록·그래프·상세 3단 구성.
+// 로직: 왼쪽 목록(파일별)에서 메서드를 고르면 연결된 흐름만 그래프에 그려지고,
+//       연결된 호출 선들이 전이적으로 붉게 강조된다. 검색하면 일치 + 연결된 메서드를 함께 그린다.
+// 참고: 큰 프로젝트는 전체를 그리지 않는다(읽을 수 없으므로) — 목록/검색에서 골라 부분 그래프를 본다.
 import {
   Background,
   Controls,
@@ -57,10 +58,10 @@ function FitOnChange({ signature }: { signature: string }) {
 export default function GraphPage() {
   const [params] = useSearchParams();
   const [data, setData] = useState<{ nodes: GraphNode[]; edges: GraphEdge[]; truncated: boolean } | null>(null);
-  const [view, setView] = useState<"list" | "graph">(params.get("q") ? "graph" : "list");
   const [q, setQ] = useState(params.get("q") ?? "");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detail, setDetail] = useState<FnDetail | null>(null);
+  const [openFiles, setOpenFiles] = useState<Set<string>>(new Set());
   const { lastScanAt } = useScanStatus(); // 코드맵이 갱신되면 다시 불러온다
 
   useEffect(() => {
@@ -72,24 +73,33 @@ export default function GraphPage() {
 
   const query = q.trim().toLowerCase();
 
-  const matchedNodes = useMemo(() => {
+  // --- 목록: 파일별 그룹 (검색은 목록에도 적용) ------------------------
+  const fileGroups = useMemo(() => {
     if (!data) return [];
-    if (!query) return data.nodes;
-    return data.nodes.filter((n) => n.id.toLowerCase().includes(query));
+    const groups = new Map<string, GraphNode[]>();
+    for (const n of data.nodes) {
+      if (query && !n.id.toLowerCase().includes(query)) continue;
+      if (!groups.has(n.file_path)) groups.set(n.file_path, []);
+      groups.get(n.file_path)!.push(n);
+    }
+    return [...groups.entries()].sort(([a], [b]) => a.localeCompare(b));
   }, [data, query]);
 
-  // --- 관계도 그리기 대상: 검색 일치 + 연결된 것 / 선택의 연결 집합 / 소형이면 전체
+  // --- 그리기 대상: 검색 일치 + 연결된 것 / 선택의 연결 집합 / 소형이면 전체
   const displayedIds = useMemo(() => {
     if (!data) return new Set<string>();
-    if (query) {
-      return reachableSet(matchedNodes.map((n) => n.id), data.edges, REACH_MAX);
-    }
     if (selectedId) return reachableSet([selectedId], data.edges, REACH_MAX);
+    if (query) {
+      const matched = data.nodes
+        .filter((n) => n.id.toLowerCase().includes(query))
+        .map((n) => n.id);
+      return reachableSet(matched, data.edges, REACH_MAX);
+    }
     if (data.nodes.length <= FULL_RENDER_MAX) {
       return new Set(data.nodes.map((n) => n.id));
     }
     return new Set<string>();
-  }, [data, query, matchedNodes, selectedId]);
+  }, [data, query, selectedId]);
 
   // --- 붉은 강조: 선택된 메서드와 전이적으로 연결된 모든 것 --------------
   const highlighted = useMemo(() => {
@@ -179,174 +189,174 @@ export default function GraphPage() {
       .catch(() => setDetail(null));
   };
 
-  const total = data?.nodes.length ?? 0;
+  const toggleFile = (file: string) => {
+    const next = new Set(openFiles);
+    if (next.has(file)) next.delete(file);
+    else next.add(file);
+    setOpenFiles(next);
+  };
 
-  const detailCard = (
-    <div className="card" style={{ alignSelf: "start" }}>
-      {!detail ? (
-        <div className="panel-section">
-          <span className="placeholder">
-            메서드를 선택하면 설명이 표시되고,<br />관계도에서 연결된 호출 선이 붉게 강조됩니다.
-          </span>
-        </div>
-      ) : (
-        <div>
-          <div className="panel-section">
-            <h3>함수</h3>
-            <div style={{ fontFamily: "ui-monospace, monospace", fontSize: 13 }}>
-              {detail.function.qualified_name}
-            </div>
-            <div className="meta">
-              {detail.function.file_path}
-              {detail.function.line != null && `:${detail.function.line}`}
-            </div>
-          </div>
-          <div className="panel-section">
-            <h3>설명</h3>
-            {detail.function.doc_overview ? (
-              <>
-                <p className="doc-line"><b>개요</b>{detail.function.doc_overview}</p>
-                {detail.function.doc_logic && (
-                  <p className="doc-line"><b>로직</b>{detail.function.doc_logic}</p>
-                )}
-                {detail.function.doc_note && (
-                  <p className="doc-line"><b>참고</b>{detail.function.doc_note}</p>
-                )}
-              </>
-            ) : (
-              <span className="placeholder">주석 없음 — retrofit 작업이 필요합니다.</span>
-            )}
-          </div>
-          <div className="panel-section">
-            <h3>최근 실행</h3>
-            {detail.traces.length === 0 ? (
-              <span className="placeholder">실행 기록 없음</span>
-            ) : (
-              detail.traces.map((t) => (
-                <p className="doc-line" key={t.id}>
-                  <Link to={`/traces/${t.id}`}>
-                    {t.entry_name} ·{" "}
-                    {new Date(t.started_at * 1000).toLocaleTimeString("ko-KR", { hour12: false })}
-                  </Link>
-                </p>
-              ))
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  const total = data?.nodes.length ?? 0;
+  const listOpen = (file: string) =>
+    openFiles.has(file) || Boolean(query) || fileGroups.length <= 5;
 
   return (
     <div>
       <div style={{ display: "flex", gap: 12, marginBottom: 12, alignItems: "center", flexWrap: "wrap" }}>
-        <h1 style={{ fontSize: 18, margin: 0 }}>메서드</h1>
-        <button
-          className="search" style={{ width: "auto", cursor: "pointer" }}
-          onClick={() => setView(view === "list" ? "graph" : "list")}
-        >
-          {view === "list" ? "관계도 보기" : "목록 보기"}
-        </button>
+        <h1 style={{ fontSize: 18, margin: 0 }}>메서드 관계도</h1>
         <input
           className="search"
-          placeholder={view === "graph" ? "검색 — 일치 + 연결된 메서드까지 표시" : "메서드/파일 검색"}
+          placeholder="검색 — 일치 + 연결된 메서드까지 함께 표시"
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
-        {selectedId && view === "graph" && (
+        {selectedId && (
           <button
-            className="search" style={{ width: "auto", cursor: "pointer" }}
+            className="search"
+            style={{ width: "auto", cursor: "pointer" }}
             onClick={() => { setSelectedId(null); setDetail(null); }}
           >
             강조 해제
           </button>
         )}
         <span className="meta">
-          {view === "graph" ? (
-            <>
-              함수 {total}개 · 그리는 중 {displayedIds.size}개
-              {displayedIds.size >= REACH_MAX && ` (연결이 많아 가까운 ${REACH_MAX}개까지)`}
-            </>
-          ) : (
-            <>함수 {total}개{query && ` · 일치 ${matchedNodes.length}개`}</>
-          )}
+          함수 {total}개 · 그리는 중 {displayedIds.size}개
+          {displayedIds.size >= REACH_MAX && ` (연결이 많아 가까운 ${REACH_MAX}개까지)`}
         </span>
       </div>
 
-      {data && total === 0 && (
-        <div className="empty">
-          코드맵이 비어 있어요 — <code>flowlens scan</code>을 실행하세요.
-        </div>
-      )}
-
-      {view === "list" && data && total > 0 && (
-        <div className="detail-layout">
-          <table className="traces">
-            <thead>
-              <tr>
-                <th>메서드</th><th>파일</th><th>개요</th><th className="num">실행</th>
-              </tr>
-            </thead>
-            <tbody>
-              {matchedNodes.map((n) => (
-                <tr
-                  key={n.id}
-                  onClick={() => selectNode(n.id)}
-                  style={n.id === selectedId ? { background: "var(--selected)" } : undefined}
-                >
-                  <td style={{ fontFamily: "ui-monospace, monospace", fontSize: 13 }}>{n.name}</td>
-                  <td className="meta">
-                    {n.file_path}
-                    {n.line != null && `:${n.line}`}
-                  </td>
-                  <td>{n.doc_overview ?? <span className="placeholder">주석 없음</span>}</td>
-                  <td className="num">{n.runtime_hits > 0 ? n.runtime_hits : "—"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {detailCard}
-        </div>
-      )}
-
-      {view === "graph" && data && total > 0 && (
-        <div className="detail-layout">
-          <div className="card" style={{ height: "72vh", minWidth: 0 }}>
-            {displayedIds.size === 0 ? (
-              <div className="empty" style={{ margin: 16 }}>
-                함수가 {total}개라 한 번에 그리면 읽을 수 없어요.<br />
-                <b>검색하거나 목록에서 메서드를 선택</b>하면 연결된 흐름만 그려드립니다.
+      <div className="graph-layout">
+        {/* ① 메서드 목록 (파일별) */}
+        <aside className="card method-list">
+          <div className="card-head"><h2>메서드</h2></div>
+          <div className="method-list-body">
+            {fileGroups.length === 0 && (
+              <div className="panel-section">
+                <span className="placeholder">
+                  {query ? "검색 결과 없음" : "flowlens scan을 실행하세요."}
+                </span>
               </div>
-            ) : (
-              <ReactFlowProvider>
-                <ReactFlow
-                  nodes={flow.nodes}
-                  edges={flow.edges}
-                  onNodeClick={(_, node) => selectNode(node.id)}
-                  onPaneClick={() => { setSelectedId(null); setDetail(null); }}
-                  fitView
-                  minZoom={0.05}
-                  proOptions={{ hideAttribution: true }}
-                >
-                  <FitOnChange signature={`${query}|${selectedId ?? ""}|${displayedIds.size}`} />
-                  <Background gap={24} />
-                  <Controls showInteractive={false} />
-                  {flow.nodes.length > 20 && (
-                    <MiniMap
-                      pannable
-                      zoomable
-                      style={{ background: "var(--bg)" }}
-                      maskColor="color-mix(in srgb, var(--bg) 70%, transparent)"
-                      nodeColor={() => "var(--bar)"}
-                    />
-                  )}
-                </ReactFlow>
-              </ReactFlowProvider>
             )}
+            {fileGroups.map(([file, fns]) => (
+              <div key={file}>
+                <button className="file-group" onClick={() => toggleFile(file)}>
+                  <span className="caret">{listOpen(file) ? "▾" : "▸"}</span>
+                  <span className="file-name" title={file}>{file}</span>
+                  <span className="meta">{fns.length}</span>
+                </button>
+                {listOpen(file) &&
+                  fns.map((fn) => (
+                    <button
+                      key={fn.id}
+                      className={`method-item ${fn.id === selectedId ? "selected" : ""}`}
+                      onClick={() => selectNode(fn.id)}
+                      title={fn.doc_overview ?? "주석 없음"}
+                    >
+                      <span className={`doc-dot ${fn.doc_overview ? "yes" : "no"}`} aria-hidden>●</span>
+                      <span className="method-name">{fn.name}</span>
+                    </button>
+                  ))}
+              </div>
+            ))}
           </div>
-          {detailCard}
+        </aside>
+
+        {/* ② 그래프 */}
+        <div className="card" style={{ height: "72vh", minWidth: 0 }}>
+          {displayedIds.size === 0 ? (
+            <div className="empty" style={{ margin: 16 }}>
+              {total === 0 ? (
+                <>코드맵이 비어 있어요 — <code>flowlens scan</code>을 실행하세요.</>
+              ) : (
+                <>
+                  함수가 {total}개라 한 번에 그리면 읽을 수 없어요.<br />
+                  <b>왼쪽 목록에서 메서드를 고르거나 검색</b>하면 연결된 흐름만 그려드립니다.
+                </>
+              )}
+            </div>
+          ) : (
+            <ReactFlowProvider>
+              <ReactFlow
+                nodes={flow.nodes}
+                edges={flow.edges}
+                onNodeClick={(_, node) => selectNode(node.id)}
+                onPaneClick={() => { setSelectedId(null); setDetail(null); }}
+                fitView
+                minZoom={0.05}
+                proOptions={{ hideAttribution: true }}
+              >
+                <FitOnChange signature={`${query}|${selectedId ?? ""}|${displayedIds.size}`} />
+                <Background gap={24} />
+                <Controls showInteractive={false} />
+                {flow.nodes.length > 20 && (
+                  <MiniMap
+                    pannable
+                    zoomable
+                    style={{ background: "var(--bg)" }}
+                    maskColor="color-mix(in srgb, var(--bg) 70%, transparent)"
+                    nodeColor={() => "var(--bar)"}
+                  />
+                )}
+              </ReactFlow>
+            </ReactFlowProvider>
+          )}
         </div>
-      )}
+
+        {/* ③ 상세 패널 */}
+        <div className="card" style={{ alignSelf: "start" }}>
+          {!detail ? (
+            <div className="panel-section">
+              <span className="placeholder">
+                메서드를 선택하면 설명이 표시되고,<br />연결된 호출 선이 붉게 강조됩니다.
+              </span>
+            </div>
+          ) : (
+            <div>
+              <div className="panel-section">
+                <h3>함수</h3>
+                <div style={{ fontFamily: "ui-monospace, monospace", fontSize: 13 }}>
+                  {detail.function.qualified_name}
+                </div>
+                <div className="meta">
+                  {detail.function.file_path}
+                  {detail.function.line != null && `:${detail.function.line}`}
+                </div>
+              </div>
+              <div className="panel-section">
+                <h3>설명</h3>
+                {detail.function.doc_overview ? (
+                  <>
+                    <p className="doc-line"><b>개요</b>{detail.function.doc_overview}</p>
+                    {detail.function.doc_logic && (
+                      <p className="doc-line"><b>로직</b>{detail.function.doc_logic}</p>
+                    )}
+                    {detail.function.doc_note && (
+                      <p className="doc-line"><b>참고</b>{detail.function.doc_note}</p>
+                    )}
+                  </>
+                ) : (
+                  <span className="placeholder">주석 없음 — retrofit 작업이 필요합니다.</span>
+                )}
+              </div>
+              <div className="panel-section">
+                <h3>최근 실행</h3>
+                {detail.traces.length === 0 ? (
+                  <span className="placeholder">실행 기록 없음</span>
+                ) : (
+                  detail.traces.map((t) => (
+                    <p className="doc-line" key={t.id}>
+                      <Link to={`/traces/${t.id}`}>
+                        {t.entry_name} ·{" "}
+                        {new Date(t.started_at * 1000).toLocaleTimeString("ko-KR", { hour12: false })}
+                      </Link>
+                    </p>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

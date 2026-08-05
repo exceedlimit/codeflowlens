@@ -90,7 +90,35 @@ table.traces tbody tr:hover { background: var(--hover); }
 /* 트레이스 상세 */
 .detail-layout { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 16px; }
 
-/* (메서드 화면은 엔티티와 동일한 detail-layout 토글 구성을 쓴다) */
+/* 메서드 관계도 3단 (목록 · 그래프 · 상세) */
+.graph-layout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr) 320px;
+  gap: 12px;
+}
+.method-list { display: flex; flex-direction: column; max-height: 72vh; }
+.method-list .card-head h2 { font-size: 13px; }
+.method-list-body { overflow-y: auto; padding: 4px; }
+.file-group {
+  display: flex; align-items: center; gap: 6px; width: 100%;
+  padding: 5px 8px; border: none; background: none; cursor: pointer;
+  color: var(--text-muted); font-size: 12px; font-weight: 600; text-align: left;
+  border-radius: 6px;
+}
+.file-group:hover { background: var(--hover); }
+.file-group .file-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.method-item {
+  display: flex; align-items: center; gap: 6px; width: 100%;
+  padding: 3px 8px 3px 22px; border: none; background: none; cursor: pointer;
+  color: var(--text); font-size: 12.5px; text-align: left; border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.method-item:hover { background: var(--hover); }
+.method-item.selected { background: var(--selected); }
+.method-item .method-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.doc-dot { font-size: 8px; flex: none; }
+.doc-dot.yes { color: var(--ok-fg); }
+.doc-dot.no { color: var(--border); }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .card-head { padding: 10px 14px; border-bottom: 1px solid var(--border);
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
