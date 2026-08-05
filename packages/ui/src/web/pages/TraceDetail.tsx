@@ -30,6 +30,24 @@ export default function TraceDetail() {
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<SpanRow | null>(null);
+  const [excludeMessage, setExcludeMessage] = useState<string | null>(null);
+
+  const excludeEntry = async (entryName: string) => {
+    try {
+      const res = await fetch("/api/exclusions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ entry_name: entryName }),
+      });
+      setExcludeMessage(
+        res.ok
+          ? "앞으로 이 진입점은 추적하지 않습니다 (설정에서 되돌릴 수 있어요. 실행 중인 앱에는 몇 초 안에 반영)"
+          : `실패: ${(await res.json()).error ?? res.status}`,
+      );
+    } catch (e) {
+      setExcludeMessage(String(e));
+    }
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -66,6 +84,19 @@ export default function TraceDetail() {
                 {data.client_event.duration_ms != null &&
                   ` · 브라우저 왕복 ${data.client_event.duration_ms.toFixed(0)}ms`}
               </span>
+            )}
+            <span style={{ flex: 1 }} />
+            {excludeMessage ? (
+              <span className="meta">{excludeMessage}</span>
+            ) : (
+              <button
+                className="search"
+                style={{ width: "auto", cursor: "pointer" }}
+                title="이 진입점의 요청을 앞으로 기록하지 않습니다 (설정에서 관리)"
+                onClick={() => excludeEntry(trace.entry_name)}
+              >
+                🚫 이 진입점 추적 안 함
+              </button>
             )}
           </div>
           <div className="card-body">

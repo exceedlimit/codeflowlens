@@ -20,6 +20,9 @@ from flowlens.tracer.serialize import serialize_args, serialize_value
 # 참고: ASGI 요청 그룹핑이 요청마다 값을 바꾼다. None이면 프로세스 기본 트레이스.
 _current_trace = contextvars.ContextVar("flowlens_current_trace", default=None)
 
+# 추적 제외 진입점의 요청 동안 설정되는 값 — 이 흐름의 스팬은 기록하지 않는다
+DISCARD = "__flowlens_discard__"
+
 
 class TraceSession:
     """개요: 트레이스 1건의 수명(시작→스팬 수집→종료)을 관리한다."""
@@ -52,6 +55,9 @@ class TraceSession:
         로직: 부모 스팬을 frame 체인에서 찾고, 인자를 그 시점 값으로 직렬화해 보관한다.
         참고: 제너레이터/코루틴이 재개될 때는 이미 스팬이 있으므로 건너뛴다.
         """
+        trace_id = _current_trace.get() or self.trace_id
+        if trace_id == DISCARD:
+            return  # 추적 제외 진입점의 요청 — 스팬을 남기지 않는다
         key = id(frame)
         if key in self._frames:
             return
@@ -61,7 +67,7 @@ class TraceSession:
         argnames = code.co_varnames[: code.co_argcount + code.co_kwonlyargcount]
         rec = {
             "span_id": uuid.uuid4().hex,
-            "trace_id": _current_trace.get() or self.trace_id,
+            "trace_id": trace_id,
             "function_id": function_id,
             "name": qualname,
             "started_at": time.time(),
@@ -137,6 +143,17 @@ class TraceSession:
         except Exception:
             pass
         self.writer.trace_end(trace_id, time.time(), status, http_status)
+
+    def begin_discard(self):
+        """개요: 추적 제외 요청 시작 — 이 흐름의 스팬 기록을 끈다."""
+        return _current_trace.set(DISCARD)
+
+    def end_discard(self, token):
+        """개요: 추적 제외 요청 종료 — 원래 트레이스로 되돌린다."""
+        try:
+            _current_trace.reset(token)
+        except Exception:
+            pass
 
     # --- 내부 구현 ------------------------------------------------------
 

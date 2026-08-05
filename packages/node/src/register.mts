@@ -5,6 +5,7 @@ import { register } from "node:module";
 import path from "node:path";
 
 import { installCjsHook } from "./cjs-hook.js";
+import { ExclusionCache } from "./exclusions.js";
 import { CodeFilter } from "./filter.js";
 import { installHttpHook } from "./http-hook.js";
 import { FlowlensRuntime } from "./runtime.js";
@@ -37,7 +38,7 @@ try {
     register(new URL("./hooks.mjs", import.meta.url), { data: { root } });
 
     try {
-      installHttpHook(runtime, writer);
+      installHttpHook(runtime, writer, new ExclusionCache(process.env.FLOWLENS_DB));
     } catch {
       /* http 훅 실패 시 프로세스 트레이스 모드 유지 */
     }

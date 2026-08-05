@@ -100,6 +100,13 @@ describe("GET /api/graph", () => {
     const { nodes } = res.json();
     expect(nodes.every((n: any) => n.id.includes("repo"))).toBe(true);
   });
+
+  it("limit 파라미터로 상한을 조절할 수 있다", async () => {
+    const res = await server.inject({ url: "/api/graph?limit=2" });
+    const body = res.json();
+    expect(body.nodes).toHaveLength(2);
+    expect(body.truncated).toBe(true);
+  });
 });
 
 describe("GET /api/entities", () => {

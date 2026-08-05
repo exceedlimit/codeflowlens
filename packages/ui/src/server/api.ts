@@ -140,21 +140,34 @@ export async function buildServer(opts: ServerOptions): Promise<FastifyInstance>
     return { ok: true };
   });
 
-  app.get<{ Querystring: { q?: string; limit?: string; offset?: string } }>(
+  app.get<{
+    Querystring: {
+      q?: string; limit?: string; offset?: string;
+      since?: string; entry?: string; service?: string;
+    };
+  }>(
     "/api/traces",
     async (req) => {
       const db = handle.get();
-      if (!db) return { traces: [] };
+      if (!db) return { traces: [], total: 0, facets: { entries: [], services: [] } };
       const q = req.query.q?.trim() || null;
-      const limit = Math.min(Number(req.query.limit) || 100, 500);
+      const entry = req.query.entry?.trim() || null;
+      const service = req.query.service?.trim() || null;
+      const since = Number(req.query.since) || null;
+      const limit = Math.min(Number(req.query.limit) || 100, 1000);
       const offset = Number(req.query.offset) || 0;
+
+      const conditions: string[] = [];
       const params: unknown[] = [];
-      let where = "";
-      if (q) {
-        where = "WHERE t.entry_name LIKE '%' || ? || '%'";
-        params.push(q);
-      }
-      params.push(limit, offset);
+      if (q) { conditions.push("t.entry_name LIKE '%' || ? || '%'"); params.push(q); }
+      if (entry) { conditions.push("t.entry_name = ?"); params.push(entry); }
+      if (service) { conditions.push("t.service = ?"); params.push(service); }
+      if (since) { conditions.push("t.started_at >= ?"); params.push(since); }
+      const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+
+      const total = (db
+        .prepare(`SELECT COUNT(*) AS c FROM traces t ${where}`)
+        .get(...params) as { c: number }).c;
       const rows = db
         .prepare(
           `SELECT t.*,
@@ -164,15 +177,70 @@ export async function buildServer(opts: ServerOptions): Promise<FastifyInstance>
            ORDER BY t.started_at DESC
            LIMIT ? OFFSET ?`,
         )
-        .all(...params) as Record<string, unknown>[];
-      return { traces: rows.map(withDuration) };
+        .all(...params, limit, offset) as Record<string, unknown>[];
+
+      // 필터 드롭다운용 후보 목록
+      const entries = (db
+        .prepare("SELECT DISTINCT entry_name FROM traces ORDER BY entry_name LIMIT 200")
+        .all() as { entry_name: string }[]).map((r) => r.entry_name);
+      const services = (db
+        .prepare("SELECT DISTINCT service FROM traces WHERE service IS NOT NULL")
+        .all() as { service: string }[]).map((r) => r.service);
+      return { traces: rows.map(withDuration), total, facets: { entries, services } };
     },
   );
 
-  app.get<{ Querystring: { q?: string } }>("/api/graph", async (req) => {
+  // --- 진입점 추적 제외 목록 (settings의 excluded_entries JSON) -----------
+  const readExclusions = (): string[] => {
+    const db = handle.get();
+    if (!db) return [];
+    const row = db
+      .prepare("SELECT value FROM settings WHERE key = 'excluded_entries'")
+      .get() as { value: string } | undefined;
+    try {
+      const parsed = JSON.parse(row?.value ?? "[]");
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  };
+  const writeExclusions = (entries: string[]): boolean => {
+    const db = handle.getWrite();
+    if (!db) return false;
+    db.prepare("INSERT OR REPLACE INTO settings VALUES ('excluded_entries', ?)").run(
+      JSON.stringify(entries),
+    );
+    return true;
+  };
+
+  app.get("/api/exclusions", async () => ({ entries: readExclusions() }));
+
+  app.post<{ Body: { entry_name?: string } }>("/api/exclusions", async (req, reply) => {
+    const entry = req.body?.entry_name?.trim();
+    if (!entry) return reply.code(400).send({ error: "entry_name이 필요합니다" });
+    const entries = readExclusions();
+    if (!entries.includes(entry)) entries.push(entry);
+    if (!writeExclusions(entries)) {
+      return reply.code(409).send({ error: "추적 DB가 아직 없습니다" });
+    }
+    return { ok: true, entries };
+  });
+
+  app.delete<{ Querystring: { entry?: string } }>("/api/exclusions", async (req, reply) => {
+    const entry = req.query.entry?.trim();
+    if (!entry) return reply.code(400).send({ error: "entry가 필요합니다" });
+    const entries = readExclusions().filter((e) => e !== entry);
+    if (!writeExclusions(entries)) {
+      return reply.code(409).send({ error: "추적 DB가 아직 없습니다" });
+    }
+    return { ok: true, entries };
+  });
+
+  app.get<{ Querystring: { q?: string; limit?: string } }>("/api/graph", async (req) => {
     const db = handle.get();
     if (!db) return { nodes: [], edges: [], truncated: false };
     const q = req.query.q?.trim();
+    const limit = Math.min(Number(req.query.limit) || 300, 10000);
     const params: unknown[] = [];
     let where = "";
     if (q) {
@@ -186,10 +254,10 @@ export async function buildServer(opts: ServerOptions): Promise<FastifyInstance>
                 (SELECT COUNT(*) FROM spans s WHERE s.function_id = f.id) AS runtime_hits
          FROM functions f ${where}
          ORDER BY f.file_path, f.line
-         LIMIT 301`,
+         LIMIT ${limit + 1}`,
       )
       .all(...params) as Record<string, unknown>[];
-    const truncated = nodes.length > 300;
+    const truncated = nodes.length > limit;
     if (truncated) nodes.pop();
     const ids = new Set(nodes.map((n) => n.id));
     const edges = (

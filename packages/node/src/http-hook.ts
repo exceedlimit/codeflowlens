@@ -6,10 +6,15 @@ import { randomUUID } from "node:crypto";
 import http from "node:http";
 import type { IncomingMessage, ServerResponse } from "node:http";
 
+import type { ExclusionCache } from "./exclusions.js";
 import type { FlowlensRuntime } from "./runtime.js";
 import type { BatchWriter } from "./writer.js";
 
-export function installHttpHook(runtime: FlowlensRuntime, writer: BatchWriter): void {
+export function installHttpHook(
+  runtime: FlowlensRuntime,
+  writer: BatchWriter,
+  exclusions?: ExclusionCache,
+): void {
   const originalEmit = http.Server.prototype.emit;
 
   http.Server.prototype.emit = function (event: string | symbol, ...args: unknown[]): boolean {
@@ -22,6 +27,12 @@ export function installHttpHook(runtime: FlowlensRuntime, writer: BatchWriter): 
       const traceId = randomUUID().replace(/-/g, "");
       const method = req.method ?? "GET";
       const urlPath = (req.url ?? "/").split("?")[0];
+      // 설정에서 "추적 안 함"으로 지정한 진입점은 트레이스도 스팬도 남기지 않는다
+      if (exclusions?.isExcluded(`${method} ${urlPath}`)) {
+        return runtime.runSuppressed(() =>
+          originalEmit.call(this, event, ...args),
+        ) as boolean;
+      }
       const header = req.headers["x-flowlens-trace"];
       writer.traceStart({
         id: traceId,

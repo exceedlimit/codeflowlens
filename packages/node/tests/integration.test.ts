@@ -162,6 +162,43 @@ describe("패키징 산출물", () => {
   });
 });
 
+describe("추적 제외 진입점", () => {
+  it("설정에 제외된 진입점은 트레이스도 스팬도 남기지 않는다", () => {
+    const dir = makeProject({
+      "server.mjs": `
+import http from "node:http"
+function work(n) { return n * 2 }
+const srv = http.createServer((req, res) => { res.end(String(work(3))) })
+srv.listen(0, async () => {
+  const port = srv.address().port
+  await fetch("http://127.0.0.1:" + port + "/health")   // 제외 대상
+  await fetch("http://127.0.0.1:" + port + "/orders")   // 추적 대상
+  srv.close(() => process.exit(0))
+})
+`,
+    });
+    const dbPath = join(dir, ".flowlens", "data.db");
+    mkdirSync(join(dir, ".flowlens"), { recursive: true });
+    const pre = new Database(dbPath);
+    pre.exec(readFileSync(join(PKG, "src", "db", "schema.sql"), "utf-8"));
+    pre.prepare("INSERT INTO schema_version VALUES (1)").run();
+    pre.prepare("INSERT INTO settings VALUES ('excluded_entries', ?)").run(
+      JSON.stringify(["GET /health"]),
+    );
+    pre.close();
+
+    runTraced(dir, "server.mjs");
+    const db = openDb(dir);
+    const entries = (db.prepare("SELECT entry_name FROM traces WHERE entry_kind='http'").all() as any[])
+      .map((r) => r.entry_name);
+    expect(entries).toEqual(["GET /orders"]); // health는 기록되지 않음
+    // 제외 요청 중의 함수 호출(work)이 다른 트레이스로 새지도 않았는지 — orders 것 1건만
+    const workSpans = db.prepare("SELECT COUNT(*) c FROM spans WHERE name='work'").get() as any;
+    expect(workSpans.c).toBe(1);
+    db.close();
+  });
+});
+
 describe("value_max_bytes 설정 반영", () => {
   it("설정된 상한으로 인자가 잘린다", () => {
     const dir = makeProject({

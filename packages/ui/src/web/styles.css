@@ -89,6 +89,8 @@ table.traces tbody tr:hover { background: var(--hover); }
 
 /* 트레이스 상세 */
 .detail-layout { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 16px; }
+
+/* (메서드 화면은 엔티티와 동일한 detail-layout 토글 구성을 쓴다) */
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .card-head { padding: 10px 14px; border-bottom: 1px solid var(--border);
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
