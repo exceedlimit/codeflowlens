@@ -13,7 +13,10 @@ def scan(root=None, quiet=False) -> dict:
     개요: 스캔을 실행하고 요약을 돌려준다.
     로직: 프로젝트 루트를 찾아 분석 → DB 저장 → 요약 출력.
     """
+    from flowlens.usage_doc import ensure_usage_md
+
     root = root or find_project_root()
+    ensure_usage_md(root)
     result = scan_project(root)
     conn = open_db(db_path(root))
     try:

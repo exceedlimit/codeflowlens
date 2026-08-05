@@ -1,5 +1,8 @@
 {
   "dependencies": {
     "@xyflow/react": "^12.11.2"
+  },
+  "devDependencies": {
+    "@flowlens/node": "file:packages/node"
   }
 }

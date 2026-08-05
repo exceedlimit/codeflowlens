@@ -28,6 +28,8 @@ def run_command(argv) -> int:
         print("사용법: flowlens run <명령> [인자...]", file=sys.stderr)
         return 2
     root = find_project_root()
+    from flowlens.usage_doc import ensure_usage_md
+    ensure_usage_md(root)
     with tempfile.TemporaryDirectory(prefix="flowlens-boot-") as boot_dir:
         with open(os.path.join(boot_dir, "sitecustomize.py"), "w") as f:
             f.write(SITECUSTOMIZE)

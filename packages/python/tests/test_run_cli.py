@@ -30,6 +30,7 @@ def test_run_wraps_and_records(tmp_path):
 
     db = tmp_path / ".flowlens" / "data.db"
     assert db.exists()
+    assert (tmp_path / ".flowlens" / "USAGE.md").exists()  # 사용법 안내서 자동 생성
     conn = open_db(db)
     try:
         assert conn.execute("SELECT COUNT(*) FROM traces").fetchone()[0] == 1

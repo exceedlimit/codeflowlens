@@ -5,6 +5,8 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+import { ensureUsageMd } from "./usage-doc.js";
+
 const ROOT_MARKERS = ["package.json", ".git", "pyproject.toml", "requirements.txt"];
 
 /** 개요: 현재 위치에서 위로 올라가며 프로젝트 루트를 찾는다. */
@@ -24,6 +26,7 @@ function runCommand(argv: string[]): void {
     process.exit(2);
   }
   const root = findProjectRoot();
+  ensureUsageMd(root);
   const registerUrl = pathToFileURL(
     fileURLToPath(new URL("./register.mjs", import.meta.url)),
   ).href;
@@ -63,7 +66,9 @@ async function main(): Promise<void> {
   if (cmd === "run") return runCommand(rest);
   if (cmd === "scan") {
     const { runScan } = await import("./analyzer/scan-cli.js");
-    return runScan(findProjectRoot());
+    const root = findProjectRoot();
+    ensureUsageMd(root);
+    return runScan(root);
   }
   if (cmd === "check") {
     const { runCheck } = await import("./analyzer/scan-cli.js");

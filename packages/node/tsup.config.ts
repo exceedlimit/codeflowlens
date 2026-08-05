@@ -21,6 +21,8 @@ export default defineConfig([
     onSuccess: async () => {
       mkdirSync("dist/db", { recursive: true });
       copyFileSync("src/db/schema.sql", "dist/db/schema.sql");
+      mkdirSync("dist/templates", { recursive: true });
+      copyFileSync("src/templates/usage_guide.md", "dist/templates/usage_guide.md");
       // bin은 .js 확장자를 기대하므로 cli만 이름 유지
       copyFileSync("dist/cli.mjs", "dist/cli.js");
     },
