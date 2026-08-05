@@ -140,6 +140,21 @@ table.traces tbody tr:hover { background: var(--hover); }
 .doc-dot { font-size: 8px; flex: none; }
 .doc-dot.yes { color: var(--ok-fg); }
 .doc-dot.no { color: var(--border); }
+
+/* 트레이스 진입점 멀티 선택 드롭다운 */
+.entry-dropdown {
+  position: absolute; top: calc(100% + 4px); left: 0; z-index: 30;
+  min-width: 340px; max-height: 320px; overflow-y: auto;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18); padding: 4px 0;
+}
+.entry-option {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 12px; cursor: pointer; font-size: 12.5px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.entry-option:hover { background: var(--hover); }
+.entry-option input { cursor: pointer; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
 .card-head { padding: 10px 14px; border-bottom: 1px solid var(--border);
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }

@@ -55,6 +55,43 @@ describe("GET /api/traces 필터", () => {
     expect(body.traces.every((t: any) => t.entry_name === "GET /orders")).toBe(true);
   });
 
+  it("진입점 여러 개 선택(멀티) 필터", async () => {
+    const res = await server.inject({
+      url:
+        `/api/traces?entry=${encodeURIComponent("GET /orders")}` +
+        `&entry=${encodeURIComponent("GET /health")}`,
+    });
+    const body = res.json();
+    expect(body.traces.map((t: any) => t.id).sort()).toEqual(["t-new1", "t-new3", "t-old"]);
+  });
+
+  it("기간 구간(since~until) 필터", async () => {
+    // 3시간 전 ± 30분 구간 → t-old만
+    const res = await server.inject({
+      url: `/api/traces?since=${NOW - 3.5 * 3600}&until=${NOW - 2.5 * 3600}`,
+    });
+    const body = res.json();
+    expect(body.traces.map((t: any) => t.id)).toEqual(["t-old"]);
+    expect(body.total).toBe(1);
+  });
+
+  it("추적 제외된 진입점의 기존 기록은 목록·후보에서 숨긴다", async () => {
+    await server.inject({
+      method: "POST", url: "/api/exclusions",
+      payload: { entry_name: "GET /health" },
+    });
+    const res = await server.inject({ url: "/api/traces" });
+    const body = res.json();
+    expect(body.traces.some((t: any) => t.entry_name === "GET /health")).toBe(false);
+    expect(body.facets.entries).not.toContain("GET /health");
+    expect(body.total).toBe(3); // health 1건 제외
+    // 정리 — 다른 테스트에 영향 없게 되돌린다
+    await server.inject({
+      method: "DELETE",
+      url: `/api/exclusions?entry=${encodeURIComponent("GET /health")}`,
+    });
+  });
+
   it("서비스 필터", async () => {
     const res = await server.inject({ url: "/api/traces?service=node" });
     expect(res.json().traces.map((t: any) => t.id).sort()).toEqual(["t-new2", "t-new3"]);
