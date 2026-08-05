@@ -3,11 +3,21 @@ import Fastify, { type FastifyInstance } from "fastify";
 
 import { scheduleCleanup } from "./cleanup.js";
 import { DbHandle } from "./db.js";
+import { ScanRunner, detectScanners, inferProjectRoot } from "./scanner.js";
+import { startCodeWatcher } from "./watcher.js";
 
 export interface ServerOptions {
   dbPath: string;
   /** 빌드된 웹 정적 파일 폴더. 지정 시 SPA 서빙(/api 외 경로는 index.html). */
   staticRoot?: string;
+  /** 스캔 대상 프로젝트 루트. 생략 시 DB 경로에서 유추한다. */
+  projectRoot?: string;
+  /** 스캔 명령 직접 지정(--scan-cmd). 자동 탐지가 실패할 때 쓴다. */
+  scanCommand?: string;
+  /** 소스 파일 변경 감지 시 자동 재스캔 (CLI 기본 켬, 테스트는 끔) */
+  watch?: boolean;
+  /** 변경 후 재스캔까지 기다리는 시간(ms) */
+  watchDebounceMs?: number;
 }
 
 /** 개요: 트레이스 행에 화면용 파생 값(소요시간)을 붙인다. */
@@ -26,9 +36,30 @@ export async function buildServer(opts: ServerOptions): Promise<FastifyInstance>
   const handle = new DbHandle(opts.dbPath);
 
   const cleanupTimer = scheduleCleanup(() => handle.getWrite());
+
+  // --- 코드맵 재스캔 (수동 버튼 + 파일 변경 감지) ------------------------
+  const projectRoot = opts.projectRoot ?? inferProjectRoot(opts.dbPath);
+  const runner = new ScanRunner(projectRoot, () =>
+    detectScanners(projectRoot, { override: opts.scanCommand }),
+  );
+  const stopWatcher = opts.watch
+    ? (runner.watching = true,
+      startCodeWatcher(projectRoot, () => void runner.run(), {
+        debounceMs: opts.watchDebounceMs,
+      }))
+    : null;
+
   app.addHook("onClose", async () => {
     clearInterval(cleanupTimer);
+    stopWatcher?.();
     handle.close();
+  });
+
+  app.get("/api/scan/status", async () => runner.status());
+
+  app.post("/api/scan", async () => {
+    const result = await runner.run();
+    return { ...result, status: runner.status() };
   });
 
   // --- 설정 (M5) -------------------------------------------------------

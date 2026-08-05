@@ -236,7 +236,7 @@ class Order(BaseModel):
 
 - Python: 표준 `ast` 모듈. TS: TypeScript 컴파일러 API(ts-morph).
 - 추출 대상: 함수/메서드 정의(위치·시그니처), 주석(라벨 파싱), 호출 관계(A 함수 본문에서 B 호출 — 같은 프로젝트 내 해석 가능한 것만), 엔티티 정의(Pydantic/SQLAlchemy/dataclass/interface/type/Prisma), 엔티티 필드와 타입 참조(→ 엔티티 관계), 함수 시그니처의 엔티티 사용(param/return).
-- 실행 시점: `flowlens init`, `flowlens scan`(수동 갱신), UI 서버가 파일 변경 감지 시 증분 재분석.
+- 실행 시점: `flowlens init`(첫 스캔 포함), `flowlens scan`(수동 갱신), **UI 서버가 소스 파일 변경을 감지하면 자동 재스캔**(디바운스 1.5초, 전체 재스캔 — 중형 프로젝트 수 초 이내라 증분 불필요). UI 상단에 갱신 시각 표시 + "지금 갱신" 버튼. 감지 끄기: `--no-watch`, 스캔 명령 수동 지정: `--scan-cmd`.
 - 정적 분석의 한계(동적 호출, `getattr` 등으로 못 잡는 관계)는 실행 기록(runtime call_edges)이 보완한다 — 결합 설계의 이유.
 
 ## 9. UI 화면 (5개)

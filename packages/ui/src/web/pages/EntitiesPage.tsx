@@ -5,6 +5,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { computeDepths } from "../lib/layout.js";
+import { useScanStatus } from "../lib/scanStatus.js";
 
 interface Relation { from_id: string; to_id: string; kind: string }
 
@@ -36,6 +37,8 @@ export default function EntitiesPage() {
   const [detail, setDetail] = useState<EntityDetail | null>(null);
   const [view, setView] = useState<"list" | "graph">("list");
 
+  const { lastScanAt } = useScanStatus(); // 코드맵이 갱신되면 다시 불러온다
+
   useEffect(() => {
     fetch("/api/entities")
       .then((r) => r.json())
@@ -44,7 +47,7 @@ export default function EntitiesPage() {
         setRelations(b.relations ?? []);
       })
       .catch(() => setEntities([]));
-  }, []);
+  }, [lastScanAt]);
 
   const flow = useMemo(() => {
     if (!entities) return { nodes: [] as Node[], edges: [] as Edge[] };
