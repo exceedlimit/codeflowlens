@@ -43,7 +43,18 @@ export default function EntitiesPage() {
   const [detail, setDetail] = useState<EntityDetail | null>(null);
   const [view, setView] = useState<"list" | "graph">("list");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false); // 크게 보기 모달
   const { lastScanAt } = useScanStatus(); // 코드맵이 갱신되면 다시 불러온다
+
+  // Esc로 크게 보기 닫기
+  useEffect(() => {
+    if (!expanded) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setExpanded(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [expanded]);
 
   useEffect(() => {
     fetch("/api/entities")
@@ -145,6 +156,23 @@ export default function EntitiesPage() {
     return { nodes, edges };
   }, [entities, relations, connectedIds, highlighted, selectedId]);
 
+  // 그래프 본체 — 인라인 카드와 크게 보기 모달 중 한 곳에 그려진다
+  const entityFlow = (
+    <ReactFlow
+      nodes={flow.nodes}
+      edges={flow.edges}
+      onNodeClick={(_, node) => select(node.id)}
+      onPaneClick={() => { setSelectedId(null); setDetail(null); }}
+      fitView
+      fitViewOptions={FIT_OPTIONS}
+      minZoom={0.02}
+      proOptions={{ hideAttribution: true }}
+    >
+      <Background gap={24} />
+      <Controls showInteractive={false} fitViewOptions={FIT_OPTIONS} />
+    </ReactFlow>
+  );
+
   const detailCard = (
     <div className="card" style={{ alignSelf: "start" }}>
       {!detail ? (
@@ -238,22 +266,40 @@ export default function EntitiesPage() {
 
       {view === "graph" && entities && entities.length > 0 && (
         <div className="detail-layout">
-          <div className="card" style={{ height: "72vh", minWidth: 0 }}>
-            <ReactFlow
-              nodes={flow.nodes}
-              edges={flow.edges}
-              onNodeClick={(_, node) => select(node.id)}
-              onPaneClick={() => { setSelectedId(null); setDetail(null); }}
-              fitView
-              fitViewOptions={FIT_OPTIONS}
-              minZoom={0.02}
-              proOptions={{ hideAttribution: true }}
-            >
-              <Background gap={24} />
-              <Controls showInteractive={false} fitViewOptions={FIT_OPTIONS} />
-            </ReactFlow>
-          </div>
+          {expanded ? (
+            <div className="card" style={{ height: "72vh", minWidth: 0 }}>
+              <div className="empty" style={{ margin: 16 }}>크게 보기 창이 열려 있습니다.</div>
+            </div>
+          ) : (
+            <div className="card graph-canvas" style={{ height: "72vh", minWidth: 0 }}>
+              <button
+                className="graph-expand-btn"
+                title="관계도를 큰 화면으로 봅니다"
+                onClick={() => setExpanded(true)}
+              >
+                ⛶ 크게 보기
+              </button>
+              {entityFlow}
+            </div>
+          )}
           {detailCard}
+        </div>
+      )}
+
+      {/* 크게 보기 모달 — 엔티티 관계도를 화면 가득 띄운다 */}
+      {expanded && (
+        <div className="graph-modal-overlay" onClick={() => setExpanded(false)}>
+          <div className="graph-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="graph-modal-head">
+              <b>엔티티 관계도 — 크게 보기</b>
+              <span className="meta" style={{ flex: 1 }}>
+                엔티티 클릭 = 참조 관계 강조 · Esc로 닫기
+              </span>
+              <button className="popover-close" style={{ fontSize: 16 }}
+                onClick={() => setExpanded(false)}>✕</button>
+            </div>
+            <div className="graph-canvas graph-modal-body">{entityFlow}</div>
+          </div>
         </div>
       )}
 

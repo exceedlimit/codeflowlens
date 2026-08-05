@@ -65,7 +65,18 @@ export default function GraphPage() {
   const [detail, setDetail] = useState<FnDetail | null>(null);
   const [openFiles, setOpenFiles] = useState<Set<string>>(new Set());
   const [popover, setPopover] = useState<{ id: string; x: number; y: number } | null>(null);
+  const [expanded, setExpanded] = useState(false); // 크게 보기 모달
   const graphWrapRef = useRef<HTMLDivElement | null>(null);
+
+  // Esc로 크게 보기 닫기
+  useEffect(() => {
+    if (!expanded) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setExpanded(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [expanded]);
   const { lastScanAt } = useScanStatus(); // 코드맵이 갱신되면 다시 불러온다
 
   useEffect(() => {
@@ -235,6 +246,73 @@ export default function GraphPage() {
   const listOpen = (file: string) => Boolean(query) || openFiles.has(file);
   const popoverNode = popover ? nodeById.get(popover.id) : null;
 
+  // 그래프 본체 — 인라인 카드와 크게 보기 모달 중 한 곳에 그려진다
+  const graphInner = (
+    <>
+      {displayedIds.size === 0 ? (
+        <div className="empty" style={{ margin: 16 }}>
+          {total === 0 ? (
+            <>코드맵이 비어 있어요 — <code>flowlens scan</code>을 실행하세요.</>
+          ) : (
+            <>
+              함수가 {total}개라 한 번에 그리면 읽을 수 없어요.<br />
+              <b>왼쪽 목록에서 메서드를 고르거나 검색</b>하면 연결된 흐름만 그려드립니다.
+            </>
+          )}
+        </div>
+      ) : (
+        <ReactFlowProvider>
+          <ReactFlow
+            nodes={flow.nodes}
+            edges={flow.edges}
+            onNodeClick={onGraphNodeClick}
+            onPaneClick={clearSelection}
+            onMoveStart={() => setPopover(null)}
+            fitView
+            fitViewOptions={FIT_OPTIONS}
+            minZoom={0.02}
+            proOptions={{ hideAttribution: true }}
+          >
+            <FitOnChange
+              signature={`${query}|${selectedId ?? ""}|${displayedIds.size}|${expanded}`}
+            />
+            <Background gap={24} />
+            <Controls showInteractive={false} fitViewOptions={FIT_OPTIONS} />
+          </ReactFlow>
+        </ReactFlowProvider>
+      )}
+
+      {/* 노드 옆 오버레이 설명 카드 */}
+      {popoverNode && popover && (
+        <div className="graph-popover" style={{ left: popover.x, top: popover.y }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+            <b style={{ fontFamily: "ui-monospace, monospace", fontSize: 13 }}>
+              {popoverNode.name}
+            </b>
+            <span className="meta" style={{ flex: 1 }}>
+              {popoverNode.file_path}
+              {popoverNode.line != null && `:${popoverNode.line}`}
+            </span>
+            <button className="popover-close" onClick={() => setPopover(null)}>✕</button>
+          </div>
+          {popoverNode.doc_overview ? (
+            <>
+              <p className="doc-line"><b>개요</b>{popoverNode.doc_overview}</p>
+              {popoverNode.doc_logic && (
+                <p className="doc-line"><b>로직</b>{popoverNode.doc_logic}</p>
+              )}
+              {popoverNode.doc_note && (
+                <p className="doc-line"><b>참고</b>{popoverNode.doc_note}</p>
+              )}
+            </>
+          ) : (
+            <p className="placeholder" style={{ margin: "4px 0 0" }}>주석 없음</p>
+          )}
+        </div>
+      )}
+    </>
+  );
+
   return (
     <div>
       <div style={{ display: "flex", gap: 12, marginBottom: 12, alignItems: "center", flexWrap: "wrap" }}>
@@ -310,68 +388,25 @@ export default function GraphPage() {
           </div>
         </aside>
 
-        {/* ② 그래프 */}
-        <div ref={graphWrapRef} className="card graph-canvas">
-          {displayedIds.size === 0 ? (
-            <div className="empty" style={{ margin: 16 }}>
-              {total === 0 ? (
-                <>코드맵이 비어 있어요 — <code>flowlens scan</code>을 실행하세요.</>
-              ) : (
-                <>
-                  함수가 {total}개라 한 번에 그리면 읽을 수 없어요.<br />
-                  <b>왼쪽 목록에서 메서드를 고르거나 검색</b>하면 연결된 흐름만 그려드립니다.
-                </>
-              )}
-            </div>
-          ) : (
-            <ReactFlowProvider>
-              <ReactFlow
-                nodes={flow.nodes}
-                edges={flow.edges}
-                onNodeClick={onGraphNodeClick}
-                onPaneClick={clearSelection}
-                onMoveStart={() => setPopover(null)}
-                fitView
-                fitViewOptions={FIT_OPTIONS}
-                minZoom={0.02}
-                proOptions={{ hideAttribution: true }}
+        {/* ② 그래프 (크게 보기 중에는 모달이 대신 그린다) */}
+        {expanded ? (
+          <div className="card graph-canvas">
+            <div className="empty" style={{ margin: 16 }}>크게 보기 창이 열려 있습니다.</div>
+          </div>
+        ) : (
+          <div ref={graphWrapRef} className="card graph-canvas">
+            {displayedIds.size > 0 && (
+              <button
+                className="graph-expand-btn"
+                title="관계도를 큰 화면으로 봅니다"
+                onClick={() => { setPopover(null); setExpanded(true); }}
               >
-                <FitOnChange signature={`${query}|${selectedId ?? ""}|${displayedIds.size}`} />
-                <Background gap={24} />
-                <Controls showInteractive={false} fitViewOptions={FIT_OPTIONS} />
-              </ReactFlow>
-            </ReactFlowProvider>
-          )}
-
-          {/* 노드 옆 오버레이 설명 카드 */}
-          {popoverNode && popover && (
-            <div className="graph-popover" style={{ left: popover.x, top: popover.y }}>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                <b style={{ fontFamily: "ui-monospace, monospace", fontSize: 13 }}>
-                  {popoverNode.name}
-                </b>
-                <span className="meta" style={{ flex: 1 }}>
-                  {popoverNode.file_path}
-                  {popoverNode.line != null && `:${popoverNode.line}`}
-                </span>
-                <button className="popover-close" onClick={() => setPopover(null)}>✕</button>
-              </div>
-              {popoverNode.doc_overview ? (
-                <>
-                  <p className="doc-line"><b>개요</b>{popoverNode.doc_overview}</p>
-                  {popoverNode.doc_logic && (
-                    <p className="doc-line"><b>로직</b>{popoverNode.doc_logic}</p>
-                  )}
-                  {popoverNode.doc_note && (
-                    <p className="doc-line"><b>참고</b>{popoverNode.doc_note}</p>
-                  )}
-                </>
-              ) : (
-                <p className="placeholder" style={{ margin: "4px 0 0" }}>주석 없음</p>
-              )}
-            </div>
-          )}
-        </div>
+                ⛶ 크게 보기
+              </button>
+            )}
+            {graphInner}
+          </div>
+        )}
 
         {/* ③ 상세 패널 */}
         <div className="card detail-panel">
@@ -428,6 +463,25 @@ export default function GraphPage() {
           )}
         </div>
       </div>
+
+      {/* 크게 보기 모달 — 관계도를 화면 가득 띄운다 */}
+      {expanded && (
+        <div className="graph-modal-overlay" onClick={() => setExpanded(false)}>
+          <div className="graph-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="graph-modal-head">
+              <b>메서드 관계도 — 크게 보기</b>
+              <span className="meta" style={{ flex: 1 }}>
+                그리는 중 {displayedIds.size}개 · 노드 클릭 = 설명 카드 · Esc로 닫기
+              </span>
+              <button className="popover-close" style={{ fontSize: 16 }}
+                onClick={() => setExpanded(false)}>✕</button>
+            </div>
+            <div ref={graphWrapRef} className="graph-canvas graph-modal-body">
+              {graphInner}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

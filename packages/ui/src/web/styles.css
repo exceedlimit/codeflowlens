@@ -123,6 +123,30 @@ table.traces tbody tr:hover { background: var(--hover); }
   color: var(--text-muted); font-size: 11px; padding: 2px 7px; cursor: pointer;
 }
 .list-tool:hover { background: var(--hover); }
+
+/* 관계도 "크게 보기" — 카드 우상단 버튼 + 화면 가득 모달 */
+.graph-expand-btn {
+  position: absolute; top: 8px; right: 8px; z-index: 15;
+  border: 1px solid var(--border); background: var(--surface); border-radius: 6px;
+  color: var(--text); font-size: 12px; padding: 4px 10px; cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+.graph-expand-btn:hover { background: var(--hover); }
+.graph-modal-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex; align-items: center; justify-content: center;
+}
+.graph-modal {
+  width: 96vw; height: 94vh; display: flex; flex-direction: column;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35); overflow: hidden;
+}
+.graph-modal-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 14px;
+}
+.graph-modal-body { flex: 1; position: relative; min-height: 0; }
 .method-list { display: flex; flex-direction: column; height: 100%; }
 .method-list .card-head h2 { font-size: 13px; }
 .method-list-body { overflow-y: auto; padding: 4px; }
