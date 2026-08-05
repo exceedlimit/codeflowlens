@@ -12,6 +12,9 @@ import { useScanStatus } from "../lib/scanStatus.js";
 
 interface Relation { from_id: string; to_id: string; kind: string }
 
+// 전체보기(fit)가 큰 그래프에서도 끝까지 축소되도록 — fitView의 자체 최소 줌(기본 0.5)을 푼다
+const FIT_OPTIONS = { padding: 0.15, minZoom: 0.02, maxZoom: 1.5 };
+
 interface EntitySummary {
   id: string;
   name: string;
@@ -118,7 +121,7 @@ export default function EntitiesPage() {
                 : "1px solid var(--border)",
             background: "var(--surface)",
             color: "var(--text)",
-            opacity: dimOthers && !inHl ? 0.18 : 1,
+            opacity: dimOthers && !inHl ? 0.55 : 1,
           },
           sourcePosition: "right" as const,
           targetPosition: "left" as const,
@@ -135,7 +138,7 @@ export default function EntitiesPage() {
         style: {
           stroke: inHl ? "var(--err-fg)" : "var(--accent)",
           strokeWidth: inHl ? 2.2 : 1.5,
-          opacity: dimOthers && !inHl ? 0.08 : 1,
+          opacity: dimOthers && !inHl ? 0.35 : 1,
         },
       };
     });
@@ -242,11 +245,12 @@ export default function EntitiesPage() {
               onNodeClick={(_, node) => select(node.id)}
               onPaneClick={() => { setSelectedId(null); setDetail(null); }}
               fitView
-              minZoom={0.05}
+              fitViewOptions={FIT_OPTIONS}
+              minZoom={0.02}
               proOptions={{ hideAttribution: true }}
             >
               <Background gap={24} />
-              <Controls showInteractive={false} />
+              <Controls showInteractive={false} fitViewOptions={FIT_OPTIONS} />
             </ReactFlow>
           </div>
           {detailCard}

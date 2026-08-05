@@ -5,7 +5,6 @@
 import {
   Background,
   Controls,
-  MiniMap,
   ReactFlow,
   useReactFlow,
   ReactFlowProvider,
@@ -23,6 +22,9 @@ import { useScanStatus } from "../lib/scanStatus.js";
 const FULL_RENDER_MAX = 150; // 이보다 크면 검색/선택으로 좁혀서 본다
 const REACH_MAX = 120; // 연결 확장 상한 — 가까운 관계부터 이만큼만 그린다(전부 연결된 프로젝트 대비)
 const LOAD_LIMIT = 10000; // 데이터는 전부 불러온다 (그리기만 선별)
+
+// 전체보기(fit)가 큰 그래프에서도 끝까지 축소되도록 — fitView의 자체 최소 줌(기본 0.5)을 푼다
+const FIT_OPTIONS = { padding: 0.15, minZoom: 0.02, maxZoom: 1.5 };
 
 interface GraphNode {
   id: string;
@@ -49,7 +51,7 @@ interface FnDetail {
 function FitOnChange({ signature }: { signature: string }) {
   const { fitView } = useReactFlow();
   useEffect(() => {
-    const t = setTimeout(() => fitView({ padding: 0.15, duration: 300 }), 30);
+    const t = setTimeout(() => fitView({ ...FIT_OPTIONS, duration: 300 }), 30);
     return () => clearTimeout(t);
   }, [signature, fitView]);
   return null;
@@ -170,8 +172,8 @@ export default function GraphPage() {
             background: "var(--surface)",
             color: "var(--text)",
             opacity: hasSelection && !isSelected && !isNeighbor
-              ? 0.35
-              : n.runtime_hits > 0 ? 1 : 0.75,
+              ? 0.55
+              : n.runtime_hits > 0 ? 1 : 0.85,
           },
           sourcePosition: "right" as const,
           targetPosition: "left" as const,
@@ -197,7 +199,7 @@ export default function GraphPage() {
                 stroke: "var(--text-muted)",
                 strokeDasharray: "4 3",
                 strokeWidth: 1,
-                opacity: hasSelection ? 0.25 : 0.55,
+                opacity: hasSelection ? 0.4 : 0.7,
               },
         };
       });
@@ -330,22 +332,13 @@ export default function GraphPage() {
                 onPaneClick={clearSelection}
                 onMoveStart={() => setPopover(null)}
                 fitView
-                fitViewOptions={{ padding: 0.15 }}
+                fitViewOptions={FIT_OPTIONS}
                 minZoom={0.02}
                 proOptions={{ hideAttribution: true }}
               >
                 <FitOnChange signature={`${query}|${selectedId ?? ""}|${displayedIds.size}`} />
                 <Background gap={24} />
-                <Controls showInteractive={false} fitViewOptions={{ padding: 0.15 }} />
-                {flow.nodes.length > 20 && (
-                  <MiniMap
-                    pannable
-                    zoomable
-                    style={{ background: "var(--bg)" }}
-                    maskColor="color-mix(in srgb, var(--bg) 70%, transparent)"
-                    nodeColor={() => "var(--bar)"}
-                  />
-                )}
+                <Controls showInteractive={false} fitViewOptions={FIT_OPTIONS} />
               </ReactFlow>
             </ReactFlowProvider>
           )}
