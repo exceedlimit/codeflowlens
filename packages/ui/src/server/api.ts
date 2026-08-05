@@ -143,7 +143,8 @@ export async function buildServer(opts: ServerOptions): Promise<FastifyInstance>
   app.get<{
     Querystring: {
       q?: string; limit?: string; offset?: string;
-      since?: string; entry?: string; service?: string;
+      since?: string; until?: string;
+      entry?: string | string[]; service?: string;
     };
   }>(
     "/api/traces",
@@ -151,18 +152,31 @@ export async function buildServer(opts: ServerOptions): Promise<FastifyInstance>
       const db = handle.get();
       if (!db) return { traces: [], total: 0, facets: { entries: [], services: [] } };
       const q = req.query.q?.trim() || null;
-      const entry = req.query.entry?.trim() || null;
+      const entries = (Array.isArray(req.query.entry) ? req.query.entry : [req.query.entry])
+        .map((e) => e?.trim())
+        .filter((e): e is string => Boolean(e));
       const service = req.query.service?.trim() || null;
       const since = Number(req.query.since) || null;
+      const until = Number(req.query.until) || null;
       const limit = Math.min(Number(req.query.limit) || 100, 1000);
       const offset = Number(req.query.offset) || 0;
+      const excluded = readExclusions();
 
       const conditions: string[] = [];
       const params: unknown[] = [];
       if (q) { conditions.push("t.entry_name LIKE '%' || ? || '%'"); params.push(q); }
-      if (entry) { conditions.push("t.entry_name = ?"); params.push(entry); }
+      if (entries.length > 0) {
+        conditions.push(`t.entry_name IN (${entries.map(() => "?").join(",")})`);
+        params.push(...entries);
+      }
       if (service) { conditions.push("t.service = ?"); params.push(service); }
       if (since) { conditions.push("t.started_at >= ?"); params.push(since); }
+      if (until) { conditions.push("t.started_at <= ?"); params.push(until); }
+      if (excluded.length > 0) {
+        // 추적 제외된 진입점의 과거 기록도 목록에서 숨긴다
+        conditions.push(`t.entry_name NOT IN (${excluded.map(() => "?").join(",")})`);
+        params.push(...excluded);
+      }
       const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
 
       const total = (db
@@ -179,14 +193,20 @@ export async function buildServer(opts: ServerOptions): Promise<FastifyInstance>
         )
         .all(...params, limit, offset) as Record<string, unknown>[];
 
-      // 필터 드롭다운용 후보 목록
-      const entries = (db
+      // 필터 드롭다운용 후보 목록 (추적 제외 진입점은 후보에서도 뺀다)
+      const facetEntries = (db
         .prepare("SELECT DISTINCT entry_name FROM traces ORDER BY entry_name LIMIT 200")
-        .all() as { entry_name: string }[]).map((r) => r.entry_name);
+        .all() as { entry_name: string }[])
+        .map((r) => r.entry_name)
+        .filter((e) => !excluded.includes(e));
       const services = (db
         .prepare("SELECT DISTINCT service FROM traces WHERE service IS NOT NULL")
         .all() as { service: string }[]).map((r) => r.service);
-      return { traces: rows.map(withDuration), total, facets: { entries, services } };
+      return {
+        traces: rows.map(withDuration),
+        total,
+        facets: { entries: facetEntries, services },
+      };
     },
   );
 

@@ -44,19 +44,23 @@ export interface TraceListResult {
 
 export interface TraceFilter {
   q?: string;
-  entry?: string;
+  entries?: string[];
   service?: string;
   since?: number;
+  until?: number;
   limit?: number;
+  offset?: number;
 }
 
 export async function fetchTraces(filter: TraceFilter): Promise<TraceListResult> {
   const params = new URLSearchParams();
   if (filter.q) params.set("q", filter.q);
-  if (filter.entry) params.set("entry", filter.entry);
+  for (const entry of filter.entries ?? []) params.append("entry", entry);
   if (filter.service) params.set("service", filter.service);
   if (filter.since) params.set("since", String(filter.since));
+  if (filter.until) params.set("until", String(filter.until));
   if (filter.limit) params.set("limit", String(filter.limit));
+  if (filter.offset) params.set("offset", String(filter.offset));
   const res = await fetch(`/api/traces?${params}`);
   if (!res.ok) throw new Error(`API 오류: ${res.status}`);
   return res.json();
