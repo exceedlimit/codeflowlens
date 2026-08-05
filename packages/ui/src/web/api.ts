@@ -36,11 +36,30 @@ export interface SpanRow {
   duration_ms: number | null;
 }
 
-export async function fetchTraces(q: string): Promise<TraceSummary[]> {
-  const url = q ? `/api/traces?q=${encodeURIComponent(q)}` : "/api/traces";
-  const res = await fetch(url);
+export interface TraceListResult {
+  traces: TraceSummary[];
+  total: number;
+  facets: { entries: string[]; services: string[] };
+}
+
+export interface TraceFilter {
+  q?: string;
+  entry?: string;
+  service?: string;
+  since?: number;
+  limit?: number;
+}
+
+export async function fetchTraces(filter: TraceFilter): Promise<TraceListResult> {
+  const params = new URLSearchParams();
+  if (filter.q) params.set("q", filter.q);
+  if (filter.entry) params.set("entry", filter.entry);
+  if (filter.service) params.set("service", filter.service);
+  if (filter.since) params.set("since", String(filter.since));
+  if (filter.limit) params.set("limit", String(filter.limit));
+  const res = await fetch(`/api/traces?${params}`);
   if (!res.ok) throw new Error(`API 오류: ${res.status}`);
-  return (await res.json()).traces;
+  return res.json();
 }
 
 export async function fetchTrace(

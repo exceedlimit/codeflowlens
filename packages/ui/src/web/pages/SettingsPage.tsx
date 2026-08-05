@@ -5,6 +5,13 @@ export default function SettingsPage() {
   const [retentionDays, setRetentionDays] = useState<number>(7);
   const [maxKb, setMaxKb] = useState<number>(64);
   const [message, setMessage] = useState<string | null>(null);
+  const [exclusions, setExclusions] = useState<string[]>([]);
+
+  const loadExclusions = () =>
+    fetch("/api/exclusions")
+      .then((r) => r.json())
+      .then((b) => setExclusions(b.entries ?? []))
+      .catch(() => setExclusions([]));
 
   useEffect(() => {
     fetch("/api/settings")
@@ -14,7 +21,13 @@ export default function SettingsPage() {
         setMaxKb(Math.round(s.value_max_bytes / 1024));
       })
       .catch(() => setMessage("설정을 불러오지 못했습니다."));
+    loadExclusions();
   }, []);
+
+  const removeExclusion = async (entry: string) => {
+    await fetch(`/api/exclusions?entry=${encodeURIComponent(entry)}`, { method: "DELETE" });
+    loadExclusions();
+  };
 
   async function save() {
     setMessage(null);
@@ -61,6 +74,33 @@ export default function SettingsPage() {
           </p>
           <p className="meta">
             상한을 넘는 값은 잘려서 저장됩니다. 다음 <code>flowlens run</code>부터 적용됩니다.
+          </p>
+        </div>
+        <div className="panel-section">
+          <h3>추적 제외 진입점</h3>
+          {exclusions.length === 0 ? (
+            <p className="meta">
+              없음 — 트레이스 상세에서 <b>🚫 이 진입점 추적 안 함</b>을 누르면 여기 추가됩니다.
+            </p>
+          ) : (
+            exclusions.map((entry) => (
+              <p className="doc-line" key={entry}
+                style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontFamily: "ui-monospace, monospace", fontSize: 13, flex: 1 }}>
+                  {entry}
+                </span>
+                <button
+                  className="search"
+                  style={{ width: "auto", cursor: "pointer", padding: "2px 8px" }}
+                  onClick={() => removeExclusion(entry)}
+                >
+                  다시 추적
+                </button>
+              </p>
+            ))
+          )}
+          <p className="meta">
+            제외된 진입점의 요청은 기록되지 않습니다. 실행 중인 앱에도 몇 초 안에 반영됩니다.
           </p>
         </div>
         <div className="panel-section">

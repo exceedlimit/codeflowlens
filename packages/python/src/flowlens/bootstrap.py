@@ -42,6 +42,11 @@ def install():
             entry_kind="process", entry_name=entry_name, service="python",
             value_max_bytes=_read_value_max_bytes(db_path),
         )
+        try:
+            from flowlens.tracer.exclusions import ExclusionList
+            session.exclusions = ExclusionList(db_path)
+        except Exception:
+            pass  # 제외 목록을 못 읽어도 추적은 계속
         backend = select_backend(session)
         backend.install()
         _installed = True

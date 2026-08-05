@@ -78,6 +78,60 @@ def test_http_requests_become_traces(tmp_path):
         conn.close()
 
 
+def test_excluded_entry_not_traced(tmp_path):
+    """개요: 설정의 추적 제외 진입점은 트레이스도 스팬도 남기지 않는지 검증한다."""
+    import json as _json
+
+    from flowlens.tracer.exclusions import ExclusionList
+
+    db_path = tmp_path / "data.db"
+    conn = open_db(db_path)
+    conn.execute(
+        "INSERT OR REPLACE INTO settings VALUES ('excluded_entries', ?)",
+        (_json.dumps(["GET /orders"]),),
+    )
+    conn.commit()
+    conn.close()
+
+    writer = BatchWriter(db_path)
+    session = TraceSession(
+        writer, CodeFilter(FIXTURES), FIXTURES,
+        entry_kind="process", entry_name="test-server",
+    )
+    session.exclusions = ExclusionList(db_path, ttl=0)  # ttl=0 → 매번 새로 읽음
+    unpatch = patch_starlette(session)
+    app = _load_app()
+    backend = select_backend(session)
+    backend.install()
+    try:
+        async def drive():
+            transport = httpx.ASGITransport(app=app)
+            async with httpx.AsyncClient(
+                transport=transport, base_url="http://test"
+            ) as client:
+                assert (await client.get("/orders")).status_code == 200  # 제외 대상
+                assert (await client.get("/fail" + "s" if False else "/orders")).status_code == 200
+
+        asyncio.run(drive())
+    finally:
+        backend.uninstall()
+        unpatch()
+        session.finish("ok")
+        writer.close()
+
+    conn = open_db(db_path)
+    try:
+        # 제외된 진입점: http 트레이스 없음
+        assert conn.execute(
+            "SELECT COUNT(*) FROM traces WHERE entry_kind='http'"
+        ).fetchone()[0] == 0
+        # 요청 중의 호출(orders/compute)이 프로세스 트레이스로도 새지 않아야 한다
+        names = {r[0] for r in conn.execute("SELECT name FROM spans").fetchall()}
+        assert "orders" not in names and "compute" not in names
+    finally:
+        conn.close()
+
+
 def test_http_error_marks_trace_error(tmp_path):
     """개요: 핸들러 예외 시 트레이스가 error로 기록되는지 검증한다."""
     db_path = tmp_path / "data.db"

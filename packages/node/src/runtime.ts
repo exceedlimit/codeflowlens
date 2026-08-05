@@ -26,6 +26,9 @@ export interface RuntimeOptions {
 
 const als = new AsyncLocalStorage<Span>();
 
+// 추적 제외 진입점의 요청 동안 쓰이는 트레이스 표식 — 이 흐름의 스팬은 기록하지 않는다
+const DISCARD_TRACE = "__flowlens_discard__";
+
 export class FlowlensRuntime {
   private writer: BatchWriter;
   private maxBytes: number;
@@ -62,6 +65,11 @@ export class FlowlensRuntime {
     return als.run(this.makeTraceRoot(traceId), body);
   }
 
+  /** 개요: 추적 제외 요청 — 이 흐름의 스팬을 전혀 기록하지 않고 body만 실행한다. */
+  runSuppressed<T>(body: () => T): T {
+    return als.run(this.makeTraceRoot(DISCARD_TRACE), body);
+  }
+
   /**
    * 개요: 계측된 함수 본문의 실행을 스팬으로 감싼다 (변환기가 삽입하는 호출).
    * 로직: 부모=현재 ALS 스팬 → 새 스팬을 컨텍스트로 body 실행 → 동기/Promise 완료 시 기록.
@@ -70,6 +78,9 @@ export class FlowlensRuntime {
     let span: Span | null = null;
     try {
       const parent = als.getStore();
+      if (parent?.traceId === DISCARD_TRACE) {
+        return body(); // 추적 제외 요청 — 기록 없이 실행만
+      }
       span = {
         id: randomUUID().replace(/-/g, ""),
         traceId: parent?.traceId ?? this.processTraceId,

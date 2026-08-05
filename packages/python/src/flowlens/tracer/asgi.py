@@ -29,13 +29,24 @@ def patch_starlette(session):
         try:
             method = scope.get("method", "GET")
             path = scope.get("path", "/")
+            entry_name = f"{method} {path}"
+
+            # 설정에서 "추적 안 함"으로 지정한 진입점은 트레이스도 스팬도 남기지 않는다
+            exclusions = getattr(session, "exclusions", None)
+            if exclusions is not None and exclusions.is_excluded(entry_name):
+                discard_token = session.begin_discard()
+                try:
+                    return await original(self, scope, receive, send)
+                finally:
+                    session.end_discard(discard_token)
+
             client_trace_id = None
             for key, value in scope.get("headers", []):
                 if key == b"x-flowlens-trace":
                     client_trace_id = value.decode("utf-8", "ignore")
                     break
             token, trace_id = session.begin_request_trace(
-                f"{method} {path}", method, path, client_trace_id
+                entry_name, method, path, client_trace_id
             )
         except Exception:
             return await original(self, scope, receive, send)

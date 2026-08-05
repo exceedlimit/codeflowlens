@@ -25,7 +25,7 @@ function App() {
         <header className="topbar">
           <Link to="/" className="logo">FlowLens</Link>
           <NavLink to="/" style={navStyle} end>트레이스</NavLink>
-          <NavLink to="/graph" style={navStyle}>관계도</NavLink>
+          <NavLink to="/graph" style={navStyle}>메서드</NavLink>
           <NavLink to="/entities" style={navStyle}>엔티티</NavLink>
           <NavLink to="/coverage" style={navStyle}>커버리지</NavLink>
           <span style={{ flex: 1 }} />
