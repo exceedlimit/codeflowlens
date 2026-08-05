@@ -187,5 +187,8 @@ describe("flowlens CLI", () => {
     });
     expect(out.trim()).toBe("42");
     expect(existsSync(join(dir, ".flowlens", "data.db"))).toBe(true);
+    // 사용법 안내서가 함께 저장된다
+    const usage = readFileSync(join(dir, ".flowlens", "USAGE.md"), "utf-8");
+    expect(usage).toContain("FlowLens 사용법");
   });
 });

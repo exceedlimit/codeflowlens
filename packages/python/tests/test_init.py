@@ -26,6 +26,32 @@ def test_init_creates_everything(tmp_path):
     assert ".flowlens/" in (root / ".gitignore").read_text()
     assert (root / ".flowlens" / "data.db").exists()  # 첫 스캔 실행됨
 
+    usage = (root / ".flowlens" / "USAGE.md").read_text()
+    assert "FlowLens 사용법" in usage
+    assert "flowlens run" in usage and "flowlens check" in usage
+
+
+def test_scan_and_run_also_create_usage_md(tmp_path):
+    """개요: init 없이 scan만 해도 사용법 안내서가 생기는지 검증한다(설치 즉시 발견 가능)."""
+    from flowlens.scan_cmd import scan
+
+    root = make_project(tmp_path)
+    scan(root, quiet=True)
+    assert (root / ".flowlens" / "USAGE.md").exists()
+
+
+def test_usage_md_user_edit_preserved_but_init_refreshes(tmp_path):
+    """개요: run/scan은 기존 USAGE.md를 보존하고, init은 최신 내용으로 갱신하는지 검증한다."""
+    from flowlens.scan_cmd import scan
+
+    root = make_project(tmp_path)
+    scan(root, quiet=True)
+    (root / ".flowlens" / "USAGE.md").write_text("사용자 수정본")
+    scan(root, quiet=True)  # scan은 덮어쓰지 않는다
+    assert (root / ".flowlens" / "USAGE.md").read_text() == "사용자 수정본"
+    run_init(root, quiet=True)  # init은 최신 안내서로 갱신한다
+    assert "FlowLens 사용법" in (root / ".flowlens" / "USAGE.md").read_text()
+
 
 def test_init_preserves_existing_agents_md(tmp_path):
     """개요: 기존 AGENTS.md 내용을 보존하고 재실행 시 블록만 갱신되는지 검증한다."""

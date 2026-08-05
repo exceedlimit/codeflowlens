@@ -101,6 +101,8 @@ def run_init(root=None, langs=None, quiet=False) -> int:
     from flowlens.paths import find_project_root
     from flowlens.scan_cmd import scan
 
+    from flowlens.usage_doc import ensure_usage_md
+
     root = Path(root or find_project_root())
     langs = langs or detect_languages(root)
     _write_config(root, langs)
@@ -108,6 +110,7 @@ def run_init(root=None, langs=None, quiet=False) -> int:
     _add_claude_reference(root)
     _write_retrofit_files(root)
     _update_gitignore(root)
+    ensure_usage_md(root, force=True)
     summary = scan(root, quiet=True)
 
     if not quiet:
@@ -115,6 +118,7 @@ def run_init(root=None, langs=None, quiet=False) -> int:
         print("  · AGENTS.md — 주석 룰 삽입")
         print("  · .claude/skills/flowlens-retrofit — 소급 작업 스킬")
         print("  · .flowlens/RETROFIT.md — 작업지시서")
+        print("  · .flowlens/USAGE.md — 사용법 안내서")
         print(
             f"  · 첫 스캔: 함수 {summary['functions']}개, "
             f"주석 커버리지 {summary['coverage']}%, 엔티티 {summary['entities']}개"
