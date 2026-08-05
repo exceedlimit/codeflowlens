@@ -90,6 +90,12 @@ table.traces tbody tr:hover { background: var(--hover); }
 /* 트레이스 상세 */
 .detail-layout { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 16px; }
 
+/* 관계도의 선은 클릭 대상이 아니다 — 선 위에서도 드래그로 화면이 이동되도록 통과시킨다 */
+.react-flow__edge,
+.react-flow__edge * {
+  pointer-events: none !important;
+}
+
 /* 메서드 관계도 3단 (목록 · 그래프 · 상세) — 화면 세로를 꽉 채운다 */
 .graph-layout {
   display: grid;
