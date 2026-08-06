@@ -258,7 +258,7 @@ export default function TraceList() {
                   )}
                 </td>
                 <td className="meta">
-                  {t.entry_kind === "http" ? "요청" : "프로세스"}
+                  {t.entry_kind === "http" ? "요청" : t.entry_kind === "event" ? "이벤트" : "프로세스"}
                   {t.service && ` · ${SERVICE_LABEL[t.service] ?? t.service}`}
                   {t.client_trace_id && <span title="화면(브라우저)에서 시작된 요청"> 🌐</span>}
                 </td>

@@ -4,7 +4,7 @@ export interface TraceSummary {
   started_at: number;
   ended_at: number | null;
   status: "running" | "ok" | "error";
-  entry_kind: "process" | "http";
+  entry_kind: "process" | "http" | "event";
   entry_name: string;
   http_method: string | null;
   http_path: string | null;

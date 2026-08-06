@@ -28,8 +28,10 @@ try {
       if (row) maxBytes = Math.max(1024, Number(row.value) || 65536);
       db.close();
     } catch { /* 설정 못 읽으면 기본값 */ }
+    // 제외 목록은 http 진입점과 이벤트 진입점(웹소켓 콜백 등)이 같이 쓴다
+    const exclusions = new ExclusionCache(process.env.FLOWLENS_DB);
     const runtime = new FlowlensRuntime({
-      writer, entryName: `node ${entryName}`.trim(), maxBytes,
+      writer, entryName: `node ${entryName}`.trim(), maxBytes, exclusions,
     });
     (globalThis as Record<string, unknown>).__flowlens = runtime;
 
@@ -38,7 +40,7 @@ try {
     register(new URL("./hooks.mjs", import.meta.url), { data: { root } });
 
     try {
-      installHttpHook(runtime, writer, new ExclusionCache(process.env.FLOWLENS_DB));
+      installHttpHook(runtime, writer, exclusions);
     } catch {
       /* http 훅 실패 시 프로세스 트레이스 모드 유지 */
     }
