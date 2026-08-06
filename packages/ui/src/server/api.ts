@@ -267,16 +267,22 @@ export async function buildServer(opts: ServerOptions): Promise<FastifyInstance>
       where = "WHERE f.id LIKE '%' || ? || '%'";
       params.push(q);
     }
+    // 실행 횟수는 한 번의 GROUP BY로 집계 — 함수마다 spans를 다시 세면(상관 서브쿼리)
+    // 인덱스 없는 DB에서 함수 수 × 스팬 수만큼 느려진다
+    const hitRows = db
+      .prepare("SELECT function_id, COUNT(*) AS hits FROM spans GROUP BY function_id")
+      .all() as { function_id: string; hits: number }[];
+    const hits = new Map(hitRows.map((r) => [r.function_id, r.hits]));
     const nodes = db
       .prepare(
         `SELECT f.id, f.qualified_name AS name, f.file_path, f.line,
-                f.doc_overview, f.doc_logic, f.doc_note, f.is_entity_method,
-                (SELECT COUNT(*) FROM spans s WHERE s.function_id = f.id) AS runtime_hits
+                f.doc_overview, f.doc_logic, f.doc_note, f.is_entity_method
          FROM functions f ${where}
          ORDER BY f.file_path, f.line
          LIMIT ${limit + 1}`,
       )
       .all(...params) as Record<string, unknown>[];
+    for (const n of nodes) n.runtime_hits = hits.get(n.id as string) ?? 0;
     const truncated = nodes.length > limit;
     if (truncated) nodes.pop();
     const ids = new Set(nodes.map((n) => n.id));
