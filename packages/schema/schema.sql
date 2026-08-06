@@ -7,8 +7,8 @@ CREATE TABLE IF NOT EXISTS traces (
   started_at REAL NOT NULL,                 -- unix epoch seconds
   ended_at REAL,
   status TEXT NOT NULL DEFAULT 'running',   -- running | ok | error
-  entry_kind TEXT NOT NULL,                 -- process | http
-  entry_name TEXT NOT NULL,                 -- 'python main.py' | 'GET /orders'
+  entry_kind TEXT NOT NULL,                 -- process | http | event(웹소켓·타이머 등 외부 이벤트)
+  entry_name TEXT NOT NULL,                 -- 'python main.py' | 'GET /orders' | 'onMessage'
   http_method TEXT, http_path TEXT, http_status INTEGER,
   source TEXT NOT NULL DEFAULT 'backend',   -- backend | browser(M4)
   client_trace_id TEXT,                     -- x-flowlens-trace 헤더(M4)
