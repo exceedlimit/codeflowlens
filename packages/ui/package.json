@@ -21,7 +21,7 @@
     "url": "https://github.com/exceedlimit/codeflowlens/issues"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "files": [
     "dist",

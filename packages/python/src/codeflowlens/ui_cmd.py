@@ -2,7 +2,7 @@
 개요: `cfl ui` — 모니터링 화면(@codeflowlens/ui)을 띄운다.
 로직: 프로젝트에 설치된 UI → PATH에 설치된 UI → npx 내려받기 순으로 실행 명령을 고르고,
       DB를 지정하지 않았으면 프로젝트의 .codeflowlens/data.db를 넘긴다.
-참고: UI는 Node 패키지라 Node 20+가 필요하다. Python 사용자는 따로 설치할 필요 없이 npx가 받아 온다.
+참고: UI는 Node 패키지라 Node 22+가 필요하다. Python 사용자는 따로 설치할 필요 없이 npx가 받아 온다.
 """
 
 import shutil
@@ -48,7 +48,7 @@ def run_ui(extra_args) -> int:
     cmd = build_ui_command(root, extra_args)
     if cmd is None:
         print(
-            "모니터링 화면을 띄우려면 Node 20 이상이 필요합니다 (npx를 찾지 못했습니다).\n"
+            "모니터링 화면을 띄우려면 Node 22 이상이 필요합니다 (npx를 찾지 못했습니다).\n"
             "  Node 설치: https://nodejs.org  — 설치 후 다시 `cfl ui`를 실행하세요.",
             file=sys.stderr,
         )

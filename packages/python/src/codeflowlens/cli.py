@@ -17,7 +17,7 @@ def main(argv=None) -> int:
             "  cfl scan                   코드를 정적 분석해 코드맵 갱신\n"
             "  cfl check [--json]         주석 룰 준수 검사 (위반 시 종료코드 1)\n"
             "  cfl init [--lang a,b]      프로젝트에 이식 (룰 셋팅 + 첫 스캔)\n"
-            "  cfl ui [--port N]          모니터링 화면 열기 (Node 20+ 필요)\n\n"
+            "  cfl ui [--port N]          모니터링 화면 열기 (Node 22+ 필요)\n\n"
             "cfl 대신 codeflowlens 를 써도 똑같이 동작합니다.\n"
         )
         return 0

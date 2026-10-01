@@ -152,9 +152,9 @@ CodeFlowLens는 세 가지 장치로 이 문제를 풉니다.
 | 항목 | 버전 | 용도 |
 |---|---|---|
 | Python | 3.9 이상 (**3.12 이상 권장** — 추적 오버헤드가 훨씬 작음) | Python 프로젝트 추적, `cfl init` |
-| Node.js | 20 이상 | 모니터링 화면(`cfl ui`), Node/TS 프로젝트 추적 |
+| Node.js | 22 이상 (20은 지원 종료) | 모니터링 화면(`cfl ui`), Node/TS 프로젝트 추적 |
 
-> 순수 Python 프로젝트라도 **화면을 보려면 Node 20+가 필요**합니다. Node만 깔려 있으면 `cfl ui`가 화면 패키지를 자동으로 내려받습니다.
+> 순수 Python 프로젝트라도 **화면을 보려면 Node 22+가 필요**합니다. Node만 깔려 있으면 `cfl ui`가 화면 패키지를 자동으로 내려받습니다.
 
 ### A. Python 프로젝트 (FastAPI · Flask · Django · 스크립트 등)
 
@@ -376,8 +376,8 @@ TS 프로젝트는 `npm ci` 후 `npx cfl check`를 실행하세요.
 **추적하면 앱이 느려지나요?**
 개발 환경 기준으로 감수할 만한 수준을 목표로 합니다. Python 3.12 이상은 공식 저오버헤드 API를 써서 가볍고, 3.9~3.11은 같은 기능을 하지만 더 느릴 수 있습니다.
 
-**`cfl ui`에서 "Node 20 이상이 필요합니다"라고 나와요.**
-화면은 Node로 동작합니다. [nodejs.org](https://nodejs.org)에서 Node 20 이상을 설치한 뒤 다시 실행하세요.
+**`cfl ui`에서 "Node 22 이상이 필요합니다"라고 나와요.**
+화면은 Node로 동작합니다. [nodejs.org](https://nodejs.org)에서 Node 22 이상을 설치한 뒤 다시 실행하세요.
 
 **화면에 트레이스가 하나도 없어요.**
 - 앱을 `cfl run ...`으로 실행했는지 확인하세요.
@@ -406,7 +406,7 @@ TS 프로젝트는 `npm ci` 후 `npx cfl check`를 실행하세요.
 **현재 (v0.1)**
 
 - Python 3.9+ — FastAPI · Starlette(요청별 트레이스), Flask · Django(WSGI, 실행 단위 트레이스), 일반 스크립트
-- Node 20+ / TypeScript — Express · Nest · Fastify · Next API 등 (tsx · ts-node · 빌드된 JS)
+- Node 22+ / TypeScript — Express · Nest · Fastify · Next API 등 (tsx · ts-node · 빌드된 JS)
 - React(Vite) 프론트의 API 호출 → 백엔드 흐름 연결
 - 엔티티: Pydantic · SQLAlchemy · dataclass / interface · type · class · Prisma
 
@@ -462,6 +462,23 @@ cfl ui
 npm test --prefix packages/node
 npm test --prefix packages/ui
 ```
+
+main에 푸시하거나 PR을 올리면 GitHub Actions(`.github/workflows/ci.yml`)가 Python 3.9~3.13, Node 22·24에서 같은 테스트를 자동으로 돌립니다.
+
+### 배포하기 (메인테이너용)
+
+태그 하나만 푸시하면 GitHub Actions(`.github/workflows/release.yml`)가 테스트 → PyPI·npm 배포 → GitHub Release 생성까지 자동으로 처리합니다. 세 패키지는 항상 같은 버전으로 함께 배포됩니다.
+
+```bash
+node scripts/version.mjs set 0.1.1     # 세 패키지 버전을 한 번에 변경
+git commit -am "release: v0.1.1"
+git tag v0.1.1
+git push origin main --tags            # → 자동 배포 시작 (Actions 탭에서 진행 상황 확인)
+```
+
+- 태그와 패키지 버전이 다르면 배포 전에 멈춥니다 (`node scripts/version.mjs check v0.1.1`로 미리 확인 가능).
+- 토큰은 저장하지 않습니다. PyPI·npm의 Trusted Publishing(OIDC)으로 인증합니다.
+- 일부 패키지만 실패했다면 Actions에서 **Re-run failed jobs**를 누르세요. 이미 올라간 패키지는 건너뜁니다.
 
 ---
 

@@ -1,0 +1,89 @@
+# 개요: 테스트 자동 실행 — main에 푸시하거나 PR을 올리면 세 패키지 테스트를 모두 돌린다.
+# 로직: Python(3.9~3.13) · Node 추적기(Node 22/24) · UI(Node 22/24)를 나란히 검사하고,
+#       세 패키지 버전이 서로 같은지도 확인한다.
+# 참고: release.yml이 배포 직전에 이 워크플로를 그대로 다시 불러 쓴다(workflow_call).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  versions:
+    name: 버전 일치 확인
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - run: node scripts/version.mjs check
+
+  python:
+    name: Python ${{ matrix.python }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e "packages/python[dev]"
+      - run: python -m pytest -q
+        working-directory: packages/python
+
+  node:
+    name: Node 추적기 (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    defaults:
+      run:
+        working-directory: packages/node
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: packages/node/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+
+  ui:
+    name: UI (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    defaults:
+      run:
+        working-directory: packages/ui
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: packages/ui/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npm test

@@ -25,7 +25,7 @@ LLM(바이브코딩)으로 개발한 시스템은:
 
 | # | 목표 |
 |---|---|
-| G1 | Python(3.9+)과 TypeScript(Node 20+ 백엔드, React 프론트) 프로젝트 지원 |
+| G1 | Python(3.9+)과 TypeScript(Node 22+ 백엔드, React 프론트) 프로젝트 지원 |
 | G2 | 코드 오염 0: 사용자 코드에 추적용 코드를 남기지 않는다 (log4j/AOP처럼 붙기만 하면 동작) |
 | G3 | 추가 인프라 설치 0: SQLite 파일 하나만 사용 |
 | G4 | 실행 흐름(함수 호출 트리 + 파라미터/리턴값 전체) 시각화 |
@@ -219,7 +219,7 @@ class Order(BaseModel):
 ### Node 추적기 (`@codeflowlens/node`)
 
 - `codeflowlens run <명령>` → `NODE_OPTIONS=--import @codeflowlens/node/register` 주입.
-- module hooks(Node 20+)로 **로드 시점에 메모리에서만** 함수 진입/이탈 계측 코드를 삽입 (istanbul 방식). 디스크 원본 불변. ESM/CJS, TS(tsx·ts-node·빌드된 JS) 지원.
+- module hooks(Node 22+)로 **로드 시점에 메모리에서만** 함수 진입/이탈 계측 코드를 삽입 (istanbul 방식). 디스크 원본 불변. ESM/CJS, TS(tsx·ts-node·빌드된 JS) 지원.
 - `node_modules` 제외, 프로젝트 코드만. `AsyncLocalStorage`로 async 흐름 유지.
 - http 서버 요청 감지로 요청 1건 = 1 트레이스 (Express/Nest/Fastify/Next API 등 http 모듈 레벨에서 공통 처리).
 - **외부 이벤트 진입점**(http를 거치지 않는 호출 — 슬랙 봇 웹소켓 수신, 타이머·큐 콜백 등):

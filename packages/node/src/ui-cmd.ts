@@ -29,7 +29,7 @@ export function runUi(projectRoot: string, extraArgs: string[]): void {
   const { cmd, args } = buildUiCommand(projectRoot, extraArgs);
   const child = spawn(cmd, args, { stdio: "inherit", cwd: projectRoot, shell: IS_WINDOWS });
   child.on("error", () => {
-    console.error("모니터링 화면을 띄우지 못했습니다 — Node 20+와 npx가 설치돼 있는지 확인하세요.");
+    console.error("모니터링 화면을 띄우지 못했습니다 — Node 22+와 npx가 설치돼 있는지 확인하세요.");
     process.exit(1);
   });
   child.on("exit", (code) => process.exit(code ?? 0));

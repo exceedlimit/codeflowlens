@@ -21,6 +21,6 @@ import { codeflowlensDev } from "@codeflowlens/node/vite";
 export default defineConfig({ plugins: [react(), codeflowlensDev()] });
 ```
 
-- 요구 사항: Node 20+
+- 요구 사항: Node 22+
 - Python 프로젝트는 `pip install codeflowlens`
 - 자세한 내용: https://github.com/exceedlimit/codeflowlens
