@@ -211,7 +211,8 @@ class Order(BaseModel):
 - `codeflowlens run <명령>` → 자식 프로세스에 환경변수 + `sitecustomize` 주입으로 추적기 탑재 → 코드 수정 0.
 - Python 3.12+: `sys.monitoring`(저오버헤드 공식 API) / 3.9~3.11: `sys.settrace` 폴백.
 - **프로젝트 코드만 추적** (site-packages·표준 라이브러리 제외, 설정으로 조정 가능).
-- 요청 단위 트레이스 묶기: ASGI/WSGI 진입점을 감지해 요청 1건 = 트레이스 1건으로 그룹핑 (FastAPI/Flask/Django 지원). 웹 앱이 아니면 프로세스 실행 1번 = 1 트레이스.
+- 요청 단위 트레이스 묶기: ASGI(Starlette/FastAPI) 진입점을 감지해 요청 1건 = 트레이스 1건으로 그룹핑. 웹 앱이 아니면 프로세스 실행 1번 = 1 트레이스.
+  - 현재 한계: WSGI(Flask/Django runserver)는 요청별 묶기 미구현 — 호출·값은 기록되지만 프로세스 트레이스 1건으로 남는다. (v2 후보)
 - async: `contextvars`로 코루틴 간 트레이스 컨텍스트 유지. 멀티프로세스(uvicorn workers): 프로세스별 추적기가 같은 DB에 배치 기록.
 - 값 직렬화: JSON 우선, 실패 시 `repr()` 문자열. 값 1개당 상한 초과분은 잘라내고 표시(`…truncated`).
 
