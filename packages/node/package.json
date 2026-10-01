@@ -2,6 +2,36 @@
   "name": "@codeflowlens/node",
   "version": "0.1.0",
   "description": "CodeFlowLens Node 추적기 — 코드 수정 0으로 함수 호출 흐름을 기록 (모듈 로드 시점 메모리 계측)",
+  "keywords": [
+    "tracing",
+    "monitoring",
+    "call-graph",
+    "observability",
+    "vite-plugin",
+    "vibe-coding"
+  ],
+  "license": "Apache-2.0",
+  "author": "exceedlimit",
+  "homepage": "https://github.com/exceedlimit/codeflowlens#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/exceedlimit/codeflowlens.git",
+    "directory": "packages/node"
+  },
+  "bugs": {
+    "url": "https://github.com/exceedlimit/codeflowlens/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "bin": {
     "codeflowlens": "dist/cli.js",
@@ -17,7 +47,8 @@
   },
   "scripts": {
     "build": "tsup",
-    "test": "vitest run"
+    "test": "vitest run",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@babel/core": "^7.26.0",

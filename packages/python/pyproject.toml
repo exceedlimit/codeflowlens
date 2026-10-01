@@ -1,14 +1,31 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
 [project]
 name = "codeflowlens"
-version = "0.1.0"
+dynamic = ["version"]          # 버전은 src/codeflowlens/_version.py 한 곳에서만 관리
 description = "바이브코딩으로 만든 시스템의 실행 흐름·메서드·엔티티를 시각화하는 모니터링 패키지 (Python 추적기 + 정적 분석기)"
 requires-python = ">=3.9"
 readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{ name = "exceedlimit" }]
+keywords = ["tracing", "monitoring", "call-graph", "observability", "vibe-coding", "llm"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Software Development :: Debuggers",
+    "Topic :: System :: Monitoring",
+]
 dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/exceedlimit/codeflowlens"
+Repository = "https://github.com/exceedlimit/codeflowlens"
+Issues = "https://github.com/exceedlimit/codeflowlens/issues"
 
 [project.scripts]
 codeflowlens = "codeflowlens.cli:main"
@@ -21,6 +38,12 @@ dev = [
     "httpx>=0.24",
     "uvicorn>=0.23",
 ]
+
+[tool.hatch.version]
+path = "src/codeflowlens/_version.py"
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "README.md", "LICENSE"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/codeflowlens"]

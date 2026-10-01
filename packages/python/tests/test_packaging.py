@@ -40,3 +40,20 @@ def test_도움말에_축약_명령_안내(capsys):
     out = capsys.readouterr().out
     assert "codeflowlens" in out
     assert "cfl" in out
+
+
+def test_버전은_한_곳에서만_관리():
+    """
+    개요: 배포 버전이 _version.py 한 곳에서만 정해지는지 확인한다.
+    참고: pyproject와 코드에 버전이 따로 있으면 올릴 때 하나를 빼먹기 쉽다.
+    """
+    project = _load_pyproject()["project"]
+    assert "version" not in project
+    assert "version" in project["dynamic"]
+
+
+def test_라이선스_표기():
+    """개요: 배포 메타데이터에 Apache-2.0 라이선스와 LICENSE 파일이 지정됐는지 확인한다."""
+    project = _load_pyproject()["project"]
+    assert project["license"] == "Apache-2.0"
+    assert (PYPROJECT.parent / "LICENSE").exists()
