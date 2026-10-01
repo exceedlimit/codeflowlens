@@ -133,3 +133,28 @@ def test_async_calls_parented(tmp_path, backend_name):
     # 스팬이 첫 await에서 조기 종료되지 않아야 한다(리턴값이 기록됨)
     assert json.loads(fetch_span["return_json"]) == 42
     assert fetch_span["status"] == "ok"
+
+
+def test_async_exception_after_await(tmp_path, backend_name):
+    """개요: await 뒤에 예외가 난 async 함수가 error로 닫히고, 잡은 쪽은 ok인지 검증한다."""
+    result, _, spans, _ = run_traced(tmp_path, backend_name, lambda: demo.run_async_fail())
+    assert result == "caught"
+    fail_span = by_name(spans, "fetch_fail")[0]
+    assert fail_span["status"] == "error"
+    assert json.loads(fail_span["error_json"])["type"] == "ValueError"
+    # await 뒤 호출된 helper가 fetch_fail 아래에 붙어야 한다(첫 await에서 조기 종료되지 않음)
+    assert by_name(spans, "helper")[0]["parent_id"] == fail_span["id"]
+    main_span = by_name(spans, "main_async_fail")[0]
+    assert fail_span["parent_id"] == main_span["id"]
+    assert main_span["status"] == "ok"
+
+
+def test_generator_span_spans_all_yields(tmp_path, backend_name):
+    """개요: 제너레이터는 yield마다 끊기지 않고 소진될 때 스팬 1개로 닫히는지 검증한다."""
+    result, _, spans, _ = run_traced(tmp_path, backend_name, lambda: demo.run_gen())
+    assert result == [0, 2, 4]
+    gen_spans = by_name(spans, "gen_values")
+    assert len(gen_spans) == 1
+    helpers = by_name(spans, "helper")
+    assert len(helpers) == 3
+    assert all(h["parent_id"] == gen_spans[0]["id"] for h in helpers)

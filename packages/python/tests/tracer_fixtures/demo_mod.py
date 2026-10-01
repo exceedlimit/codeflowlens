@@ -68,3 +68,34 @@ async def main_async():
 def run_async():
     """개요: 비동기 흐름을 실행한다."""
     return asyncio.run(main_async())
+
+
+async def fetch_fail(x):
+    """개요: await 뒤에 실패하는 비동기 작업(예외 종료 판정 확인용)."""
+    await asyncio.sleep(0)
+    helper(x)
+    raise ValueError("async bad")
+
+
+async def main_async_fail():
+    """개요: 실패하는 비동기 작업을 잡아 처리한다."""
+    try:
+        await fetch_fail(1)
+    except ValueError:
+        return "caught"
+
+
+def run_async_fail():
+    """개요: 실패하는 비동기 흐름을 실행한다."""
+    return asyncio.run(main_async_fail())
+
+
+def gen_values(n):
+    """개요: 값을 하나씩 만들어 낸다(제너레이터 일시중단 판정 확인용)."""
+    for i in range(n):
+        yield helper(i)
+
+
+def run_gen():
+    """개요: 제너레이터를 끝까지 소비한다."""
+    return list(gen_values(3))

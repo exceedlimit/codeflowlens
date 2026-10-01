@@ -19,6 +19,8 @@ _SUSPEND_OPS = frozenset(
     for n in ("YIELD_VALUE", "YIELD_FROM", "SEND", "RETURN_GENERATOR")
     if n in opcode.opmap
 )
+_YIELD_VALUE = opcode.opmap.get("YIELD_VALUE")
+_RESUME = opcode.opmap.get("RESUME")  # 3.11+에만 있다
 _GEN_FLAGS = (
     inspect.CO_GENERATOR | inspect.CO_COROUTINE | inspect.CO_ASYNC_GENERATOR
 )
@@ -29,15 +31,27 @@ def _classify_return(frame) -> str:
     개요: 'return' 이벤트가 진짜 리턴인지, 일시중단인지, 예외 종료인지 판정한다.
     로직: 프레임이 멈춘 위치의 opcode가 RETURN 계열이면 리턴, 제너레이터의 YIELD 계열이면
           일시중단, 둘 다 아니면 예외로 인한 종료(unwind)다.
+    참고: 일시중단 시 f_lasti가 가리키는 위치가 버전마다 다르다.
+          3.9~3.10은 YIELD_FROM 바로 앞 명령어(재실행 대기), 3.11~3.12는 YIELD_VALUE 자체,
+          3.13은 YIELD_VALUE 다음의 RESUME을 가리킨다 — 세 경우를 모두 일시중단으로 본다.
     """
     try:
-        op = frame.f_code.co_code[frame.f_lasti]
+        code = frame.f_code.co_code
+        i = frame.f_lasti
+        op = code[i]
     except Exception:
         return "return"  # 판정 불가 시 스팬을 닫는 쪽이 안전하다
     if op in _RETURN_OPS:
         return "return"
-    if frame.f_code.co_flags & _GEN_FLAGS and op in _SUSPEND_OPS:
-        return "suspend"
+    if frame.f_code.co_flags & _GEN_FLAGS:
+        if op in _SUSPEND_OPS:
+            return "suspend"
+        nxt = code[i + 2] if i + 2 < len(code) else None
+        prev = code[i - 2] if i >= 2 else None
+        if sys.version_info < (3, 11) and nxt in _SUSPEND_OPS:  # 3.9~3.10
+            return "suspend"
+        if _RESUME is not None and op == _RESUME and prev == _YIELD_VALUE:  # 3.13
+            return "suspend"
     return "unwind"
 
 
