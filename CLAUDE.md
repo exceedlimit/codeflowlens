@@ -43,5 +43,6 @@ npm test --prefix packages/ui
 
 ## 검증 대상 실전 프로젝트 (M5)
 
-- (실전 프로젝트 A — Python 대형 백엔드)
-- (실전 프로젝트 B — TypeScript 프로젝트)
+- 실전 프로젝트 A — Python 대형 백엔드
+- 실전 프로젝트 B — TypeScript 프로젝트
+- 실제 로컬 경로는 `CLAUDE.local.md`(git 미추적)에 적어 둔다.

@@ -19,3 +19,11 @@ coverage/
 
 # CodeFlowLens 런타임 데이터 (데모/테스트 실행 산출물)
 .codeflowlens/
+
+# 개인 개발 도구 (외부 스킬 — 저장소에 포함하지 않음)
+.agents/
+.claude/skills/
+skills-lock.json
+
+# 개인 로컬 메모 (Claude Code 로컬 지침 — 로컬 경로 등)
+CLAUDE.local.md
