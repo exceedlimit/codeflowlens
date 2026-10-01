@@ -83,3 +83,34 @@ def test_writer_survives_bad_row(tmp_path):
         assert "s1" in ids
     finally:
         conn.close()
+
+
+def test_writer_retries_when_db_briefly_locked(tmp_path, monkeypatch):
+    """
+    개요: DB를 처음 여는 순간 잠깐 잠겨 있어도(다른 연결이 스키마를 만드는 중) 기록을 포기하지 않는지 검증한다.
+    참고: 새 DB 파일을 여러 연결이 동시에 열 때 'database is locked'가 나서 실행 기록이 통째로 사라지던 문제.
+    """
+    import sqlite3
+
+    import codeflowlens.db.writer as writer_mod
+
+    real_open = writer_mod.open_db
+    calls = {"n": 0}
+
+    def flaky_open(path):
+        calls["n"] += 1
+        if calls["n"] <= 2:
+            raise sqlite3.OperationalError("database is locked")
+        return real_open(path)
+
+    monkeypatch.setattr(writer_mod, "open_db", flaky_open)
+    db = tmp_path / "data.db"
+    w = BatchWriter(db)
+    w.trace_start(_trace_row("t1"))
+    w.close()
+
+    conn = open_db(db)
+    try:
+        assert conn.execute("SELECT COUNT(*) FROM traces").fetchone()[0] == 1
+    finally:
+        conn.close()

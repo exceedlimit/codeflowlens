@@ -8,11 +8,14 @@
 import atexit
 import queue
 import threading
+import time
 
 from codeflowlens.db.connect import open_db
 
 FLUSH_INTERVAL = 0.25   # 초
 FLUSH_BATCH = 500       # 건
+OPEN_RETRIES = 10       # DB 열기 재시도 횟수 (최대 약 0.5초)
+OPEN_RETRY_DELAY = 0.05 # 초
 
 _TRACE_COLS = [
     "id", "started_at", "ended_at", "status", "entry_kind", "entry_name",
@@ -83,9 +86,8 @@ class BatchWriter:
         로직: 250ms마다(또는 종료 신호 시) 쌓인 이벤트를 한 트랜잭션으로 기록한다.
         참고: DB 오류가 나면 기록을 포기하고 스스로 꺼진다 — 앱은 계속 돈다.
         """
-        try:
-            conn = open_db(self._db_path)
-        except Exception:
+        conn = self._open_with_retry()
+        if conn is None:
             self._disabled = True
             return
         try:
@@ -101,6 +103,22 @@ class BatchWriter:
                 conn.close()
             except Exception:
                 pass
+
+    def _open_with_retry(self):
+        """
+        개요: DB를 연다. 잠깐 잠겨 있으면 몇 번 다시 시도한다.
+        참고: 새 DB 파일을 여러 연결(같은 프로세스의 설정 읽기, 다른 워커 프로세스)이 동시에 열면
+              WAL 전환·스키마 생성이 겹쳐 'database is locked'가 날 수 있다. 바로 포기하면
+              그 실행의 기록이 통째로 사라지므로 짧게 재시도한 뒤에만 포기한다(fail-open 유지).
+        """
+        for attempt in range(OPEN_RETRIES):
+            try:
+                return open_db(self._db_path)
+            except Exception:
+                if attempt == OPEN_RETRIES - 1:
+                    return None
+                time.sleep(OPEN_RETRY_DELAY)
+        return None
 
     def _flush(self, conn):
         batch = []
