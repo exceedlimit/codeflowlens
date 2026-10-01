@@ -26,7 +26,7 @@
 2. **UI 열기**
 
    ```bash
-   npx @codeflowlens/ui        # 또는 codeflowlens-ui
+   cfl ui                      # 또는 npx @codeflowlens/ui
    # → http://127.0.0.1:7411 (기본 DB: 현재 폴더의 .codeflowlens/data.db)
    ```
 

@@ -88,8 +88,11 @@ codeflowlens check           # 룰에 안 맞는 함수/클래스 목록 출력
 ```bash
 codeflowlens run uvicorn main:app     # 감싸서 실행하면 추적 ON
 codeflowlens run npm run dev          # Node도 동일
-npx @codeflowlens/ui                  # UI 서버 실행 → 브라우저에서 localhost:7411
+codeflowlens ui                       # UI 서버 실행 → 브라우저에서 localhost:7411
 ```
+
+- 모든 명령은 축약형 `cfl`로도 쓸 수 있다 (`cfl run ...`, `cfl ui`).
+- `ui`는 프로젝트에 설치된 `@codeflowlens/ui` → PATH의 `codeflowlens-ui` → `npx -y @codeflowlens/ui` 순으로 찾아 실행하고, 기본 DB로 프로젝트의 `.codeflowlens/data.db`를 넘긴다. UI만 따로 띄울 땐 `npx @codeflowlens/ui`도 그대로 쓸 수 있다.
 
 UI에서: 요청별 실행 흐름(호출 트리) → 함수 클릭 → 개요/로직/참고 주석 + 파라미터/리턴값 확인. 메서드 관계도·엔티티 관계도 탐색.
 

@@ -6,7 +6,7 @@
 pip install codeflowlens
 cfl init                      # 프로젝트에 이식 (주석 룰 + 첫 스캔)
 cfl run uvicorn main:app      # 코드 수정 0으로 실행 추적
-npx @codeflowlens/ui          # 모니터링 화면 (localhost:7411)
+cfl ui                        # 모니터링 화면 (localhost:7411, Node 20+ 필요)
 ```
 
 `cfl`은 `codeflowlens`의 축약 명령입니다 — 어느 쪽을 쳐도 똑같이 동작합니다.

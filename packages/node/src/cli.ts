@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// 개요: codeflowlens CLI (Node) — run(추적 실행) / scan(TS 정적 분석) / check(주석 룰 검사).
+// 개요: codeflowlens(축약 cfl) CLI (Node) — run(추적 실행) / scan(TS 정적 분석) / check(주석 룰 검사) / ui(화면 열기).
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import path from "node:path";
@@ -59,12 +59,17 @@ async function main(): Promise<void> {
         "사용법:\n" +
         "  cfl run <명령> [인자...]   명령을 추적 상태로 실행 (예: cfl run node server.mjs)\n" +
         "  cfl scan                   TS/JS 코드를 정적 분석해 코드맵 갱신\n" +
-        "  cfl check [--json]         주석 룰 준수 검사 (위반 시 종료코드 1)\n\n" +
+        "  cfl check [--json]         주석 룰 준수 검사 (위반 시 종료코드 1)\n" +
+        "  cfl ui [--port N]          모니터링 화면 열기\n\n" +
         "cfl 대신 codeflowlens 를 써도 똑같이 동작합니다.\n",
     );
     return;
   }
   if (cmd === "run") return runCommand(rest);
+  if (cmd === "ui") {
+    const { runUi } = await import("./ui-cmd.js");
+    return runUi(findProjectRoot(), rest);
+  }
   if (cmd === "scan") {
     const { runScan } = await import("./analyzer/scan-cli.js");
     const root = findProjectRoot();

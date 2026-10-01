@@ -20,7 +20,7 @@ cd <내 프로젝트>
 cfl init                     # 주석 룰(AGENTS.md)·retrofit skill·코드맵 생성
 cfl check                    # 주석 룰 준수 검사 (기존 코드 소급은 .codeflowlens/RETROFIT.md 참고)
 cfl run uvicorn main:app     # 앱을 추적 상태로 실행 — 코드 수정 0 (Node: cfl run node server.ts)
-npx @codeflowlens/ui         # UI (Node 20+) → http://127.0.0.1:7411  (트레이스 / 관계도 / 엔티티)
+cfl ui                       # UI (Node 20+) → http://127.0.0.1:7411  (트레이스 / 관계도 / 엔티티)
 
 # 코드맵 갱신은 자동 — UI 서버가 켜져 있으면 파일 저장을 감지해 다시 스캔한다
 # (UI 없이 갱신하려면: cfl scan)
@@ -73,3 +73,7 @@ node ../../packages/ui/dist/server/cli.js --db .codeflowlens/data.db
 cd packages/python && .venv/bin/python -m pytest   # Python 테스트
 cd packages/ui && npm test                          # UI 테스트
 ```
+
+## 라이선스
+
+[Apache License 2.0](LICENSE)

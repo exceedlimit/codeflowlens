@@ -1,5 +1,5 @@
 """
-개요: codeflowlens 명령줄 도구. M1은 run만, M2에서 init/check/scan이 추가된다.
+개요: codeflowlens(축약 cfl) 명령줄 도구 — run / scan / check / init / ui.
 """
 
 import sys
@@ -16,7 +16,8 @@ def main(argv=None) -> int:
             "                             예: cfl run uvicorn main:app\n"
             "  cfl scan                   코드를 정적 분석해 코드맵 갱신\n"
             "  cfl check [--json]         주석 룰 준수 검사 (위반 시 종료코드 1)\n"
-            "  cfl init [--lang a,b]      프로젝트에 이식 (룰 셋팅 + 첫 스캔)\n\n"
+            "  cfl init [--lang a,b]      프로젝트에 이식 (룰 셋팅 + 첫 스캔)\n"
+            "  cfl ui [--port N]          모니터링 화면 열기 (Node 20+ 필요)\n\n"
             "cfl 대신 codeflowlens 를 써도 똑같이 동작합니다.\n"
         )
         return 0
@@ -37,6 +38,9 @@ def main(argv=None) -> int:
         if "--lang" in rest:
             langs = rest[rest.index("--lang") + 1].split(",")
         return run_init(langs=langs)
+    if cmd == "ui":
+        from codeflowlens.ui_cmd import run_ui
+        return run_ui(rest)
     print(f"알 수 없는 명령: {cmd} (codeflowlens --help 참고)", file=sys.stderr)
     return 2
 
