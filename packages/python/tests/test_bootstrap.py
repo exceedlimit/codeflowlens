@@ -3,7 +3,7 @@ import subprocess
 import sys
 import textwrap
 
-from flowlens.db.connect import open_db
+from codeflowlens.db.connect import open_db
 
 DEMO_SCRIPT = textwrap.dedent(
     """
@@ -24,14 +24,14 @@ DEMO_SCRIPT = textwrap.dedent(
 def test_bootstrap_records_process_trace(tmp_path):
     """개요: 환경변수 세팅 + install()만으로 자식 프로세스 실행이 추적되는지 검증한다."""
     (tmp_path / "demo_script.py").write_text(DEMO_SCRIPT)
-    db_path = tmp_path / ".flowlens" / "data.db"
+    db_path = tmp_path / ".codeflowlens" / "data.db"
     env = dict(
         os.environ,
-        FLOWLENS_ENABLED="1",
-        FLOWLENS_DB=str(db_path),
-        FLOWLENS_PROJECT_ROOT=str(tmp_path),
+        CODEFLOWLENS_ENABLED="1",
+        CODEFLOWLENS_DB=str(db_path),
+        CODEFLOWLENS_PROJECT_ROOT=str(tmp_path),
     )
-    code = "import flowlens.bootstrap as b; b.install(); import demo_script"
+    code = "import codeflowlens.bootstrap as b; b.install(); import demo_script"
     proc = subprocess.run(
         [sys.executable, "-c", code],
         cwd=tmp_path, env=env, capture_output=True, text=True, timeout=30,
@@ -56,14 +56,14 @@ def test_bootstrap_records_process_trace(tmp_path):
 def test_bootstrap_noop_without_env(tmp_path):
     """개요: 환경변수가 없으면 아무 일도 하지 않는지 검증한다(운영 오버헤드 0)."""
     (tmp_path / "demo_script.py").write_text(DEMO_SCRIPT)
-    env = {k: v for k, v in os.environ.items() if not k.startswith("FLOWLENS")}
-    code = "import flowlens.bootstrap as b; b.install(); import demo_script"
+    env = {k: v for k, v in os.environ.items() if not k.startswith("CODEFLOWLENS")}
+    code = "import codeflowlens.bootstrap as b; b.install(); import demo_script"
     proc = subprocess.run(
         [sys.executable, "-c", code],
         cwd=tmp_path, env=env, capture_output=True, text=True, timeout=30,
     )
     assert proc.returncode == 0, proc.stderr
-    assert not (tmp_path / ".flowlens").exists()
+    assert not (tmp_path / ".codeflowlens").exists()
 
 
 def test_bootstrap_respects_value_max_bytes_setting(tmp_path):
@@ -74,7 +74,7 @@ def test_bootstrap_respects_value_max_bytes_setting(tmp_path):
         "    return len(data)\n"
         "print(eat('x' * 50000))\n"
     )
-    db_path = tmp_path / ".flowlens" / "data.db"
+    db_path = tmp_path / ".codeflowlens" / "data.db"
     conn = open_db(db_path)
     conn.execute("UPDATE settings SET value = '2000' WHERE key = 'value_max_bytes'")
     conn.commit()
@@ -82,11 +82,11 @@ def test_bootstrap_respects_value_max_bytes_setting(tmp_path):
 
     env = dict(
         os.environ,
-        FLOWLENS_ENABLED="1",
-        FLOWLENS_DB=str(db_path),
-        FLOWLENS_PROJECT_ROOT=str(tmp_path),
+        CODEFLOWLENS_ENABLED="1",
+        CODEFLOWLENS_DB=str(db_path),
+        CODEFLOWLENS_PROJECT_ROOT=str(tmp_path),
     )
-    code = "import flowlens.bootstrap as b; b.install(); import big_script"
+    code = "import codeflowlens.bootstrap as b; b.install(); import big_script"
     proc = subprocess.run(
         [sys.executable, "-c", code],
         cwd=tmp_path, env=env, capture_output=True, text=True, timeout=30,
@@ -109,11 +109,11 @@ def test_bootstrap_never_breaks_app_on_bad_db(tmp_path):
     (tmp_path / "demo_script.py").write_text(DEMO_SCRIPT)
     env = dict(
         os.environ,
-        FLOWLENS_ENABLED="1",
-        FLOWLENS_DB="/dev/null/cannot/exist/data.db",
-        FLOWLENS_PROJECT_ROOT=str(tmp_path),
+        CODEFLOWLENS_ENABLED="1",
+        CODEFLOWLENS_DB="/dev/null/cannot/exist/data.db",
+        CODEFLOWLENS_PROJECT_ROOT=str(tmp_path),
     )
-    code = "import flowlens.bootstrap as b; b.install(); import demo_script"
+    code = "import codeflowlens.bootstrap as b; b.install(); import demo_script"
     proc = subprocess.run(
         [sys.executable, "-c", code],
         cwd=tmp_path, env=env, capture_output=True, text=True, timeout=30,

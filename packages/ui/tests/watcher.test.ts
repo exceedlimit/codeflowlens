@@ -10,7 +10,7 @@ let root: string;
 let stop: (() => void) | null = null;
 
 beforeEach(() => {
-  root = mkdtempSync(join(tmpdir(), "flowlens-watch-"));
+  root = mkdtempSync(join(tmpdir(), "codeflowlens-watch-"));
 });
 
 afterEach(() => {
@@ -43,10 +43,10 @@ describe("startCodeWatcher", () => {
     expect(calls).toHaveLength(1);
   });
 
-  it("node_modules·.flowlens·빌드 산출물 변경은 무시한다", async () => {
+  it("node_modules·.codeflowlens·빌드 산출물 변경은 무시한다", async () => {
     const calls: number[] = [];
     stop = startCodeWatcher(root, () => calls.push(Date.now()), { debounceMs: 40 });
-    for (const dir of ["node_modules", ".flowlens", "dist", "__pycache__", ".venv"]) {
+    for (const dir of ["node_modules", ".codeflowlens", "dist", "__pycache__", ".venv"]) {
       mkdirSync(join(root, dir), { recursive: true });
       writeFileSync(join(root, dir, "x.js"), "1");
     }

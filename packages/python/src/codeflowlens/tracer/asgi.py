@@ -42,7 +42,7 @@ def patch_starlette(session):
 
             client_trace_id = None
             for key, value in scope.get("headers", []):
-                if key == b"x-flowlens-trace":
+                if key == b"x-codeflowlens-trace":
                     client_trace_id = value.decode("utf-8", "ignore")
                     break
             token, trace_id = session.begin_request_trace(

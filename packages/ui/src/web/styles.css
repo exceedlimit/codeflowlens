@@ -1,4 +1,4 @@
-/* 개요: FlowLens UI 전역 스타일 — 라이트/다크 대응, 상태색은 라벨과 함께만 사용 */
+/* 개요: CodeFlowLens UI 전역 스타일 — 라이트/다크 대응, 상태색은 라벨과 함께만 사용 */
 :root {
   --bg: #f8fafc;
   --surface: #ffffff;

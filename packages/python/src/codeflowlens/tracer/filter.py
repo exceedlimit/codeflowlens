@@ -14,14 +14,14 @@ EXCLUDED_DIR_NAMES = {".venv", "venv", "env", "node_modules", "site-packages", "
 class CodeFilter:
     """
     개요: 파일 경로가 추적 대상인지 판정한다.
-    로직: 프로젝트 루트 하위이면서, 파이썬 설치 경로·가상환경·flowlens 자신이 아니면 대상이다.
+    로직: 프로젝트 루트 하위이면서, 파이썬 설치 경로·가상환경·codeflowlens 자신이 아니면 대상이다.
     참고: 판정 결과는 파일별로 캐시된다(추적 콜백은 매우 자주 불리므로).
     """
 
     def __init__(self, project_root):
         self._root = str(Path(project_root).resolve()) + os.sep
         self._cache = {}
-        self._flowlens_dir = str(Path(__file__).resolve().parents[1]) + os.sep
+        self._codeflowlens_dir = str(Path(__file__).resolve().parents[1]) + os.sep
         prefixes = {
             sys.prefix, sys.exec_prefix,
             getattr(sys, "base_prefix", sys.prefix),
@@ -46,7 +46,7 @@ class CodeFilter:
             path = str(Path(filename).resolve())
         except Exception:
             return False
-        if path.startswith(self._flowlens_dir):
+        if path.startswith(self._codeflowlens_dir):
             return False
         for p in self._sys_prefixes:
             if path.startswith(p):

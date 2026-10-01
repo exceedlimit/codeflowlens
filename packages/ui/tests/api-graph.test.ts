@@ -66,7 +66,7 @@ function seed(path: string) {
 }
 
 beforeAll(async () => {
-  const dir = mkdtempSync(join(tmpdir(), "flowlens-graph-test-"));
+  const dir = mkdtempSync(join(tmpdir(), "codeflowlens-graph-test-"));
   const dbPath = join(dir, "data.db");
   seed(dbPath);
   server = await buildServer({ dbPath });

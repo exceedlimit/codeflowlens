@@ -1,5 +1,5 @@
 """
-개요: `flowlens init` — 프로젝트에 FlowLens를 이식한다(룰 셋팅 + 첫 스캔).
+개요: `codeflowlens init` — 프로젝트에 CodeFlowLens를 이식한다(룰 셋팅 + 첫 스캔).
 로직: 언어를 감지해 설정을 만들고, AGENTS.md에 주석 룰을 심고, 코딩 에이전트용
       소급 작업 스킬/작업지시서를 만들고, 프론트가 있으면 Vite 플러그인까지 연결한 뒤
       첫 정적 분석을 실행한다.
@@ -11,21 +11,21 @@ import json
 import re
 from pathlib import Path
 
-from flowlens.langs import detect_languages  # noqa: F401 (하위 호환 재노출)
+from codeflowlens.langs import detect_languages  # noqa: F401 (하위 호환 재노출)
 
 TEMPLATES = Path(__file__).parent / "templates"
-MARK_START = "<!-- flowlens:rules:start -->"
-MARK_END = "<!-- flowlens:rules:end -->"
-CLAUDE_REF = "@AGENTS.md 의 'FlowLens 주석 룰' 섹션을 반드시 따르세요 (flowlens check로 검증)."
-VITE_IMPORT = 'import { flowlensDev } from "@flowlens/node/vite";'
+MARK_START = "<!-- codeflowlens:rules:start -->"
+MARK_END = "<!-- codeflowlens:rules:end -->"
+CLAUDE_REF = "@AGENTS.md 의 'CodeFlowLens 주석 룰' 섹션을 반드시 따르세요 (codeflowlens check로 검증)."
+VITE_IMPORT = 'import { codeflowlensDev } from "@codeflowlens/node/vite";'
 
 
 def _write_config(root: Path, langs: list):
-    cfg = root / ".flowlens" / "config.toml"
+    cfg = root / ".codeflowlens" / "config.toml"
     cfg.parent.mkdir(parents=True, exist_ok=True)
     langs_str = ", ".join(f'"{l}"' for l in langs)
     cfg.write_text(
-        "# FlowLens 설정\n"
+        "# CodeFlowLens 설정\n"
         f"languages = [{langs_str}]\n"
         'exclude = []  # 추적/스캔 제외 경로 (프로젝트 루트 기준)\n'
     )
@@ -60,17 +60,17 @@ def _add_claude_reference(root: Path):
 
 
 def _write_retrofit_files(root: Path):
-    skill_dir = root / ".claude" / "skills" / "flowlens-retrofit"
+    skill_dir = root / ".claude" / "skills" / "codeflowlens-retrofit"
     skill_dir.mkdir(parents=True, exist_ok=True)
     (skill_dir / "SKILL.md").write_text((TEMPLATES / "retrofit_skill.md").read_text())
-    (root / ".flowlens" / "RETROFIT.md").write_text(
+    (root / ".codeflowlens" / "RETROFIT.md").write_text(
         (TEMPLATES / "retrofit_guide.md").read_text()
     )
 
 
 def _find_vite_configs(root: Path) -> list:
     """개요: 루트와 workspace 패키지들의 vite.config 파일을 찾는다."""
-    from flowlens.langs import _workspace_package_files
+    from codeflowlens.langs import _workspace_package_files
 
     dirs = [root]
     pkg_file = root / "package.json"
@@ -91,28 +91,28 @@ def _find_vite_configs(root: Path) -> list:
 
 def _inject_vite_plugin(root: Path, langs: list) -> dict:
     """
-    개요: 프론트(browser)가 있으면 vite.config에 flowlensDev 플러그인을 자동으로 넣는다.
-    로직: import 1줄을 맨 위에, plugins 배열 첫 자리에 flowlensDev()를 넣는다.
+    개요: 프론트(browser)가 있으면 vite.config에 codeflowlensDev 플러그인을 자동으로 넣는다.
+    로직: import 1줄을 맨 위에, plugins 배열 첫 자리에 codeflowlensDev()를 넣는다.
           이미 들어있으면 건너뛰고, plugins 배열을 못 찾으면 손대지 않는다(보수적).
-    참고: @flowlens/node가 설치돼 있지 않으면 주입하지 않는다 — import가 앱을 깨뜨리므로.
+    참고: @codeflowlens/node가 설치돼 있지 않으면 주입하지 않는다 — import가 앱을 깨뜨리므로.
     """
     result = {"modified": [], "skipped": [], "note": None}
     if "browser" not in langs:
         return result
-    if not (root / "node_modules" / "@flowlens" / "node").exists():
+    if not (root / "node_modules" / "@codeflowlens" / "node").exists():
         result["note"] = (
-            "Vite 플러그인 연결 건너뜀 — @flowlens/node가 설치되어 있지 않습니다. "
-            "npm i -D @flowlens/node 후 flowlens init을 다시 실행하세요."
+            "Vite 플러그인 연결 건너뜀 — @codeflowlens/node가 설치되어 있지 않습니다. "
+            "npm i -D @codeflowlens/node 후 codeflowlens init을 다시 실행하세요."
         )
         return result
 
     for config in _find_vite_configs(root):
         try:
             text = config.read_text()
-            if "flowlensDev" in text:
+            if "codeflowlensDev" in text:
                 result["skipped"].append(str(config.relative_to(root)))
                 continue
-            new_text, n = re.subn(r"(plugins\s*:\s*\[)", r"\1flowlensDev(), ", text, count=1)
+            new_text, n = re.subn(r"(plugins\s*:\s*\[)", r"\1codeflowlensDev(), ", text, count=1)
             if n == 0:
                 continue  # plugins 배열을 못 찾음 — 구조가 특이하면 손대지 않는다
             config.write_text(VITE_IMPORT + "\n" + new_text)
@@ -124,21 +124,21 @@ def _inject_vite_plugin(root: Path, langs: list) -> dict:
 
 def _update_gitignore(root: Path):
     gi = root / ".gitignore"
-    line = ".flowlens/"
+    line = ".codeflowlens/"
     if gi.exists():
         if line not in gi.read_text():
             with gi.open("a") as f:
-                f.write(f"\n# FlowLens 추적 데이터\n{line}\n")
+                f.write(f"\n# CodeFlowLens 추적 데이터\n{line}\n")
     else:
-        gi.write_text(f"# FlowLens 추적 데이터\n{line}\n")
+        gi.write_text(f"# CodeFlowLens 추적 데이터\n{line}\n")
 
 
 def run_init(root=None, langs=None, quiet=False) -> int:
     """개요: init 전체 절차를 실행한다."""
-    from flowlens.paths import find_project_root
-    from flowlens.scan_cmd import scan
+    from codeflowlens.paths import find_project_root
+    from codeflowlens.scan_cmd import scan
 
-    from flowlens.usage_doc import ensure_usage_md
+    from codeflowlens.usage_doc import ensure_usage_md
 
     root = Path(root or find_project_root())
     langs = langs or detect_languages(root)
@@ -152,13 +152,13 @@ def run_init(root=None, langs=None, quiet=False) -> int:
     result = scan(root, quiet=True)
 
     if not quiet:
-        print(f"FlowLens 이식 완료 (언어: {', '.join(langs)})")
+        print(f"CodeFlowLens 이식 완료 (언어: {', '.join(langs)})")
         print("  · AGENTS.md — 주석 룰 삽입")
-        print("  · .claude/skills/flowlens-retrofit — 소급 작업 스킬")
-        print("  · .flowlens/RETROFIT.md — 작업지시서")
-        print("  · .flowlens/USAGE.md — 사용법 안내서")
+        print("  · .claude/skills/codeflowlens-retrofit — 소급 작업 스킬")
+        print("  · .codeflowlens/RETROFIT.md — 작업지시서")
+        print("  · .codeflowlens/USAGE.md — 사용법 안내서")
         for path in vite["modified"]:
-            print(f"  · {path} — flowlensDev 플러그인 연결")
+            print(f"  · {path} — codeflowlensDev 플러그인 연결")
         for path in vite["skipped"]:
             print(f"  · {path} — 이미 연결되어 있음")
         if vite["note"]:
@@ -177,5 +177,5 @@ def run_init(root=None, langs=None, quiet=False) -> int:
             print(f"  · {note}")
         if worst_coverage < 100.0:
             print("\n기존 코드에 주석이 부족합니다. 코딩 에이전트에게 이렇게 시키세요:")
-            print('  "flowlens-retrofit 스킬로 주석 소급 작업을 해줘"')
+            print('  "codeflowlens-retrofit 스킬로 주석 소급 작업을 해줘"')
     return 0

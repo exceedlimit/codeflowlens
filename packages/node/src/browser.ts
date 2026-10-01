@@ -1,6 +1,6 @@
 // 개요: 브라우저 API 호출 기록 스크립트 — fetch/XHR을 감싸 트레이스 헤더를 붙이고
 //       호출 기록을 수집 엔드포인트로 보낸다(개발 모드 전용, Vite 플러그인이 주입).
-// 로직: 요청마다 trace id 생성 → x-flowlens-trace 헤더 부착(백엔드가 client_trace_id로 저장)
+// 로직: 요청마다 trace id 생성 → x-codeflowlens-trace 헤더 부착(백엔드가 client_trace_id로 저장)
 //       → 완료 시 원본 fetch로 기록 전송(text/plain 단순 요청 — CORS preflight 없음).
 // 참고: 수집 서버가 꺼져 있으면 조용히 버린다. 앱 동작에 절대 영향을 주지 않는다(fail-open).
 
@@ -9,7 +9,7 @@ export interface BrowserTracerOptions {
 }
 
 const DEFAULT_ENDPOINT = "http://127.0.0.1:7411/api/client-events";
-const FLAG = "__flowlens_browser_installed__";
+const FLAG = "__codeflowlens_browser_installed__";
 
 function makeTraceId(): string {
   try {
@@ -54,7 +54,7 @@ export function installBrowserTracer(options: BrowserTracerOptions = {}): void {
     let newInit = init;
     try {
       const headers = new Headers(init?.headers ?? (input instanceof Request ? input.headers : undefined));
-      headers.set("x-flowlens-trace", traceId);
+      headers.set("x-codeflowlens-trace", traceId);
       newInit = { ...init, headers };
     } catch { /* 헤더 부착 실패 시 원본 그대로 */ }
 
@@ -83,24 +83,24 @@ export function installBrowserTracer(options: BrowserTracerOptions = {}): void {
     const origSend = XHR.prototype.send;
     XHR.prototype.open = function (this: XMLHttpRequest & Record<string, unknown>,
       method: string, url: string | URL, ...rest: unknown[]) {
-      this.__flowlens_method = String(method).toUpperCase();
-      this.__flowlens_url = String(url);
+      this.__codeflowlens_method = String(method).toUpperCase();
+      this.__codeflowlens_url = String(url);
       // @ts-expect-error 원형 시그니처 전달
       return origOpen.call(this, method, url, ...rest);
     };
     XHR.prototype.send = function (this: XMLHttpRequest & Record<string, unknown>, body?: unknown) {
       try {
-        const url = String(this.__flowlens_url ?? "");
+        const url = String(this.__codeflowlens_url ?? "");
         if (!url.startsWith(endpoint)) {
           const traceId = makeTraceId();
           const started = Date.now();
-          this.setRequestHeader("x-flowlens-trace", traceId);
+          this.setRequestHeader("x-codeflowlens-trace", traceId);
           this.addEventListener("loadend", () => {
             report({
               id: makeTraceId(),
               trace_id: traceId,
               page_url: (w.location as { href?: string } | undefined)?.href ?? "",
-              method: this.__flowlens_method ?? "GET",
+              method: this.__codeflowlens_method ?? "GET",
               url,
               started_at: started / 1000,
               duration_ms: Date.now() - started,
@@ -114,10 +114,10 @@ export function installBrowserTracer(options: BrowserTracerOptions = {}): void {
   }
 }
 
-// 주입 스크립트(iife)로 쓰일 때 자동 설치 — window.__FLOWLENS_ENDPOINT__로 엔드포인트 설정
-declare const __FLOWLENS_AUTO__: boolean | undefined;
-if (typeof window !== "undefined" && (window as unknown as Record<string, unknown>).__FLOWLENS_AUTO__) {
+// 주입 스크립트(iife)로 쓰일 때 자동 설치 — window.__CODEFLOWLENS_ENDPOINT__로 엔드포인트 설정
+declare const __CODEFLOWLENS_AUTO__: boolean | undefined;
+if (typeof window !== "undefined" && (window as unknown as Record<string, unknown>).__CODEFLOWLENS_AUTO__) {
   installBrowserTracer({
-    endpoint: (window as unknown as Record<string, string>).__FLOWLENS_ENDPOINT__,
+    endpoint: (window as unknown as Record<string, string>).__CODEFLOWLENS_ENDPOINT__,
   });
 }

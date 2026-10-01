@@ -1,8 +1,8 @@
 import sys
 import sysconfig
 
-import flowlens
-from flowlens.tracer.filter import CodeFilter
+import codeflowlens
+from codeflowlens.tracer.filter import CodeFilter
 
 
 def test_project_code_is_traced(tmp_path):
@@ -35,7 +35,7 @@ def test_venv_inside_project_excluded(tmp_path):
     assert f.should_trace(str(tmp_path / "node_modules" / "y.py")) is False
 
 
-def test_flowlens_itself_excluded(tmp_path):
-    """개요: flowlens 자기 자신은 추적하지 않는지 검증한다."""
+def test_codeflowlens_itself_excluded(tmp_path):
+    """개요: codeflowlens 자기 자신은 추적하지 않는지 검증한다."""
     f = CodeFilter(tmp_path)
-    assert f.should_trace(flowlens.__file__) is False
+    assert f.should_trace(codeflowlens.__file__) is False

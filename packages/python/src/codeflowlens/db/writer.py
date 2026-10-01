@@ -9,7 +9,7 @@ import atexit
 import queue
 import threading
 
-from flowlens.db.connect import open_db
+from codeflowlens.db.connect import open_db
 
 FLUSH_INTERVAL = 0.25   # 초
 FLUSH_BATCH = 500       # 건
@@ -35,7 +35,7 @@ class BatchWriter:
         self._closed = threading.Event()
         self._db_path = db_path
         self._thread = threading.Thread(
-            target=self._worker, name="flowlens-writer", daemon=True
+            target=self._worker, name="codeflowlens-writer", daemon=True
         )
         self._thread.start()
         atexit.register(self.close)

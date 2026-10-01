@@ -225,7 +225,7 @@ export default function TraceList() {
       {traces.length === 0 && (
         <div className="empty">
           {emptyNoFilter ? (
-            <>아직 기록이 없어요 — <code>flowlens run &lt;명령&gt;</code>으로 앱을 실행하면
+            <>아직 기록이 없어요 — <code>codeflowlens run &lt;명령&gt;</code>으로 앱을 실행하면
             트레이스가 여기 나타납니다.</>
           ) : (
             <>조건에 맞는 트레이스가 없어요 — 필터를 조정해보세요.</>

@@ -78,7 +78,7 @@ let root: string;
 let result: ScanResult;
 
 beforeAll(() => {
-  root = mkdtempSync(join(tmpdir(), "flowlens-tsscan-"));
+  root = mkdtempSync(join(tmpdir(), "codeflowlens-tsscan-"));
   mkdirSync(join(root, "src"));
   mkdirSync(join(root, "node_modules", "dep"), { recursive: true });
   writeFileSync(join(root, "src", "models.ts"), MODELS);
@@ -139,7 +139,7 @@ describe("scanProject", () => {
 
 describe("saveScan", () => {
   it("typescript 데이터만 교체하고 타 언어·실행 기록은 보존한다", () => {
-    const dbPath = join(root, ".flowlens", "data.db");
+    const dbPath = join(root, ".codeflowlens", "data.db");
     const db = openDb(dbPath);
     db.prepare(
       "INSERT OR REPLACE INTO functions (id, language, file_path, qualified_name) VALUES ('a.py::f', 'python', 'a.py', 'f')",

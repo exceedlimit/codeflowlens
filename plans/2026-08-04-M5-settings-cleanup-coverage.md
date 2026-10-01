@@ -26,7 +26,7 @@
 - [x] 5-1. EntitiesPage에 전체 엔티티 그래프(React Flow, entity_relations 기반) 토글 추가 → 눈 확인 → 커밋 `M5: 엔티티 관계도`
 
 ### Task 6: 실전 프로젝트 검증
-- [x] 6-1. 실전 프로젝트 A: 구조 파악 → init(--lang 자동) → scan/check → UI 3+2화면 확인(실행 가능하면 flowlens run으로 트래픽까지)
+- [x] 6-1. 실전 프로젝트 A: 구조 파악 → init(--lang 자동) → scan/check → UI 3+2화면 확인(실행 가능하면 codeflowlens run으로 트래픽까지)
 - [x] 6-2. 실전 프로젝트 B: 동일 절차
 - [x] 6-3. 발견 문제 수정(회귀 테스트 추가) → 커밋 `M5: 실전 검증 완료`
 

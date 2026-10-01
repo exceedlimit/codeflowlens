@@ -1,7 +1,7 @@
 // 개요: 런타임 테스트 — wrap의 부모 추적(동기/async)과 예외 처리를 검증한다.
 import { describe, expect, it } from "vitest";
 
-import { FlowlensRuntime } from "../src/runtime.js";
+import { CodeflowlensRuntime } from "../src/runtime.js";
 import type { BatchWriter, SpanRow, TraceRow } from "../src/writer.js";
 
 /** 개요: DB 없이 기록만 모으는 가짜 writer. */
@@ -23,7 +23,7 @@ function fakeWriter() {
 
 function makeRuntime(opts?: { excluded?: string[] }) {
   const fake = fakeWriter();
-  const rt = new FlowlensRuntime({
+  const rt = new CodeflowlensRuntime({
     writer: fake.w,
     entryName: "test",
     exclusions: opts?.excluded
@@ -33,7 +33,7 @@ function makeRuntime(opts?: { excluded?: string[] }) {
   return { rt, ...fake };
 }
 
-describe("FlowlensRuntime.wrap", () => {
+describe("CodeflowlensRuntime.wrap", () => {
   it("동기 중첩 호출의 부모-자식이 정확하다", () => {
     const { rt, spans, edges } = makeRuntime();
     const inner = () => rt.wrap("a.ts::inner", "inner", { x: 1 }, () => 42);

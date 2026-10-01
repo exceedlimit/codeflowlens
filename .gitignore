@@ -17,5 +17,5 @@ node_modules/
 *.tsbuildinfo
 coverage/
 
-# FlowLens 런타임 데이터 (데모/테스트 실행 산출물)
-.flowlens/
+# CodeFlowLens 런타임 데이터 (데모/테스트 실행 산출물)
+.codeflowlens/

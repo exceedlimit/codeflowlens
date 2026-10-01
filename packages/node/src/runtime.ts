@@ -31,9 +31,9 @@ export interface RuntimeOptions {
 const als = new AsyncLocalStorage<Span>();
 
 // 추적 제외 진입점의 요청 동안 쓰이는 트레이스 표식 — 이 흐름의 스팬은 기록하지 않는다
-const DISCARD_TRACE = "__flowlens_discard__";
+const DISCARD_TRACE = "__codeflowlens_discard__";
 
-export class FlowlensRuntime {
+export class CodeflowlensRuntime {
   private writer: BatchWriter;
   private maxBytes: number;
   private exclusions?: { isExcluded(entryName: string): boolean };

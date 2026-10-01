@@ -1,8 +1,8 @@
 import textwrap
 
-from flowlens.analyzer.pyscan import scan_project
-from flowlens.analyzer.store import save_scan
-from flowlens.db.connect import open_db
+from codeflowlens.analyzer.pyscan import scan_project
+from codeflowlens.analyzer.store import save_scan
+from codeflowlens.db.connect import open_db
 
 SRC = textwrap.dedent(
     '''
@@ -29,7 +29,7 @@ SRC = textwrap.dedent(
 
 def make(tmp_path):
     (tmp_path / "shop.py").write_text(SRC)
-    db = tmp_path / ".flowlens" / "data.db"
+    db = tmp_path / ".codeflowlens" / "data.db"
     return tmp_path, db
 
 

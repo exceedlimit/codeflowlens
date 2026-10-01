@@ -1,4 +1,4 @@
-// 개요: 사용법 안내서(.flowlens/USAGE.md)를 프로젝트에 저장한다.
+// 개요: 사용법 안내서(.codeflowlens/USAGE.md)를 프로젝트에 저장한다.
 // 로직: 파일이 없을 때만 만든다(사용자 수정본 보존). 실패해도 조용히 넘어간다(fail-open).
 // 참고: 파이썬 usage_doc.py와 동일 역할 — 내용은 동기화 테스트로 맞춘다.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -16,7 +16,7 @@ function readTemplate(): string {
 
 export function ensureUsageMd(projectRoot: string): void {
   try {
-    const target = path.join(projectRoot, ".flowlens", "USAGE.md");
+    const target = path.join(projectRoot, ".codeflowlens", "USAGE.md");
     if (existsSync(target)) return;
     const content = readTemplate();
     if (!content) return;

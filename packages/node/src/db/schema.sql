@@ -1,4 +1,4 @@
--- FlowLens 공통 스키마 v1 (언어 중립). 모든 추적기/UI가 이 계약을 따른다.
+-- CodeFlowLens 공통 스키마 v1 (언어 중립). 모든 추적기/UI가 이 계약을 따른다.
 -- 변경 절차: packages/schema/README.md 참고 (schema_version 증가 + 각 패키지 사본 갱신)
 CREATE TABLE IF NOT EXISTS schema_version (version INTEGER NOT NULL);
 
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS traces (
   entry_name TEXT NOT NULL,                 -- 'python main.py' | 'GET /orders' | 'onMessage'
   http_method TEXT, http_path TEXT, http_status INTEGER,
   source TEXT NOT NULL DEFAULT 'backend',   -- backend | browser(M4)
-  client_trace_id TEXT,                     -- x-flowlens-trace 헤더(M4)
+  client_trace_id TEXT,                     -- x-codeflowlens-trace 헤더(M4)
   service TEXT                              -- python | node
 );
 CREATE INDEX IF NOT EXISTS idx_traces_started ON traces(started_at DESC);

@@ -23,7 +23,7 @@ export default function App() {
 
   return (
     <main style={{ fontFamily: "sans-serif", maxWidth: 640, margin: "40px auto" }}>
-      <h1>FlowLens 데모 상점</h1>
+      <h1>CodeFlowLens 데모 상점</h1>
       <div style={{ display: "flex", gap: 8 }}>
         <button onClick={() => call("/inventory")}>재고 조회</button>
         <button

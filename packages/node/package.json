@@ -1,10 +1,11 @@
 {
-  "name": "@flowlens/node",
+  "name": "@codeflowlens/node",
   "version": "0.1.0",
-  "description": "FlowLens Node 추적기 — 코드 수정 0으로 함수 호출 흐름을 기록 (모듈 로드 시점 메모리 계측)",
+  "description": "CodeFlowLens Node 추적기 — 코드 수정 0으로 함수 호출 흐름을 기록 (모듈 로드 시점 메모리 계측)",
   "type": "module",
   "bin": {
-    "flowlens": "dist/cli.js"
+    "codeflowlens": "dist/cli.js",
+    "cfl": "dist/cli.js"
   },
   "exports": {
     "./register": "./dist/register.mjs",

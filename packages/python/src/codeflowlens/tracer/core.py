@@ -14,14 +14,14 @@ import time
 import uuid
 from pathlib import Path
 
-from flowlens.tracer.serialize import serialize_args, serialize_value
+from codeflowlens.tracer.serialize import serialize_args, serialize_value
 
 # 개요: 현재 실행 흐름(asyncio 태스크/스레드)이 속한 트레이스 id.
 # 참고: ASGI 요청 그룹핑이 요청마다 값을 바꾼다. None이면 프로세스 기본 트레이스.
-_current_trace = contextvars.ContextVar("flowlens_current_trace", default=None)
+_current_trace = contextvars.ContextVar("codeflowlens_current_trace", default=None)
 
 # 추적 제외 진입점의 요청 동안 설정되는 값 — 이 흐름의 스팬은 기록하지 않는다
-DISCARD = "__flowlens_discard__"
+DISCARD = "__codeflowlens_discard__"
 
 
 class TraceSession:

@@ -260,7 +260,7 @@ export default function EntitiesPage() {
 
       {entities && entities.length === 0 && (
         <div className="empty">
-          엔티티가 없어요 — <code>flowlens scan</code>을 실행하면 데이터 모델 클래스가 여기 나타납니다.
+          엔티티가 없어요 — <code>codeflowlens scan</code>을 실행하면 데이터 모델 클래스가 여기 나타납니다.
         </div>
       )}
 

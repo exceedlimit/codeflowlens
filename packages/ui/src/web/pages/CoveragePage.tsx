@@ -35,7 +35,7 @@ export default function CoveragePage() {
   if (data.languages.length === 0) {
     return (
       <div className="empty">
-        코드맵이 비어 있어요 — <code>flowlens scan</code>을 실행하세요.
+        코드맵이 비어 있어요 — <code>codeflowlens scan</code>을 실행하세요.
       </div>
     );
   }
@@ -64,7 +64,7 @@ export default function CoveragePage() {
           <div className="card-head">
             <h2>주석 없는 함수 {data.undocumented.length}개</h2>
             <span className="meta">
-              코딩 에이전트에게 "flowlens-retrofit 스킬로 주석 소급 작업해줘"라고 요청하면 채워집니다.
+              코딩 에이전트에게 "codeflowlens-retrofit 스킬로 주석 소급 작업해줘"라고 요청하면 채워집니다.
             </span>
           </div>
           <div className="card-body">

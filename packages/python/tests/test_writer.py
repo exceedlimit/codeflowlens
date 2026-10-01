@@ -1,7 +1,7 @@
 import threading
 
-from flowlens.db.connect import open_db
-from flowlens.db.writer import BatchWriter
+from codeflowlens.db.connect import open_db
+from codeflowlens.db.writer import BatchWriter
 
 
 def _trace_row(tid: str) -> dict:

@@ -22,10 +22,10 @@ class MonitoringBackend:
         """개요: 모니터링 콜백을 등록한다(모든 스레드에 적용)."""
         mon = self._mon
         try:
-            mon.use_tool_id(TOOL_ID, "flowlens")
+            mon.use_tool_id(TOOL_ID, "codeflowlens")
         except ValueError:
             mon.free_tool_id(TOOL_ID)
-            mon.use_tool_id(TOOL_ID, "flowlens")
+            mon.use_tool_id(TOOL_ID, "codeflowlens")
         mon.register_callback(TOOL_ID, mon.events.PY_START, self._on_start)
         mon.register_callback(TOOL_ID, mon.events.PY_RETURN, self._on_return)
         mon.register_callback(TOOL_ID, mon.events.PY_UNWIND, self._on_unwind)

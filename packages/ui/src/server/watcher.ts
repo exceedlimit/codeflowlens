@@ -10,7 +10,7 @@ const SOURCE_EXT = new Set([
 ]);
 
 const IGNORED_DIRS = new Set([
-  ".flowlens", "node_modules", ".venv", "venv", "env", ".git", "dist", "build",
+  ".codeflowlens", "node_modules", ".venv", "venv", "env", ".git", "dist", "build",
   "__pycache__", ".next", "coverage", ".pytest_cache", ".ruff_cache",
 ]);
 

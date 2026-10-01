@@ -35,7 +35,7 @@ afterEach(() => {
   const g = globalThis as Record<string, unknown>;
   delete g.window;
   delete g.location;
-  delete g.__flowlens_browser_installed__;
+  delete g.__codeflowlens_browser_installed__;
   // @ts-expect-error 테스트 후 정리
   delete globalThis.fetch;
 });
@@ -52,7 +52,7 @@ describe("installBrowserTracer", () => {
 
     expect(sent).toHaveLength(1);
     const headers = new Headers(sent[0].init?.headers);
-    const traceId = headers.get("x-flowlens-trace");
+    const traceId = headers.get("x-codeflowlens-trace");
     expect(traceId).toMatch(/^[0-9a-f]{32}$/);
 
     await flushReports();

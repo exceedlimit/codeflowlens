@@ -290,7 +290,7 @@ export default function GraphPage() {
           {loading ? (
             <>코드맵 불러오는 중…</>
           ) : total === 0 ? (
-            <>코드맵이 비어 있어요 — <code>flowlens scan</code>을 실행하세요.</>
+            <>코드맵이 비어 있어요 — <code>codeflowlens scan</code>을 실행하세요.</>
           ) : (
             <>
               함수가 {total}개라 한 번에 그리면 읽을 수 없어요.<br />
@@ -396,7 +396,7 @@ export default function GraphPage() {
             {fileGroups.length === 0 && (
               <div className="panel-section">
                 <span className="placeholder">
-                  {loading ? "코드맵 불러오는 중…" : query ? "검색 결과 없음" : "flowlens scan을 실행하세요."}
+                  {loading ? "코드맵 불러오는 중…" : query ? "검색 결과 없음" : "codeflowlens scan을 실행하세요."}
                 </span>
               </div>
             )}

@@ -1,4 +1,4 @@
-# FlowLens 모노레포
+# CodeFlowLens 모노레포
 
 바이브코딩으로 만든 시스템의 실행 흐름·메서드·엔티티를 시각화하는 모니터링 패키지.
 **모든 요구사항·설계 결정은 [docs/PRD.md](docs/PRD.md)가 단일 기준이다.** 구현이 PRD와 어긋나면 PRD를 먼저 고치고 사용자에게 알린다.
@@ -10,9 +10,9 @@ docs/          PRD.md(기준 문서), 요건.md(원본 요건)
 plans/         마일스톤별 구현 계획 (체크박스로 진행 상태 추적)
 packages/
   schema/      공통 SQLite 스키마 정의 + 마이그레이션 (언어 중립)
-  python/      pip 패키지 `flowlens`: Python 추적기 + 정적 분석기 + CLI
-  node/        npm 패키지 `@flowlens/node`: Node 추적기 + TS 정적 분석기 + Vite 플러그인
-  ui/          npm 패키지 `@flowlens/ui`: UI 서버(Fastify) + React 프론트
+  python/      pip 패키지 `codeflowlens`: Python 추적기 + 정적 분석기 + CLI
+  node/        npm 패키지 `@codeflowlens/node`: Node 추적기 + TS 정적 분석기 + Vite 플러그인
+  ui/          npm 패키지 `@codeflowlens/ui`: UI 서버(Fastify) + React 프론트
 examples/      데모 앱 (FastAPI+React, Express) — E2E 검증용
 ```
 

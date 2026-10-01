@@ -1,7 +1,7 @@
-# FlowLens 주석 룰 (필수)
+# CodeFlowLens 주석 룰 (필수)
 
-이 프로젝트는 FlowLens로 모니터링됩니다. **코드를 작성/수정할 때 아래 룰을 반드시 지키세요.**
-UI가 이 주석을 파싱해 사람에게 보여주므로 형식이 어긋나면 표시되지 않습니다. `flowlens check`로 언제든 검증할 수 있습니다.
+이 프로젝트는 CodeFlowLens로 모니터링됩니다. **코드를 작성/수정할 때 아래 룰을 반드시 지키세요.**
+UI가 이 주석을 파싱해 사람에게 보여주므로 형식이 어긋나면 표시되지 않습니다. `codeflowlens check`로 언제든 검증할 수 있습니다.
 
 ## 원칙
 
@@ -51,10 +51,10 @@ class Order(BaseModel):
 ## 검증
 
 ```bash
-flowlens check          # 위반 목록 출력 (위반 시 종료코드 1)
-flowlens check --json   # 에이전트/스크립트 소비용
-flowlens scan           # 코드맵(UI 표시용) 갱신
+codeflowlens check          # 위반 목록 출력 (위반 시 종료코드 1)
+codeflowlens check --json   # 에이전트/스크립트 소비용
+codeflowlens scan           # 코드맵(UI 표시용) 갱신
 ```
 
-작업을 마치기 전에 `flowlens check`가 통과하는지 확인하세요.
-기존 코드에 주석을 소급하는 방법은 `.flowlens/RETROFIT.md`를 따르세요.
+작업을 마치기 전에 `codeflowlens check`가 통과하는지 확인하세요.
+기존 코드에 주석을 소급하는 방법은 `.codeflowlens/RETROFIT.md`를 따르세요.

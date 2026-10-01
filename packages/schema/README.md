@@ -1,8 +1,8 @@
-# FlowLens 공통 스키마
+# CodeFlowLens 공통 스키마
 
 모든 추적기(Python/Node)와 UI가 따르는 **언어 중립 계약**이다. 원본은 이 폴더의 `schema.sql` 하나이며, 각 패키지는 사본을 내장하고 테스트로 동기화를 검증한다.
 
-- 사본 위치: `packages/python/src/flowlens/db/schema.sql` (M3에서 `packages/node`도 추가)
+- 사본 위치: `packages/python/src/codeflowlens/db/schema.sql` (M3에서 `packages/node`도 추가)
 - 동기화 검증: `packages/python/tests/test_schema_sync.py`
 
 ## 스키마 변경 절차

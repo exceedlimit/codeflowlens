@@ -19,7 +19,7 @@ let server: Awaited<ReturnType<typeof buildServer>>;
 let dbPath: string;
 
 beforeAll(async () => {
-  const dir = mkdtempSync(join(tmpdir(), "flowlens-ce-"));
+  const dir = mkdtempSync(join(tmpdir(), "codeflowlens-ce-"));
   dbPath = join(dir, "data.db");
   const db = new Database(dbPath);
   db.exec(SCHEMA);

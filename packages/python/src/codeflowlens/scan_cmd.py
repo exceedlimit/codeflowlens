@@ -1,15 +1,15 @@
 """
-개요: `flowlens scan` — 프로젝트를 정적 분석해 코드맵(함수/주석/관계/엔티티)을 DB에 채운다.
-로직: 프로젝트 언어 구성을 읽어 Python 스캐너(내장)와 Node 스캐너(@flowlens/node CLI)를
+개요: `codeflowlens scan` — 프로젝트를 정적 분석해 코드맵(함수/주석/관계/엔티티)을 DB에 채운다.
+로직: 프로젝트 언어 구성을 읽어 Python 스캐너(내장)와 Node 스캐너(@codeflowlens/node CLI)를
       각각 실행한다 — 풀스택이면 둘 다, 단일 언어면 해당 언어만.
 """
 
-from flowlens.analyzer.pyscan import scan_project
-from flowlens.analyzer.store import coverage_summary, save_scan
-from flowlens.db.connect import open_db
-from flowlens.langs import read_languages
-from flowlens.nodecli import find_node_cli, parse_scan_summary, run_node_cli
-from flowlens.paths import db_path, find_project_root
+from codeflowlens.analyzer.pyscan import scan_project
+from codeflowlens.analyzer.store import coverage_summary, save_scan
+from codeflowlens.db.connect import open_db
+from codeflowlens.langs import read_languages
+from codeflowlens.nodecli import find_node_cli, parse_scan_summary, run_node_cli
+from codeflowlens.paths import db_path, find_project_root
 
 NODE_LANGS = {"node", "typescript", "browser"}
 
@@ -27,7 +27,7 @@ def scan(root=None, quiet=False) -> dict:
     로직: python이 있으면 내장 스캐너, node 계열이 있으면 Node CLI에 위임한다.
     참고: 반환 형식 {"python": 요약|None, "node": 요약|None, "notes": [안내문]}.
     """
-    from flowlens.usage_doc import ensure_usage_md
+    from codeflowlens.usage_doc import ensure_usage_md
 
     root = root or find_project_root()
     ensure_usage_md(root)
@@ -49,8 +49,8 @@ def scan(root=None, quiet=False) -> dict:
         code, output = run_node_cli(root, "scan")
         if code is None:
             note = (
-                "TS/JS 스캔 건너뜀 — @flowlens/node가 설치되어 있지 않습니다. "
-                "npm i -D @flowlens/node 후 다시 실행하세요."
+                "TS/JS 스캔 건너뜀 — @codeflowlens/node가 설치되어 있지 않습니다. "
+                "npm i -D @codeflowlens/node 후 다시 실행하세요."
             )
             result["notes"].append(note)
             if not quiet:

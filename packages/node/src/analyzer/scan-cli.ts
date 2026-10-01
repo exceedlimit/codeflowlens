@@ -8,7 +8,7 @@ import { scanProject, type FunctionInfo, type ScanResult } from "./tsscan.js";
 
 export function runScan(root: string): void {
   const result = scanProject(root);
-  const db = openDb(path.join(root, ".flowlens", "data.db"));
+  const db = openDb(path.join(root, ".codeflowlens", "data.db"));
   try {
     saveScan(db, result);
   } finally {
@@ -75,7 +75,7 @@ export function runCheck(root: string, asJson = false): number {
       const label = v.kind === "function" ? "함수" : "엔티티";
       console.log(`  [${label}] ${v.target}:${v.line} — 누락: ${v.missing.join(", ")}`);
     }
-    console.log("\n형식 예시는 AGENTS.md의 FlowLens 주석 룰 섹션을 참고하세요.");
+    console.log("\n형식 예시는 AGENTS.md의 CodeFlowLens 주석 룰 섹션을 참고하세요.");
   }
   return violations.length ? 1 : 0;
 }

@@ -51,7 +51,7 @@ export default function SpanPanel({ span }: { span: SpanRow | null }) {
           </>
         ) : (
           <span className="placeholder">
-            주석 없음 — flowlens scan으로 코드맵을 갱신하거나 주석을 추가하세요.
+            주석 없음 — codeflowlens scan으로 코드맵을 갱신하거나 주석을 추가하세요.
           </span>
         )}
       </div>

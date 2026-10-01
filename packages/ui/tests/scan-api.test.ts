@@ -14,9 +14,9 @@ const SCHEMA = readFileSync(
 
 /** 개요: 가짜 스캔 명령을 가진 테스트 프로젝트를 만든다. */
 function makeProject(): { root: string; dbPath: string; scanCommand: string; logPath: string } {
-  const root = mkdtempSync(join(tmpdir(), "flowlens-scanapi-"));
-  mkdirSync(join(root, ".flowlens"), { recursive: true });
-  const dbPath = join(root, ".flowlens", "data.db");
+  const root = mkdtempSync(join(tmpdir(), "codeflowlens-scanapi-"));
+  mkdirSync(join(root, ".codeflowlens"), { recursive: true });
+  const dbPath = join(root, ".codeflowlens", "data.db");
   new Database(dbPath).exec(SCHEMA);
   const logPath = join(root, "scans.log");
   const script = join(root, "fake-scan.js");
@@ -52,7 +52,7 @@ describe("POST /api/scan", () => {
     try {
       const res = await server.inject({ method: "POST", url: "/api/scan" });
       expect(res.json().ok).toBe(false);
-      expect(res.json().message).toContain("flowlens scan");
+      expect(res.json().message).toContain("codeflowlens scan");
     } finally {
       await server.close();
     }

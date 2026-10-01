@@ -15,7 +15,7 @@ const SCHEMA = readFileSync(
 let server: Awaited<ReturnType<typeof buildServer>>;
 
 beforeAll(async () => {
-  const dir = mkdtempSync(join(tmpdir(), "flowlens-cov-"));
+  const dir = mkdtempSync(join(tmpdir(), "codeflowlens-cov-"));
   const dbPath = join(dir, "data.db");
   const db = new Database(dbPath);
   db.exec(SCHEMA);

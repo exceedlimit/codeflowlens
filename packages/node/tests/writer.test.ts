@@ -17,7 +17,7 @@ function span(id: string, seq: number, parent: string | null = null): SpanRow {
 
 describe("BatchWriter", () => {
   it("trace/span/edge가 flush 후 DB에 반영된다", () => {
-    const dir = mkdtempSync(join(tmpdir(), "flowlens-w-"));
+    const dir = mkdtempSync(join(tmpdir(), "codeflowlens-w-"));
     const dbPath = join(dir, "data.db");
     const w = new BatchWriter(dbPath);
     w.traceStart({ id: "t1", started_at: 1, entry_kind: "process", entry_name: "node x" });
@@ -38,7 +38,7 @@ describe("BatchWriter", () => {
   });
 
   it("불량 행이 섞여도 이후 기록이 계속된다", () => {
-    const dir = mkdtempSync(join(tmpdir(), "flowlens-w-"));
+    const dir = mkdtempSync(join(tmpdir(), "codeflowlens-w-"));
     const w = new BatchWriter(join(dir, "data.db"));
     w.traceStart({ id: "t1", started_at: 1, entry_kind: "process", entry_name: "x" });
     w.spanFinish({ id: "bad" } as unknown as SpanRow);

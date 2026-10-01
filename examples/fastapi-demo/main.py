@@ -1,11 +1,11 @@
-"""개요: FlowLens 데모용 재고/주문 FastAPI 앱."""
+"""개요: CodeFlowLens 데모용 재고/주문 FastAPI 앱."""
 
 from fastapi import FastAPI, HTTPException
 
 from app import repo, service
 from app.models import OrderRequest, OrderResult
 
-app = FastAPI(title="FlowLens 데모 — 재고/주문")
+app = FastAPI(title="CodeFlowLens 데모 — 재고/주문")
 
 
 @app.get("/inventory")

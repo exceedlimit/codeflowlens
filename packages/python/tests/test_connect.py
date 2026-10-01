@@ -1,6 +1,6 @@
 import sqlite3
 
-from flowlens.db.connect import open_db
+from codeflowlens.db.connect import open_db
 
 
 def _tables(conn: sqlite3.Connection) -> set:

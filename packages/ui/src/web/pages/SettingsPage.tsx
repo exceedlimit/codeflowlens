@@ -73,7 +73,7 @@ export default function SettingsPage() {
             KB (값 1개 기준, 기본 64KB)
           </p>
           <p className="meta">
-            상한을 넘는 값은 잘려서 저장됩니다. 다음 <code>flowlens run</code>부터 적용됩니다.
+            상한을 넘는 값은 잘려서 저장됩니다. 다음 <code>codeflowlens run</code>부터 적용됩니다.
           </p>
         </div>
         <div className="panel-section">

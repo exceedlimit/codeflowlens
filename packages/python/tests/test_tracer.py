@@ -4,10 +4,10 @@ from pathlib import Path
 
 import pytest
 
-from flowlens.db.connect import open_db
-from flowlens.db.writer import BatchWriter
-from flowlens.tracer.core import TraceSession
-from flowlens.tracer.filter import CodeFilter
+from codeflowlens.db.connect import open_db
+from codeflowlens.db.writer import BatchWriter
+from codeflowlens.tracer.core import TraceSession
+from codeflowlens.tracer.filter import CodeFilter
 
 FIXTURES = Path(__file__).parent / "tracer_fixtures"
 
@@ -18,12 +18,12 @@ _spec.loader.exec_module(demo)
 
 def _make_backend(name, session):
     if name == "settrace":
-        from flowlens.tracer.backend_settrace import SettraceBackend
+        from codeflowlens.tracer.backend_settrace import SettraceBackend
         return SettraceBackend(session)
     import sys
     if sys.version_info < (3, 12):
         pytest.skip("sys.monitoring은 3.12+")
-    from flowlens.tracer.backend_monitoring import MonitoringBackend
+    from codeflowlens.tracer.backend_monitoring import MonitoringBackend
     return MonitoringBackend(session)
 
 

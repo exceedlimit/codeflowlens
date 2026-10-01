@@ -1,5 +1,5 @@
-// 개요: 코드맵 재스캔 실행기 — 프로젝트에 맞는 flowlens scan 명령을 찾아 실행한다.
-// 로직: 언어 설정(.flowlens/config.toml)을 읽어 Python/Node 스캐너를 탐지하고,
+// 개요: 코드맵 재스캔 실행기 — 프로젝트에 맞는 codeflowlens scan 명령을 찾아 실행한다.
+// 로직: 언어 설정(.codeflowlens/config.toml)을 읽어 Python/Node 스캐너를 탐지하고,
 //       사용자가 터미널에서 치는 것과 똑같은 명령을 자식 프로세스로 돌린다.
 // 참고: 스캔 로직을 UI가 따로 갖지 않고 CLI를 재사용해 결과가 어긋나지 않게 한다.
 import { execFileSync, spawn } from "node:child_process";
@@ -33,7 +33,7 @@ function defaultCommandExists(cmd: string): boolean {
 /** 개요: 프로젝트가 어떤 언어를 쓰는지 알아낸다(설정 파일 우선, 없으면 파일로 추정). */
 function readLanguages(root: string): string[] {
   try {
-    const text = readFileSync(path.join(root, ".flowlens", "config.toml"), "utf-8");
+    const text = readFileSync(path.join(root, ".codeflowlens", "config.toml"), "utf-8");
     const m = /languages\s*=\s*\[([^\]]*)\]/.exec(text);
     if (m) return [...m[1].matchAll(/"([^"]+)"/g)].map((x) => x[1]);
   } catch {
@@ -61,18 +61,18 @@ export function detectScanners(root: string, opts: DetectOptions = {}): ScanComm
 
   if (langs.includes("python")) {
     const venvBin = [
-      path.join(root, ".venv", "bin", "flowlens"),
-      path.join(root, "venv", "bin", "flowlens"),
+      path.join(root, ".venv", "bin", "codeflowlens"),
+      path.join(root, "venv", "bin", "codeflowlens"),
     ].find((p) => existsSync(p));
     if (venvBin) found.push({ label: "python", cmd: venvBin, args: ["scan"] });
-    else if (commandExists("flowlens")) {
-      found.push({ label: "python", cmd: "flowlens", args: ["scan"] });
+    else if (commandExists("codeflowlens")) {
+      found.push({ label: "python", cmd: "codeflowlens", args: ["scan"] });
     }
   }
 
   if (langs.some((l) => l === "node" || l === "typescript" || l === "browser")) {
-    const localBin = path.join(root, "node_modules", ".bin", "flowlens");
-    const directCli = path.join(root, "node_modules", "@flowlens", "node", "dist", "cli.js");
+    const localBin = path.join(root, "node_modules", ".bin", "codeflowlens");
+    const directCli = path.join(root, "node_modules", "@codeflowlens", "node", "dist", "cli.js");
     if (existsSync(localBin)) found.push({ label: "node", cmd: localBin, args: ["scan"] });
     else if (existsSync(directCli)) {
       found.push({ label: "node", cmd: process.execPath, args: [directCli, "scan"] });
@@ -104,7 +104,7 @@ export interface ScanStatus {
 }
 
 const NO_SCANNER_MESSAGE =
-  "스캔 명령을 찾을 수 없습니다 — 터미널에서 flowlens scan을 실행하거나, UI 서버를 --scan-cmd 옵션으로 띄우세요";
+  "스캔 명령을 찾을 수 없습니다 — 터미널에서 codeflowlens scan을 실행하거나, UI 서버를 --scan-cmd 옵션으로 띄우세요";
 
 /** 개요: 재스캔 실행과 상태(진행 중/마지막 결과)를 관리한다. */
 export class ScanRunner {
@@ -202,8 +202,8 @@ export class ScanRunner {
   }
 }
 
-/** 개요: DB 경로에서 프로젝트 루트를 유추한다(.flowlens/data.db → 프로젝트 폴더). */
+/** 개요: DB 경로에서 프로젝트 루트를 유추한다(.codeflowlens/data.db → 프로젝트 폴더). */
 export function inferProjectRoot(dbPath: string): string {
   const dir = path.dirname(path.resolve(dbPath));
-  return path.basename(dir) === ".flowlens" ? path.dirname(dir) : dir;
+  return path.basename(dir) === ".codeflowlens" ? path.dirname(dir) : dir;
 }

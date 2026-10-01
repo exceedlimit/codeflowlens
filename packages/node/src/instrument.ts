@@ -1,4 +1,4 @@
-// 개요: 바벨로 함수 본문을 __flowlens.wrap()으로 감싸는 계측 변환기.
+// 개요: 바벨로 함수 본문을 __codeflowlens.wrap()으로 감싸는 계측 변환기.
 // 로직: 모듈 로드 시점에 메모리에서만 적용 — 디스크 원본은 불변(PRD G2 코드 오염 0).
 //       본문을 화살표 함수로 빼내 wrap에 넘긴다(화살표는 this/arguments/super를 상속해 안전).
 // 참고: 제너레이터·생성자·접근자는 v1 미계측. 파싱 실패 시 null(원본 사용, fail-open).
@@ -7,7 +7,7 @@ import type { NodePath, types as t } from "@babel/core";
 // 이름(문자열)으로 넘기면 사용자 프로젝트 cwd에서 찾으려다 실패한다 — 모듈을 직접 넘긴다
 import presetTypescript from "@babel/preset-typescript";
 
-const MARKER = "/*__flowlens_instrumented__*/";
+const MARKER = "/*__codeflowlens_instrumented__*/";
 
 type FnPath = NodePath<
   t.FunctionDeclaration | t.FunctionExpression | t.ArrowFunctionExpression | t.ClassMethod | t.ObjectMethod
@@ -79,12 +79,12 @@ export function instrument(source: string, relpath: string): string | null {
           );
           generated.add(bodyFn);
 
-          const bodyId = path.scope.generateUidIdentifier("flowlens_body");
+          const bodyId = path.scope.generateUidIdentifier("codeflowlens_body");
           const wrapCall = types.conditionalExpression(
-            types.memberExpression(types.identifier("globalThis"), types.identifier("__flowlens")),
+            types.memberExpression(types.identifier("globalThis"), types.identifier("__codeflowlens")),
             types.callExpression(
               types.memberExpression(
-                types.memberExpression(types.identifier("globalThis"), types.identifier("__flowlens")),
+                types.memberExpression(types.identifier("globalThis"), types.identifier("__codeflowlens")),
                 types.identifier("wrap"),
               ),
               [

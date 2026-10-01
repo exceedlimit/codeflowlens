@@ -1,4 +1,4 @@
-# PRD — FlowLens (코드네임, 변경 가능)
+# PRD — CodeFlowLens (코드네임, 변경 가능)
 
 > 바이브코딩으로 만든 시스템의 실행 흐름·메서드·엔티티를 사람이 이해할 수 있게 해주는 모니터링 패키지.
 > 작성일: 2026-08-04 · 원본 요건: [요건.md](요건.md)
@@ -13,7 +13,7 @@ LLM(바이브코딩)으로 개발한 시스템은:
 - 어떤 기능·메서드가 생성되었는지 확인이 어렵다.
 - 파라미터·엔티티가 어떻게 전달되는지 보이지 않는다.
 
-**FlowLens는 이 문제를 세 가지 기능으로 해결한다:**
+**CodeFlowLens는 이 문제를 세 가지 기능으로 해결한다:**
 
 1. **룰 셋팅** — LLM이 개발할 때 항상 "비즈니스 관점 설명 주석"을 달도록 룰을 프로젝트에 심는다. 기존 코드에는 코딩 에이전트를 통해 소급 적용한다.
 2. **자동 추적** — 앱이 실행될 때 함수 호출 흐름·파라미터·리턴값을 **코드 수정 0으로** 기록한다.
@@ -47,10 +47,10 @@ LLM(바이브코딩)으로 개발한 시스템은:
 |---|---|---|
 | 지원 언어 | Python + TypeScript 동시 | TS는 React 프론트 + Node 백엔드 포함 |
 | 설치 단위 | 기본은 전체 설치, 언어별 선택 설치 가능 | `init` 시 자동 감지 + `--lang` 옵션 |
-| 저장소 | SQLite (WAL 모드) | 프로젝트 내 `.flowlens/data.db` 파일 하나 |
+| 저장소 | SQLite (WAL 모드) | 프로젝트 내 `.codeflowlens/data.db` 파일 하나 |
 | UI | 로컬 웹 UI (`npx`로 실행, localhost) | langfuse/Jaeger와 같은 방식 |
 | 추적 방식 | 언어 내장 훅 (A안) | Python: `sys.monitoring`/`settrace` · Node: module hooks |
-| 추적 활성화 | 명시적으로 켤 때만 (`flowlens run ...`) | 운영 배포에서 실수로 켜질 위험 차단, 꺼져 있으면 오버헤드 0 |
+| 추적 활성화 | 명시적으로 켤 때만 (`codeflowlens run ...`) | 운영 배포에서 실수로 켜질 위험 차단, 꺼져 있으면 오버헤드 0 |
 | 프론트 추적 깊이 | v1은 API 호출 단위 | 함수 단위는 v2 |
 | 관계도 소스 | 정적 분석 + 실행 기록 결합 | 실행 안 된 코드도 지도에 표시, 실제 흐름은 겹쳐 표시 |
 | 값 저장 | 파라미터/리턴값 전체 저장 | 값 1개당 크기 상한만 둠(기본 64KB, 설정 가능) |
@@ -63,32 +63,32 @@ LLM(바이브코딩)으로 개발한 시스템은:
 
 ```bash
 # Python 백엔드 프로젝트에서
-pip install flowlens
-flowlens init            # 언어 자동 감지, --lang python,node,browser 로 선택 가능
+pip install codeflowlens
+codeflowlens init            # 언어 자동 감지, --lang python,node,browser 로 선택 가능
 ```
 
 `init`이 하는 일:
-1. `.flowlens/` 폴더 + 설정 파일(`config.toml`) 생성
+1. `.codeflowlens/` 폴더 + 설정 파일(`config.toml`) 생성
 2. `AGENTS.md`에 주석 룰 섹션 추가 (없으면 생성, 있으면 마커 블록으로 삽입) — 이후 LLM이 개발할 때 자동으로 룰 준수
 3. `CLAUDE.md`가 있으면 AGENTS.md 참조 라인 추가 (Claude Code 호환)
-4. 코딩 에이전트용 소급 작업 skill(`.claude/skills/flowlens-retrofit/`) + 작업지시서 생성
+4. 코딩 에이전트용 소급 작업 skill(`.claude/skills/codeflowlens-retrofit/`) + 작업지시서 생성
 5. 첫 정적 분석 실행 → 코드맵 생성
-6. `.gitignore`에 `.flowlens/data.db` 추가
+6. `.gitignore`에 `.codeflowlens/data.db` 추가
 
 ### 시나리오 2 — 기존 코드에 주석 소급
 
 ```bash
-flowlens check           # 룰에 안 맞는 함수/클래스 목록 출력
-# → 사용자가 코딩 에이전트에게 "flowlens-retrofit skill로 소급 작업해줘"
-# → 에이전트가 주석 작성 후 flowlens check로 스스로 검증
+codeflowlens check           # 룰에 안 맞는 함수/클래스 목록 출력
+# → 사용자가 코딩 에이전트에게 "codeflowlens-retrofit skill로 소급 작업해줘"
+# → 에이전트가 주석 작성 후 codeflowlens check로 스스로 검증
 ```
 
 ### 시나리오 3 — 실행하고 모니터링
 
 ```bash
-flowlens run uvicorn main:app     # 감싸서 실행하면 추적 ON
-flowlens run npm run dev          # Node도 동일
-npx @flowlens/ui                  # UI 서버 실행 → 브라우저에서 localhost:7411
+codeflowlens run uvicorn main:app     # 감싸서 실행하면 추적 ON
+codeflowlens run npm run dev          # Node도 동일
+npx @codeflowlens/ui                  # UI 서버 실행 → 브라우저에서 localhost:7411
 ```
 
 UI에서: 요청별 실행 흐름(호출 트리) → 함수 클릭 → 개요/로직/참고 주석 + 파라미터/리턴값 확인. 메서드 관계도·엔티티 관계도 탐색.
@@ -105,7 +105,7 @@ UI에서: 요청별 실행 흐름(호출 트리) → 함수 클릭 → 개요/�
                   ▼                              ▼
           ┌──────────────┐             ┌───────────────┐
           │ SQLite 파일   │◀────────── │ UI 서버        │
-          │ .flowlens/    │  읽기/쓰기  │ (수집+화면)    │
+          │ .codeflowlens/    │  읽기/쓰기  │ (수집+화면)    │
           │ data.db       │             │ localhost:7411 │
           └──────────────┘             └───────────────┘
 ```
@@ -114,11 +114,11 @@ UI에서: 요청별 실행 흐름(호출 트리) → 함수 클릭 → 개요/�
 
 | 패키지 | 배포 | 역할 |
 |---|---|---|
-| `flowlens` | PyPI | Python 추적기 + Python 정적 분석기 + CLI(init/run/check/scan) |
-| `@flowlens/node` | npm | Node 추적기 + TS 정적 분석기 + 브라우저 기록 스크립트 + Vite 플러그인 + CLI |
-| `@flowlens/ui` | npm | UI 서버(화면 + 브라우저 이벤트 수집 창구) + 데이터 정리 스케줄러 |
+| `codeflowlens` | PyPI | Python 추적기 + Python 정적 분석기 + CLI(init/run/check/scan) |
+| `@codeflowlens/node` | npm | Node 추적기 + TS 정적 분석기 + 브라우저 기록 스크립트 + Vite 플러그인 + CLI |
+| `@codeflowlens/ui` | npm | UI 서버(화면 + 브라우저 이벤트 수집 창구) + 데이터 정리 스케줄러 |
 
-- 사용자는 프로젝트에 있는 언어의 패키지만 설치하면 된다. (Python만 → `flowlens`, 풀스택 → 셋 다)
+- 사용자는 프로젝트에 있는 언어의 패키지만 설치하면 된다. (Python만 → `codeflowlens`, 풀스택 → 셋 다)
 - 모든 패키지는 **동일한 SQLite 스키마**로 읽고 쓴다. UI는 언어를 모른다. → SpringBoot 확장 시 Java 추적기만 추가하면 됨.
 - v1의 UI 서버는 Node 하나로 통일 (v1 타겟이 Python+TS 풀스택이므로 Node 존재 가정. 순수 Python 사용자도 Node만 있으면 `npx`로 즉시 실행 가능).
 
@@ -199,22 +199,22 @@ class Order(BaseModel):
   - GOOD: "재고 수량을 추가합니다."
 - 새 함수/클래스를 만들면 즉시 주석 작성. 로직 변경 시 주석도 현행화.
 - private 헬퍼(이름이 `_`로 시작 등)와 테스트 코드는 `개요`만으로 충분(완화 룰).
-- `flowlens check`가 준수 여부를 기계적으로 검사한다 (누락/형식 오류 목록 출력, CI 연동 가능).
+- `codeflowlens check`가 준수 여부를 기계적으로 검사한다 (누락/형식 오류 목록 출력, CI 연동 가능).
 
 ## 7. 추적 동작 상세
 
-### Python 추적기 (`flowlens`)
+### Python 추적기 (`codeflowlens`)
 
-- `flowlens run <명령>` → 자식 프로세스에 환경변수 + `sitecustomize` 주입으로 추적기 탑재 → 코드 수정 0.
+- `codeflowlens run <명령>` → 자식 프로세스에 환경변수 + `sitecustomize` 주입으로 추적기 탑재 → 코드 수정 0.
 - Python 3.12+: `sys.monitoring`(저오버헤드 공식 API) / 3.9~3.11: `sys.settrace` 폴백.
 - **프로젝트 코드만 추적** (site-packages·표준 라이브러리 제외, 설정으로 조정 가능).
 - 요청 단위 트레이스 묶기: ASGI/WSGI 진입점을 감지해 요청 1건 = 트레이스 1건으로 그룹핑 (FastAPI/Flask/Django 지원). 웹 앱이 아니면 프로세스 실행 1번 = 1 트레이스.
 - async: `contextvars`로 코루틴 간 트레이스 컨텍스트 유지. 멀티프로세스(uvicorn workers): 프로세스별 추적기가 같은 DB에 배치 기록.
 - 값 직렬화: JSON 우선, 실패 시 `repr()` 문자열. 값 1개당 상한 초과분은 잘라내고 표시(`…truncated`).
 
-### Node 추적기 (`@flowlens/node`)
+### Node 추적기 (`@codeflowlens/node`)
 
-- `flowlens run <명령>` → `NODE_OPTIONS=--import @flowlens/node/register` 주입.
+- `codeflowlens run <명령>` → `NODE_OPTIONS=--import @codeflowlens/node/register` 주입.
 - module hooks(Node 20+)로 **로드 시점에 메모리에서만** 함수 진입/이탈 계측 코드를 삽입 (istanbul 방식). 디스크 원본 불변. ESM/CJS, TS(tsx·ts-node·빌드된 JS) 지원.
 - `node_modules` 제외, 프로젝트 코드만. `AsyncLocalStorage`로 async 흐름 유지.
 - http 서버 요청 감지로 요청 1건 = 1 트레이스 (Express/Nest/Fastify/Next API 등 http 모듈 레벨에서 공통 처리).
@@ -227,22 +227,22 @@ class Order(BaseModel):
 
 ### 브라우저 기록 (v1: API 호출 단위)
 
-- Vite 플러그인 1줄(`flowlensDev()`)을 개발 설정에 추가하면, **개발 모드에서만** 소형 스크립트가 자동 주입됨.
-- 스크립트는 `fetch`/`XHR`을 감싸 API 호출을 기록하고 `x-flowlens-trace` 헤더를 붙임 → 백엔드 추적기가 이 헤더를 읽어 **"화면의 이 동작 → 백엔드의 이 흐름"으로 연결**.
+- Vite 플러그인 1줄(`codeflowlensDev()`)을 개발 설정에 추가하면, **개발 모드에서만** 소형 스크립트가 자동 주입됨.
+- 스크립트는 `fetch`/`XHR`을 감싸 API 호출을 기록하고 `x-codeflowlens-trace` 헤더를 붙임 → 백엔드 추적기가 이 헤더를 읽어 **"화면의 이 동작 → 백엔드의 이 흐름"으로 연결**.
 - 기록(페이지 URL, 호출 시각, 소요시간)은 UI 서버의 수집 엔드포인트로 전송. UI 서버가 꺼져 있으면 조용히 버림(앱에 영향 0).
 
 ### 안전 원칙 (모든 추적기 공통)
 
 1. **추적기는 절대 사용자 앱을 죽이지 않는다** — 내부 오류 시 추적만 끄고 앱은 계속 (fail-open).
 2. 기록은 백그라운드에서 배치로 flush — 사용자 코드 실행을 막지 않는다.
-3. `flowlens run` 없이 실행하면(운영 환경) 아무것도 하지 않는다 — 오버헤드 0.
+3. `codeflowlens run` 없이 실행하면(운영 환경) 아무것도 하지 않는다 — 오버헤드 0.
 4. 프로세스 종료 시 잔여 버퍼 flush (atexit/beforeExit 훅).
 
 ## 8. 정적 분석 상세
 
 - Python: 표준 `ast` 모듈. TS: TypeScript 컴파일러 API(ts-morph).
 - 추출 대상: 함수/메서드 정의(위치·시그니처), 주석(라벨 파싱), 호출 관계(A 함수 본문에서 B 호출 — 같은 프로젝트 내 해석 가능한 것만), 엔티티 정의(Pydantic/SQLAlchemy/dataclass/interface/type/Prisma), 엔티티 필드와 타입 참조(→ 엔티티 관계), 함수 시그니처의 엔티티 사용(param/return).
-- 실행 시점: `flowlens init`(첫 스캔 포함), `flowlens scan`(수동 갱신), **UI 서버가 소스 파일 변경을 감지하면 자동 재스캔**(디바운스 1.5초, 전체 재스캔 — 중형 프로젝트 수 초 이내라 증분 불필요). UI 상단에 갱신 시각 표시 + "지금 갱신" 버튼. 감지 끄기: `--no-watch`, 스캔 명령 수동 지정: `--scan-cmd`.
+- 실행 시점: `codeflowlens init`(첫 스캔 포함), `codeflowlens scan`(수동 갱신), **UI 서버가 소스 파일 변경을 감지하면 자동 재스캔**(디바운스 1.5초, 전체 재스캔 — 중형 프로젝트 수 초 이내라 증분 불필요). UI 상단에 갱신 시각 표시 + "지금 갱신" 버튼. 감지 끄기: `--no-watch`, 스캔 명령 수동 지정: `--scan-cmd`.
 - 정적 분석의 한계(동적 호출, `getattr` 등으로 못 잡는 관계)는 실행 기록(runtime call_edges)이 보완한다 — 결합 설계의 이유.
 
 ## 9. UI 화면 (5개)
@@ -282,7 +282,7 @@ class Order(BaseModel):
 
 | 마일스톤 | 내용 | 완료 기준 | 상태 |
 |---|---|---|---|
-| **M1** | 공통 스키마 + Python 추적기 + 최소 UI(트레이스 목록/상세) | 데모 FastAPI 앱을 `flowlens run`으로 실행 → UI에서 호출 트리·파라미터 확인 | ✅ |
+| **M1** | 공통 스키마 + Python 추적기 + 최소 UI(트레이스 목록/상세) | 데모 FastAPI 앱을 `codeflowlens run`으로 실행 → UI에서 호출 트리·파라미터 확인 | ✅ |
 | **M2** | Python 정적 분석 + init/check + 주석 룰 + 관계도 UI | init으로 룰 셋팅, check 동작, 메서드/엔티티 관계도 표시 | ✅ |
 | **M3** | Node 추적기 + TS 정적 분석 | Express 데모에서 M1·M2와 동일 수준 동작 | ✅ |
 | **M4** | 브라우저 API 기록 + 프론트↔백 연결 | React 데모에서 버튼 클릭 → 백엔드 흐름까지 한 트레이스로 표시 | ✅ |
@@ -303,7 +303,7 @@ class Order(BaseModel):
 
 ## 14. 미결/후속 (v2 후보)
 
-- 제품명 확정 (현 코드네임 FlowLens)
+- 제품명 확정 (현 코드네임 CodeFlowLens)
 - 브라우저 함수 단위 추적 (번들러 플러그인 계측)
 - SpringBoot/Java 추적기
 - 팀 공유 모드 (PostgreSQL 전환, 인증)

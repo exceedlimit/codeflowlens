@@ -30,14 +30,14 @@ async function handle(req, res) {
 const srv = http.createServer((req, res) => { handle(req, res) })
 srv.listen(0, async () => {
   const port = srv.address().port
-  await fetch("http://127.0.0.1:" + port + "/orders?x=1", { headers: { "x-flowlens-trace": "cli-1" } })
+  await fetch("http://127.0.0.1:" + port + "/orders?x=1", { headers: { "x-codeflowlens-trace": "cli-1" } })
   await fetch("http://127.0.0.1:" + port + "/orders")
   srv.close(() => process.exit(0))
 })
 `;
 
 function makeProject(files: Record<string, string>): string {
-  const dir = mkdtempSync(join(tmpdir(), "flowlens-int-"));
+  const dir = mkdtempSync(join(tmpdir(), "codeflowlens-int-"));
   writeFileSync(join(dir, "package.json"), "{}");
   for (const [name, content] of Object.entries(files)) {
     writeFileSync(join(dir, name), content);
@@ -52,15 +52,15 @@ function runTraced(dir: string, entry: string): string {
     timeout: 60_000,
     env: {
       ...process.env,
-      FLOWLENS_ENABLED: "1",
-      FLOWLENS_DB: join(dir, ".flowlens", "data.db"),
-      FLOWLENS_PROJECT_ROOT: dir,
+      CODEFLOWLENS_ENABLED: "1",
+      CODEFLOWLENS_DB: join(dir, ".codeflowlens", "data.db"),
+      CODEFLOWLENS_PROJECT_ROOT: dir,
     },
   });
 }
 
 function openDb(dir: string): Database.Database {
-  return new Database(join(dir, ".flowlens", "data.db"), { readonly: true });
+  return new Database(join(dir, ".codeflowlens", "data.db"), { readonly: true });
 }
 
 beforeAll(() => {
@@ -101,10 +101,10 @@ describe("로더 훅 통합", () => {
     execSync(`node --import "${REGISTER}" app.mjs`, {
       cwd: dir, encoding: "utf-8", timeout: 60_000,
       env: { ...Object.fromEntries(
-        Object.entries(process.env).filter(([k]) => !k.startsWith("FLOWLENS")),
+        Object.entries(process.env).filter(([k]) => !k.startsWith("CODEFLOWLENS")),
       ) },
     });
-    expect(existsSync(join(dir, ".flowlens"))).toBe(false);
+    expect(existsSync(join(dir, ".codeflowlens"))).toBe(false);
   });
 });
 
@@ -156,7 +156,7 @@ describe("http 요청 그룹핑", () => {
 describe("패키징 산출물", () => {
   it("vite 플러그인 타입 선언이 빌드에 포함되고 exports에 연결된다", () => {
     const dts = readFileSync(join(PKG, "dist", "vite-plugin.d.mts"), "utf-8");
-    expect(dts).toContain("flowlensDev");
+    expect(dts).toContain("codeflowlensDev");
     const pkg = JSON.parse(readFileSync(join(PKG, "package.json"), "utf-8"));
     expect(pkg.exports["./vite"].types).toBe("./dist/vite-plugin.d.mts");
   });
@@ -177,8 +177,8 @@ srv.listen(0, async () => {
 })
 `,
     });
-    const dbPath = join(dir, ".flowlens", "data.db");
-    mkdirSync(join(dir, ".flowlens"), { recursive: true });
+    const dbPath = join(dir, ".codeflowlens", "data.db");
+    mkdirSync(join(dir, ".codeflowlens"), { recursive: true });
     const pre = new Database(dbPath);
     pre.exec(readFileSync(join(PKG, "src", "db", "schema.sql"), "utf-8"));
     pre.prepare("INSERT INTO schema_version VALUES (1)").run();
@@ -208,8 +208,8 @@ console.log(eat("x".repeat(50000)))
 `,
     });
     // 설정이 든 DB를 미리 만들어 둔다
-    const dbPath = join(dir, ".flowlens", "data.db");
-    mkdirSync(join(dir, ".flowlens"), { recursive: true });
+    const dbPath = join(dir, ".codeflowlens", "data.db");
+    mkdirSync(join(dir, ".codeflowlens"), { recursive: true });
     const pre = new Database(dbPath);
     pre.exec(readFileSync(join(PKG, "src", "db", "schema.sql"), "utf-8"));
     pre.prepare("INSERT INTO schema_version VALUES (1)").run();
@@ -225,16 +225,16 @@ console.log(eat("x".repeat(50000)))
   });
 });
 
-describe("flowlens CLI", () => {
+describe("codeflowlens CLI", () => {
   it("run이 NODE_OPTIONS 주입으로 자식을 추적한다", () => {
     const dir = makeProject({ "app.mjs": ESM_APP });
     const out = execSync(`node "${join(PKG, "dist", "cli.js")}" run node app.mjs`, {
       cwd: dir, encoding: "utf-8", timeout: 60_000,
     });
     expect(out.trim()).toBe("42");
-    expect(existsSync(join(dir, ".flowlens", "data.db"))).toBe(true);
+    expect(existsSync(join(dir, ".codeflowlens", "data.db"))).toBe(true);
     // 사용법 안내서가 함께 저장된다
-    const usage = readFileSync(join(dir, ".flowlens", "USAGE.md"), "utf-8");
-    expect(usage).toContain("FlowLens 사용법");
+    const usage = readFileSync(join(dir, ".codeflowlens", "USAGE.md"), "utf-8");
+    expect(usage).toContain("CodeFlowLens 사용법");
   });
 });

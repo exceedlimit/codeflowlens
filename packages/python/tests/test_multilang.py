@@ -3,10 +3,10 @@ import os
 import stat
 import textwrap
 
-from flowlens.check_cmd import run_check
-from flowlens.init_cmd import run_init
-from flowlens.langs import detect_languages
-from flowlens.scan_cmd import scan
+from codeflowlens.check_cmd import run_check
+from codeflowlens.init_cmd import run_init
+from codeflowlens.langs import detect_languages
+from codeflowlens.scan_cmd import scan
 
 
 def make_monorepo(tmp_path, with_node_cli=True):
@@ -33,11 +33,11 @@ def make_monorepo(tmp_path, with_node_cli=True):
         ).lstrip()
     )
     if with_node_cli:
-        # 가짜 @flowlens/node 설치 흔적 + 가짜 Node CLI (호출 기록을 남긴다)
-        (tmp_path / "node_modules" / "@flowlens" / "node").mkdir(parents=True)
+        # 가짜 @codeflowlens/node 설치 흔적 + 가짜 Node CLI (호출 기록을 남긴다)
+        (tmp_path / "node_modules" / "@codeflowlens" / "node").mkdir(parents=True)
         bin_dir = tmp_path / "node_modules" / ".bin"
         bin_dir.mkdir(parents=True)
-        fake = bin_dir / "flowlens"
+        fake = bin_dir / "codeflowlens"
         fake.write_text(
             "#!/bin/sh\n"
             f"echo \"$@\" >> {tmp_path}/node-cli-calls.log\n"
@@ -71,11 +71,11 @@ def test_scan_delegates_to_node_cli(tmp_path):
 
 
 def test_scan_notes_when_node_cli_missing(tmp_path):
-    """개요: @flowlens/node 미설치면 안내 문구를 담는지 검증한다."""
+    """개요: @codeflowlens/node 미설치면 안내 문구를 담는지 검증한다."""
     root = make_monorepo(tmp_path, with_node_cli=False)
     result = scan(root, quiet=True)
     assert result["node"] is None
-    assert any("@flowlens/node" in n for n in result["notes"])
+    assert any("@codeflowlens/node" in n for n in result["notes"])
 
 
 def test_check_combines_node_exit_code(tmp_path):
@@ -91,18 +91,18 @@ def test_init_injects_vite_plugin(tmp_path):
     root = make_monorepo(tmp_path)
     run_init(root, quiet=True)
     text = (root / "packages" / "web" / "vite.config.ts").read_text()
-    assert text.startswith('import { flowlensDev } from "@flowlens/node/vite";')
-    assert "plugins: [flowlensDev(), react()]" in text
+    assert text.startswith('import { codeflowlensDev } from "@codeflowlens/node/vite";')
+    assert "plugins: [codeflowlensDev(), react()]" in text
 
     # 재실행해도 중복 삽입되지 않는다
     run_init(root, quiet=True)
     text2 = (root / "packages" / "web" / "vite.config.ts").read_text()
-    assert text2.count("flowlensDev()") == 1
-    assert text2.count("@flowlens/node/vite") == 1
+    assert text2.count("codeflowlensDev()") == 1
+    assert text2.count("@codeflowlens/node/vite") == 1
 
 
 def test_init_skips_vite_injection_without_package(tmp_path):
-    """개요: @flowlens/node 미설치면 vite.config를 건드리지 않는지 검증한다(깨짐 방지)."""
+    """개요: @codeflowlens/node 미설치면 vite.config를 건드리지 않는지 검증한다(깨짐 방지)."""
     root = make_monorepo(tmp_path, with_node_cli=False)
     before = (root / "packages" / "web" / "vite.config.ts").read_text()
     run_init(root, quiet=True)

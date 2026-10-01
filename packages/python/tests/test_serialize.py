@@ -2,7 +2,7 @@ import json
 import socket
 from dataclasses import dataclass
 
-from flowlens.tracer.serialize import serialize_args, serialize_value
+from codeflowlens.tracer.serialize import serialize_args, serialize_value
 
 
 def test_plain_values_roundtrip():

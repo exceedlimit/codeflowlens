@@ -16,7 +16,7 @@ const SCHEMA = readFileSync(
 let dbPath: string;
 
 function seed(retentionDays = 7) {
-  const dir = mkdtempSync(join(tmpdir(), "flowlens-set-"));
+  const dir = mkdtempSync(join(tmpdir(), "codeflowlens-set-"));
   dbPath = join(dir, "data.db");
   const db = new Database(dbPath);
   db.exec(SCHEMA);

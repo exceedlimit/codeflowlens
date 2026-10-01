@@ -1,10 +1,11 @@
 {
-  "name": "@flowlens/ui",
+  "name": "@codeflowlens/ui",
   "version": "0.1.0",
-  "description": "FlowLens 모니터링 UI 서버 — 트레이스/관계도/엔티티 시각화 (localhost)",
+  "description": "CodeFlowLens 모니터링 UI 서버 — 트레이스/관계도/엔티티 시각화 (localhost)",
   "type": "module",
   "bin": {
-    "flowlens-ui": "dist/server/cli.js"
+    "codeflowlens-ui": "dist/server/cli.js",
+    "cfl-ui": "dist/server/cli.js"
   },
   "scripts": {
     "test": "vitest run",

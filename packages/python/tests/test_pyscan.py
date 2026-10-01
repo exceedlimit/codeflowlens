@@ -1,6 +1,6 @@
 import textwrap
 
-from flowlens.analyzer.pyscan import scan_project
+from codeflowlens.analyzer.pyscan import scan_project
 
 SERVICE = textwrap.dedent(
     '''

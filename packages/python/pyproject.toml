@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "flowlens"
+name = "codeflowlens"
 version = "0.1.0"
 description = "바이브코딩으로 만든 시스템의 실행 흐름·메서드·엔티티를 시각화하는 모니터링 패키지 (Python 추적기 + 정적 분석기)"
 requires-python = ">=3.9"
@@ -11,7 +11,8 @@ readme = "README.md"
 dependencies = []
 
 [project.scripts]
-flowlens = "flowlens.cli:main"
+codeflowlens = "codeflowlens.cli:main"
+cfl = "codeflowlens.cli:main"          # 축약 명령
 
 [project.optional-dependencies]
 dev = [
@@ -22,7 +23,7 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/flowlens"]
+packages = ["src/codeflowlens"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

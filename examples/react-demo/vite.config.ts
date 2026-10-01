@@ -1,10 +1,10 @@
-// 개요: React 데모 Vite 설정 — flowlensDev() 1줄로 브라우저 API 기록이 켜진다(개발 모드 전용).
-import { flowlensDev } from "@flowlens/node/vite";
+// 개요: React 데모 Vite 설정 — codeflowlensDev() 1줄로 브라우저 API 기록이 켜진다(개발 모드 전용).
+import { codeflowlensDev } from "@codeflowlens/node/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  plugins: [react(), flowlensDev()],
+  plugins: [react(), codeflowlensDev()],
   server: {
     port: 5173,
     // 백엔드(express-demo)로 프록시 — 같은 출처가 되어 트레이스 헤더가 안전하게 전달된다

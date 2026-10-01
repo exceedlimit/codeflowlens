@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 
 import { instrument } from "../src/instrument.js";
-import { FlowlensRuntime } from "../src/runtime.js";
+import { CodeflowlensRuntime } from "../src/runtime.js";
 import type { BatchWriter, SpanRow, TraceRow } from "../src/writer.js";
 
 const SAMPLE = `
@@ -29,22 +29,22 @@ function fakeRuntime() {
     spanFinish: (r: SpanRow) => { spans.push(r); },
     traceEnd: () => {}, runtimeEdge: () => {}, close: () => {}, flush: () => {},
   } as unknown as BatchWriter;
-  const rt = new FlowlensRuntime({ writer: w, entryName: "test" });
+  const rt = new CodeflowlensRuntime({ writer: w, entryName: "test" });
   return { rt, spans };
 }
 
 afterEach(() => {
-  delete (globalThis as Record<string, unknown>).__flowlens;
+  delete (globalThis as Record<string, unknown>).__codeflowlens;
 });
 
 describe("instrument", () => {
   it("함수선언/화살표/메서드/async가 계측되어 스팬 트리가 정확하다", async () => {
     const out = instrument(SAMPLE, "a.ts");
     expect(out).toBeTruthy();
-    expect(out!).toContain("__flowlens");
+    expect(out!).toContain("__codeflowlens");
 
     const { rt, spans } = fakeRuntime();
-    (globalThis as Record<string, unknown>).__flowlens = rt;
+    (globalThis as Record<string, unknown>).__codeflowlens = rt;
     new Function(out!)();
     await (globalThis as Record<string, unknown> & { __asyncPromise: Promise<number> }).__asyncPromise;
 
@@ -89,7 +89,7 @@ describe("instrument", () => {
       "e.ts",
     );
     const { rt, spans } = fakeRuntime();
-    (globalThis as Record<string, unknown>).__flowlens = rt;
+    (globalThis as Record<string, unknown>).__codeflowlens = rt;
     new Function(out!)();
     expect((globalThis as Record<string, unknown>).__err).toBe("bad");
     expect(spans.find((s) => s.name === "boom")!.status).toBe("error");

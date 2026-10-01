@@ -1,6 +1,6 @@
 import textwrap
 
-from flowlens.check_cmd import find_violations, run_check
+from codeflowlens.check_cmd import find_violations, run_check
 
 GOOD = textwrap.dedent(
     '''

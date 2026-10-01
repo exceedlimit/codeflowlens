@@ -19,7 +19,7 @@ describe("schema sync", () => {
 describe("usage guide sync", () => {
   it("Node 패키지의 사용법 안내서 == Python 패키지 원본", () => {
     const original = readFileSync(
-      new URL("../../python/src/flowlens/templates/usage_guide.md", import.meta.url),
+      new URL("../../python/src/codeflowlens/templates/usage_guide.md", import.meta.url),
       "utf-8",
     );
     const vendored = readFileSync(

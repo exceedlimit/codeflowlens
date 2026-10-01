@@ -63,9 +63,9 @@ def detect_languages(root) -> list:
 
 
 def read_languages(root) -> list:
-    """개요: .flowlens/config.toml의 languages를 읽고, 없으면 감지한다."""
+    """개요: .codeflowlens/config.toml의 languages를 읽고, 없으면 감지한다."""
     try:
-        text = (Path(root) / ".flowlens" / "config.toml").read_text()
+        text = (Path(root) / ".codeflowlens" / "config.toml").read_text()
         m = re.search(r"languages\s*=\s*\[([^\]]*)\]", text)
         if m:
             langs = re.findall(r'"([^"]+)"', m.group(1))

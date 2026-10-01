@@ -1,11 +1,11 @@
 {
-  "name": "flowlens-express-demo",
+  "name": "codeflowlens-express-demo",
   "private": true,
   "type": "module",
   "dependencies": {
     "express": "^4.19.0"
   },
   "devDependencies": {
-    "@flowlens/node": "file:../../packages/node"
+    "@codeflowlens/node": "file:../../packages/node"
   }
 }

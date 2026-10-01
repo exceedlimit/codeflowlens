@@ -7,12 +7,12 @@ import pytest
 pytest.importorskip("starlette")
 import httpx
 
-from flowlens.db.connect import open_db
-from flowlens.db.writer import BatchWriter
-from flowlens.tracer.asgi import patch_starlette
-from flowlens.tracer.backends import select_backend
-from flowlens.tracer.core import TraceSession
-from flowlens.tracer.filter import CodeFilter
+from codeflowlens.db.connect import open_db
+from codeflowlens.db.writer import BatchWriter
+from codeflowlens.tracer.asgi import patch_starlette
+from codeflowlens.tracer.backends import select_backend
+from codeflowlens.tracer.core import TraceSession
+from codeflowlens.tracer.filter import CodeFilter
 
 FIXTURES = Path(__file__).parent / "tracer_fixtures"
 
@@ -43,7 +43,7 @@ def test_http_requests_become_traces(tmp_path):
                 transport=transport, base_url="http://test"
             ) as client:
                 r1 = await client.get(
-                    "/orders", headers={"x-flowlens-trace": "cli-123"}
+                    "/orders", headers={"x-codeflowlens-trace": "cli-123"}
                 )
                 r2 = await client.get("/orders")
                 return r1, r2
@@ -82,7 +82,7 @@ def test_excluded_entry_not_traced(tmp_path):
     """개요: 설정의 추적 제외 진입점은 트레이스도 스팬도 남기지 않는지 검증한다."""
     import json as _json
 
-    from flowlens.tracer.exclusions import ExclusionList
+    from codeflowlens.tracer.exclusions import ExclusionList
 
     db_path = tmp_path / "data.db"
     conn = open_db(db_path)

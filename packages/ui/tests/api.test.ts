@@ -43,7 +43,7 @@ function seed(path: string) {
 }
 
 beforeAll(async () => {
-  const dir = mkdtempSync(join(tmpdir(), "flowlens-ui-test-"));
+  const dir = mkdtempSync(join(tmpdir(), "codeflowlens-ui-test-"));
   dbPath = join(dir, "data.db");
   seed(dbPath);
   server = await buildServer({ dbPath });

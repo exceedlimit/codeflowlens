@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** `flowlens init`으로 주석 룰이 프로젝트에 심어지고(AGENTS.md·retrofit skill), `flowlens scan`이 코드를 읽어 함수/주석/호출관계/엔티티를 DB에 채우고, `flowlens check`가 룰 준수를 검사하며, UI에서 메서드 관계도와 엔티티 화면을 볼 수 있다.
+**Goal:** `codeflowlens init`으로 주석 룰이 프로젝트에 심어지고(AGENTS.md·retrofit skill), `codeflowlens scan`이 코드를 읽어 함수/주석/호출관계/엔티티를 DB에 채우고, `codeflowlens check`가 룰 준수를 검사하며, UI에서 메서드 관계도와 엔티티 화면을 볼 수 있다.
 
 **Architecture:** (PRD 6·8절) 표준 `ast` 모듈로 함수/클래스/호출/엔티티를 추출하고, 주석 파서가 라벨(개요/로직/참고/파라미터, 영문 별칭 Overview/Logic/Note/Fields)을 구조화한다. 결과는 functions/call_edges(kind=static)/entities/entity_* 테이블에 저장(스캔마다 정적 데이터 전체 교체). UI는 React Flow로 관계도를 그리고 실행 빈도(kind=runtime의 count)를 겹친다.
 
@@ -21,22 +21,22 @@
 - **entity_usages**: 함수 시그니처의 타입 어노테이션(파라미터/리턴)에 등장하는 엔티티 이름 매칭.
 - **스캔 저장 방식**: 트랜잭션 안에서 `DELETE FROM functions/call_edges(kind='static')/entities/entity_fields/entity_relations/entity_usages` 후 전체 재삽입 (증분보다 단순·정확, 중형 프로젝트 수 초 이내).
 - **check 판정**: 함수 — `개요`+`로직` 필수(단, `_`로 시작·테스트 파일·`__init__` 등 더블언더는 `개요`만으로 통과). 엔티티 — `개요`+`파라미터`(필드 설명) 필수, `참고`는 항상 선택. 위반 목록 출력 후 위반 있으면 exit 1(CI 연동).
-- **init 산출물**: `.flowlens/config.toml`(languages, exclude), AGENTS.md 마커 블록(`<!-- flowlens:rules:start/end -->`) 삽입, CLAUDE.md에 AGENTS.md 참조 라인(없을 때만), `.claude/skills/flowlens-retrofit/SKILL.md`, `.flowlens/RETROFIT.md`(작업지시서), `.gitignore`에 `.flowlens/` 추가, 첫 scan 실행. `--lang python,node,browser`로 선택(기본: 자동 감지 전체).
+- **init 산출물**: `.codeflowlens/config.toml`(languages, exclude), AGENTS.md 마커 블록(`<!-- codeflowlens:rules:start/end -->`) 삽입, CLAUDE.md에 AGENTS.md 참조 라인(없을 때만), `.claude/skills/codeflowlens-retrofit/SKILL.md`, `.codeflowlens/RETROFIT.md`(작업지시서), `.gitignore`에 `.codeflowlens/` 추가, 첫 scan 실행. `--lang python,node,browser`로 선택(기본: 자동 감지 전체).
 - **UI 관계도**: `/api/graph` — 노드(함수, 파일별 그룹) + 엣지(static/runtime, runtime은 count 포함). 노드 수 상한 300 + 검색 필터. 클릭 → 주석/위치/관련 트레이스 링크. 엔티티 화면: `/api/entities` 목록 + 상세(필드/관계/사용 함수).
 
 ## 파일 구조 (추가분)
 
 ```
-packages/python/src/flowlens/
+packages/python/src/codeflowlens/
   analyzer/__init__.py
   analyzer/docparse.py        # 주석 라벨 파서 (함수/엔티티 공용)
   analyzer/pyscan.py          # ast 방문자: 함수/클래스/호출/엔티티 추출
   analyzer/store.py           # 스캔 결과를 DB에 저장(전체 교체)
-  init_cmd.py                 # flowlens init
-  check_cmd.py                # flowlens check
-  scan_cmd.py                 # flowlens scan
+  init_cmd.py                 # codeflowlens init
+  check_cmd.py                # codeflowlens check
+  scan_cmd.py                 # codeflowlens scan
   templates/agents_rules.md   # AGENTS.md에 삽입되는 룰 본문
-  templates/retrofit_skill.md # .claude/skills/flowlens-retrofit/SKILL.md 본문
+  templates/retrofit_skill.md # .claude/skills/codeflowlens-retrofit/SKILL.md 본문
   templates/retrofit_guide.md # 작업지시서 본문
 packages/ui/src/server/api.ts   # /api/graph, /api/entities[/:id], /api/functions 추가
 packages/ui/src/web/pages/GraphPage.tsx    # 메서드 관계도 (React Flow)
@@ -62,20 +62,20 @@ tests: test_docparse.py, test_pyscan.py, test_store.py, test_check.py, test_init
 ### Task 3: 저장 계층 (analyzer/store.py) + scan CLI
 
 - [x] **3-1. 실패 테스트** `tests/test_store.py` — 스캔 결과 저장 후 테이블 채워짐, 재스캔 시 정적 데이터만 교체(traces/spans/runtime edges 보존), functions와 스팬 function_id 조인 일치(데모 픽스처)
-- [x] **3-2. 구현** + `flowlens scan` 서브커맨드(cli.py 연결, 결과 요약 출력: 함수 N, 엔티티 N, 주석 커버리지 %)
-- [x] **3-3.** PASS → examples/fastapi-demo에서 `flowlens scan` 수동 확인 → 커밋 `M2: 스캔 저장 + scan CLI`
+- [x] **3-2. 구현** + `codeflowlens scan` 서브커맨드(cli.py 연결, 결과 요약 출력: 함수 N, 엔티티 N, 주석 커버리지 %)
+- [x] **3-3.** PASS → examples/fastapi-demo에서 `codeflowlens scan` 수동 확인 → 커밋 `M2: 스캔 저장 + scan CLI`
 
 ### Task 4: check CLI
 
 - [x] **4-1. 실패 테스트** `tests/test_check.py` — 위반 목록(함수: 개요/로직 누락, 엔티티: 파라미터 설명 누락), `_`헬퍼·테스트 파일 완화 룰, 전부 준수 시 exit 0 + "통과" 출력, 위반 시 exit 1
-- [x] **4-2. 구현** `flowlens check` (스캔 후 판정, --json 옵션으로 에이전트 소비용 출력)
+- [x] **4-2. 구현** `codeflowlens check` (스캔 후 판정, --json 옵션으로 에이전트 소비용 출력)
 - [x] **4-3.** PASS → 커밋 `M2: check(주석 룰 검사기)`
 
 ### Task 5: init CLI + 룰 템플릿
 
-- [x] **5-1. 실패 테스트** `tests/test_init.py` — tmp 프로젝트에: `.flowlens/config.toml` 생성, AGENTS.md 마커 블록 삽입(기존 내용 보존·재실행 시 블록 갱신), CLAUDE.md 참조 라인(없을 때만 추가), retrofit skill 파일 생성, .gitignore 갱신, 첫 스캔 실행됨, `--lang python`만 지정 시 config 반영
+- [x] **5-1. 실패 테스트** `tests/test_init.py` — tmp 프로젝트에: `.codeflowlens/config.toml` 생성, AGENTS.md 마커 블록 삽입(기존 내용 보존·재실행 시 블록 갱신), CLAUDE.md 참조 라인(없을 때만 추가), retrofit skill 파일 생성, .gitignore 갱신, 첫 스캔 실행됨, `--lang python`만 지정 시 config 반영
 - [x] **5-2. 템플릿 작성** — agents_rules.md: PRD 6절 룰(BAD/GOOD 예시, 형식, check 사용법, "새 함수 즉시 주석·로직 변경 시 현행화"), retrofit_skill.md: check --json으로 위반 목록 뽑아 배치 작업하는 절차, retrofit_guide.md: 사람/에이전트 공용 작업지시서
-- [x] **5-3. 구현** `flowlens init` (언어 감지: pyproject/requirements→python, package.json→node, vite/react 의존→browser)
+- [x] **5-3. 구현** `codeflowlens init` (언어 감지: pyproject/requirements→python, package.json→node, vite/react 의존→browser)
 - [x] **5-4.** PASS → 데모에서 수동 확인 → 커밋 `M2: init(룰 셋팅 + retrofit skill)`
 
 ### Task 6: UI API 확장 (graph/entities/functions)
@@ -96,7 +96,7 @@ tests: test_docparse.py, test_pyscan.py, test_store.py, test_check.py, test_init
 
 ### Task 9: M2 E2E 검증
 
-- [x] **9-1.** 데모 프로젝트에서 전체 플로우: `flowlens init`(AGENTS.md 등 생성 확인) → `flowlens scan` → `flowlens check`(데모는 주석 완비라 통과) → 트래픽 → UI에서 상세의 주석 표시(M1의 "주석 없음"이 채워짐)·관계도·엔티티 화면 확인(스크린샷)
+- [x] **9-1.** 데모 프로젝트에서 전체 플로우: `codeflowlens init`(AGENTS.md 등 생성 확인) → `codeflowlens scan` → `codeflowlens check`(데모는 주석 완비라 통과) → 트래픽 → UI에서 상세의 주석 표시(M1의 "주석 없음"이 채워짐)·관계도·엔티티 화면 확인(스크린샷)
 - [x] **9-2.** 주석 일부 지운 픽스처로 check 실패 케이스 확인
 - [x] **9-3.** 발견 문제 수정 + README 갱신(init/scan/check 사용법) → 커밋 `M2: E2E 검증 완료`
 

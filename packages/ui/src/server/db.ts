@@ -1,5 +1,5 @@
 // 개요: 추적 DB(SQLite)를 읽기 전용으로 여는 계층.
-// 로직: DB 파일은 사용자가 flowlens run을 실행해야 생기므로, 없으면 매 요청마다
+// 로직: DB 파일은 사용자가 codeflowlens run을 실행해야 생기므로, 없으면 매 요청마다
 //       다시 확인한다(생기는 즉시 자동 연결).
 import Database from "better-sqlite3";
 import { existsSync } from "node:fs";

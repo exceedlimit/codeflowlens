@@ -1,4 +1,4 @@
-from flowlens.analyzer.docparse import parse_doc
+from codeflowlens.analyzer.docparse import parse_doc
 
 
 def test_three_labels_parsed():

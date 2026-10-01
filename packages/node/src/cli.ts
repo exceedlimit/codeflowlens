@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// 개요: flowlens CLI (Node) — run(추적 실행) / scan(TS 정적 분석) / check(주석 룰 검사).
+// 개요: codeflowlens CLI (Node) — run(추적 실행) / scan(TS 정적 분석) / check(주석 룰 검사).
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import path from "node:path";
@@ -22,7 +22,7 @@ export function findProjectRoot(start = process.cwd()): string {
 
 function runCommand(argv: string[]): void {
   if (argv.length === 0) {
-    console.error("사용법: flowlens run <명령> [인자...]");
+    console.error("사용법: codeflowlens run <명령> [인자...]");
     process.exit(2);
   }
   const root = findProjectRoot();
@@ -37,9 +37,9 @@ function runCommand(argv: string[]): void {
     stdio: "inherit",
     env: {
       ...process.env,
-      FLOWLENS_ENABLED: "1",
-      FLOWLENS_DB: path.join(root, ".flowlens", "data.db"),
-      FLOWLENS_PROJECT_ROOT: root,
+      CODEFLOWLENS_ENABLED: "1",
+      CODEFLOWLENS_DB: path.join(root, ".codeflowlens", "data.db"),
+      CODEFLOWLENS_PROJECT_ROOT: root,
       NODE_OPTIONS: nodeOptions,
     },
   });
@@ -55,11 +55,12 @@ async function main(): Promise<void> {
   const [cmd, ...rest] = process.argv.slice(2);
   if (!cmd || cmd === "-h" || cmd === "--help") {
     console.log(
-      "flowlens (Node) — 바이브코딩 모니터링\n\n" +
+      "codeflowlens (Node) — 바이브코딩 모니터링  (축약 명령: cfl)\n\n" +
         "사용법:\n" +
-        "  flowlens run <명령> [인자...]   명령을 추적 상태로 실행 (예: flowlens run node server.mjs)\n" +
-        "  flowlens scan                   TS/JS 코드를 정적 분석해 코드맵 갱신\n" +
-        "  flowlens check [--json]         주석 룰 준수 검사 (위반 시 종료코드 1)\n",
+        "  cfl run <명령> [인자...]   명령을 추적 상태로 실행 (예: cfl run node server.mjs)\n" +
+        "  cfl scan                   TS/JS 코드를 정적 분석해 코드맵 갱신\n" +
+        "  cfl check [--json]         주석 룰 준수 검사 (위반 시 종료코드 1)\n\n" +
+        "cfl 대신 codeflowlens 를 써도 똑같이 동작합니다.\n",
     );
     return;
   }
@@ -74,7 +75,7 @@ async function main(): Promise<void> {
     const { runCheck } = await import("./analyzer/scan-cli.js");
     process.exit(runCheck(findProjectRoot(), rest.includes("--json")));
   }
-  console.error(`알 수 없는 명령: ${cmd} (flowlens --help 참고)`);
+  console.error(`알 수 없는 명령: ${cmd} (codeflowlens --help 참고)`);
   process.exit(2);
 }
 

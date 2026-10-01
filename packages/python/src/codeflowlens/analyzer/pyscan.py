@@ -10,8 +10,8 @@ import ast
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from flowlens.analyzer.docparse import ParsedDoc, parse_doc
-from flowlens.tracer.filter import EXCLUDED_DIR_NAMES
+from codeflowlens.analyzer.docparse import ParsedDoc, parse_doc
+from codeflowlens.tracer.filter import EXCLUDED_DIR_NAMES
 
 ENTITY_BASES = {"BaseModel", "Base", "DeclarativeBase", "SQLModel", "NamedTuple", "TypedDict"}
 ENTITY_DECORATORS = {"dataclass"}

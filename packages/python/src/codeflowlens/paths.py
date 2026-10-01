@@ -1,5 +1,5 @@
 """
-개요: 프로젝트 루트와 .flowlens 데이터 폴더 경로를 찾는다.
+개요: 프로젝트 루트와 .codeflowlens 데이터 폴더 경로를 찾는다.
 """
 
 from pathlib import Path
@@ -21,4 +21,4 @@ def find_project_root(start=None) -> Path:
 
 def db_path(project_root) -> Path:
     """개요: 프로젝트의 추적 데이터 DB 파일 경로를 돌려준다."""
-    return Path(project_root) / ".flowlens" / "data.db"
+    return Path(project_root) / ".codeflowlens" / "data.db"

@@ -9,13 +9,13 @@ import { ScanRunner, detectScanners } from "../src/server/scanner.js";
 let root: string;
 
 beforeEach(() => {
-  root = mkdtempSync(join(tmpdir(), "flowlens-scanner-"));
+  root = mkdtempSync(join(tmpdir(), "codeflowlens-scanner-"));
 });
 
 function writeConfig(languages: string[]) {
-  mkdirSync(join(root, ".flowlens"), { recursive: true });
+  mkdirSync(join(root, ".codeflowlens"), { recursive: true });
   writeFileSync(
-    join(root, ".flowlens", "config.toml"),
+    join(root, ".codeflowlens", "config.toml"),
     `languages = [${languages.map((l) => `"${l}"`).join(", ")}]\n`,
   );
 }
@@ -28,10 +28,10 @@ function fakeScanScript(name: string, body: string): string {
 }
 
 describe("detectScanners", () => {
-  it("프로젝트 가상환경의 flowlens를 찾는다", () => {
+  it("프로젝트 가상환경의 codeflowlens를 찾는다", () => {
     writeConfig(["python"]);
     mkdirSync(join(root, ".venv", "bin"), { recursive: true });
-    const bin = join(root, ".venv", "bin", "flowlens");
+    const bin = join(root, ".venv", "bin", "codeflowlens");
     writeFileSync(bin, "#!/bin/sh\n");
     chmodSync(bin, 0o755);
 
@@ -39,16 +39,16 @@ describe("detectScanners", () => {
     expect(found).toEqual([{ label: "python", cmd: bin, args: ["scan"] }]);
   });
 
-  it("가상환경이 없으면 PATH의 flowlens를 쓴다", () => {
+  it("가상환경이 없으면 PATH의 codeflowlens를 쓴다", () => {
     writeConfig(["python"]);
-    const found = detectScanners(root, { commandExists: (c) => c === "flowlens" });
-    expect(found).toEqual([{ label: "python", cmd: "flowlens", args: ["scan"] }]);
+    const found = detectScanners(root, { commandExists: (c) => c === "codeflowlens" });
+    expect(found).toEqual([{ label: "python", cmd: "codeflowlens", args: ["scan"] }]);
   });
 
-  it("node_modules에 설치된 @flowlens/node를 찾는다", () => {
+  it("node_modules에 설치된 @codeflowlens/node를 찾는다", () => {
     writeConfig(["node"]);
-    const cli = join(root, "node_modules", "@flowlens", "node", "dist", "cli.js");
-    mkdirSync(join(root, "node_modules", "@flowlens", "node", "dist"), { recursive: true });
+    const cli = join(root, "node_modules", "@codeflowlens", "node", "dist", "cli.js");
+    mkdirSync(join(root, "node_modules", "@codeflowlens", "node", "dist"), { recursive: true });
     writeFileSync(cli, "");
 
     const found = detectScanners(root, { commandExists: () => false });
@@ -60,15 +60,15 @@ describe("detectScanners", () => {
   it("풀스택이면 두 스캐너를 모두 돌린다", () => {
     writeConfig(["python", "node", "browser"]);
     mkdirSync(join(root, "node_modules", ".bin"), { recursive: true });
-    const nodeBin = join(root, "node_modules", ".bin", "flowlens");
+    const nodeBin = join(root, "node_modules", ".bin", "codeflowlens");
     writeFileSync(nodeBin, "");
-    const found = detectScanners(root, { commandExists: (c) => c === "flowlens" });
+    const found = detectScanners(root, { commandExists: (c) => c === "codeflowlens" });
     expect(found.map((f) => f.label)).toEqual(["python", "node"]);
   });
 
   it("config.toml이 없으면 프로젝트 파일로 언어를 추정한다", () => {
     writeFileSync(join(root, "pyproject.toml"), "");
-    const found = detectScanners(root, { commandExists: (c) => c === "flowlens" });
+    const found = detectScanners(root, { commandExists: (c) => c === "codeflowlens" });
     expect(found.map((f) => f.label)).toEqual(["python"]);
   });
 
@@ -80,11 +80,11 @@ describe("detectScanners", () => {
   it("override가 있으면 그것만 쓴다", () => {
     writeConfig(["python"]);
     const found = detectScanners(root, {
-      override: "/opt/bin/flowlens scan",
+      override: "/opt/bin/codeflowlens scan",
       commandExists: () => true,
     });
     expect(found).toEqual([
-      { label: "custom", cmd: "/opt/bin/flowlens", args: ["scan"] },
+      { label: "custom", cmd: "/opt/bin/codeflowlens", args: ["scan"] },
     ]);
   });
 });
@@ -111,7 +111,7 @@ describe("ScanRunner", () => {
     const runner = new ScanRunner(root, () => []);
     const result = await runner.run();
     expect(result.ok).toBe(false);
-    expect(result.message).toContain("flowlens scan");
+    expect(result.message).toContain("codeflowlens scan");
   });
 
   it("실패한 스캔은 ok=false와 오류 내용을 준다", async () => {

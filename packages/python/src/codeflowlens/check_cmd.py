@@ -1,5 +1,5 @@
 """
-개요: `flowlens check` — 비즈니스 주석 룰 준수를 기계적으로 검사한다.
+개요: `codeflowlens check` — 비즈니스 주석 룰 준수를 기계적으로 검사한다.
 로직: 정적 분석 결과를 룰(함수: 개요+로직, 엔티티: 개요+파라미터 설명)에 대조해
       위반 목록을 만들고, 위반이 있으면 종료코드 1을 돌려준다(CI 연동).
 참고: 완화 룰 — '_' 시작 함수·테스트 파일·던더(__init__ 등)는 개요만 필수(PRD 6절).
@@ -7,8 +7,8 @@
 
 import json as _json
 
-from flowlens.analyzer.pyscan import scan_project
-from flowlens.paths import find_project_root
+from codeflowlens.analyzer.pyscan import scan_project
+from codeflowlens.paths import find_project_root
 
 
 def _is_relaxed(func) -> bool:
@@ -63,8 +63,8 @@ def run_check(root=None, as_json=False, quiet=False) -> int:
     개요: 검사를 실행하고 결과를 출력한다. 위반 있으면 1을 돌려준다.
     로직: python이 있으면 내장 검사, node 계열이 있으면 Node CLI의 check에 위임해 합친다.
     """
-    from flowlens.langs import read_languages
-    from flowlens.nodecli import run_node_cli
+    from codeflowlens.langs import read_languages
+    from codeflowlens.nodecli import run_node_cli
 
     root = root or find_project_root()
     langs = read_languages(root)
@@ -102,5 +102,5 @@ def run_check(root=None, as_json=False, quiet=False) -> int:
         if node_output:
             print(node_output)
         if exit_code:
-            print("\n형식 예시는 AGENTS.md의 FlowLens 주석 룰 섹션을 참고하세요.")
+            print("\n형식 예시는 AGENTS.md의 CodeFlowLens 주석 룰 섹션을 참고하세요.")
     return exit_code
