@@ -1,6 +1,6 @@
 {
   "name": "@codeflowlens/ui",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "CodeFlowLens 모니터링 UI 서버 — 트레이스/관계도/엔티티 시각화 (localhost)",
   "keywords": [
     "tracing",
